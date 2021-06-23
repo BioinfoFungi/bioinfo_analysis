@@ -9,7 +9,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://127.0.0.1:3306/bioinfo?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
     username: root
-    password: 123456
+    password: root
 
   jpa:
     hibernate.ddl-auto: update
@@ -23,6 +23,14 @@ spring:
     multipart:
       max-file-size: 1000MB
       max-request-size: 1000MB
+  mail:                             #邮箱配置
+    host: smtp.163.com              #使用163邮箱服务器
+    username: dockerr@163.com   #你的163邮箱
+    password: YZBMFSCKZRLFWLFR      #SMTP授权密码 (不是密码)
+    port: 25
+    protocol: smtp
+    default-encoding: UTF-8
+    jndi-name: email
 
 jwt:
   base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=

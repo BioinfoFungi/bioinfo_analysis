@@ -114,7 +114,22 @@
 			<groupId>com.vladsch.flexmark</groupId>
 			<artifactId>flexmark</artifactId>
 			<version>${flexmark.version}</version>
+		</dependency>
 
+		<!-- 邮件服务-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-mail</artifactId>
+		</dependency>
+		<!-- thymeleaf模板引擎-->
+		<dependency>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-thymeleaf</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<scope>test</scope>
 		</dependency>
 	</dependencies>
 <!--	<repositories>-->
