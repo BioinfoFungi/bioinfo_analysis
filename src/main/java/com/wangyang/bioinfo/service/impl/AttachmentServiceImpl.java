@@ -46,7 +46,8 @@ public class AttachmentServiceImpl implements IAttachmentService {
 
     @Override
     public Attachment addAttachment(AttachmentParam attachmentParam) {
-        Attachment attachment = findAttachmentByPathOrName(attachmentParam.getProjectId(),attachmentParam.getFileName(),attachmentParam.getPath());
+        Project project = projectService.findProjectById(attachmentParam.getProjectId());
+        Attachment attachment = findAttachmentByPathOrName(project.getId(),attachmentParam.getFileName(),attachmentParam.getPath());
 
         if(attachment==null){
             attachment =new Attachment();
@@ -135,12 +136,14 @@ public class AttachmentServiceImpl implements IAttachmentService {
 
     @Override
     public Attachment upload(MultipartFile file,AttachmentParam attachmentParam) {
+        Project project = projectService.findProjectById(attachmentParam.getProjectId());
+
         String  originalFilename = file.getOriginalFilename();
         String basename = FilenameUtils.getBasename(originalFilename);
         if(attachmentParam.getFileName()==null){
             attachmentParam.setFileName(basename);
         }
-        Attachment attachment = findAttachmentByPathOrName(attachmentParam.getProjectId(),attachmentParam.getFileName(),"");
+        Attachment attachment = findAttachmentByPathOrName(project.getId(),attachmentParam.getFileName(),"");
         UploadResult uploadResult;
         if(attachment==null){
             attachment = new Attachment();
