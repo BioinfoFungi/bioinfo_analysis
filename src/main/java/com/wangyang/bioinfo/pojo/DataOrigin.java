@@ -1,25 +1,20 @@
 package com.wangyang.bioinfo.pojo;
 
+import com.wangyang.bioinfo.pojo.base.BaseEntity;
+import com.wangyang.bioinfo.pojo.base.BaseTerm;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * @author wangyang
  * @date 2021/6/26
  */
-@Entity(name = "t_data_origin")
-@Getter
-@Setter
-public class DataOrigin extends BaseEntity{
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
-    private String name;
-    private String enName;
-    private int userId;
+@Entity
+@DiscriminatorValue(value = "0")
+@Data
+public class DataOrigin extends BaseTerm {
+
 }

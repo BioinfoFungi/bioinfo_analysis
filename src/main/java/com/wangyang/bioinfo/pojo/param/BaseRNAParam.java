@@ -10,4 +10,5 @@ import lombok.Data;
 public class BaseRNAParam {
     private String name;
     private String description;
+    private String keyword;
 }

@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo;
 
+import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.AttachmentType;
 import lombok.Getter;
 import lombok.Setter;

@@ -1,10 +1,9 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.BaseRNA;
-import com.wangyang.bioinfo.pojo.CancerStudy;
+import com.wangyang.bioinfo.pojo.base.BaseRNA;
 import com.wangyang.bioinfo.pojo.param.BaseRNAParam;
-import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.repository.base.BaseRNARepository;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,7 +53,7 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
                 return criteriaQuery.where(criteriaBuilder.equal(root.get("name"),name)).getRestriction();
             }
         });
-        if(tList==null){
+        if(tList.size()==0){
             return null;
         }
         return tList.get(0);
@@ -65,6 +64,20 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
             List<Predicate> predicates = new LinkedList<>();
             if(baseRNAParam.getName()!=null){
                 criteriaBuilder.equal(root.get("name"),baseRNAParam.getName());
+            }
+            if(baseRNAParam.getDescription()!=null){
+                criteriaBuilder.equal(root.get("description"),baseRNAParam.getDescription());
+            }
+            if(baseRNAParam.getKeyword()!=null){
+                String likeCondition = String
+                        .format("%%%s%%", StringUtils.strip(baseRNAParam.getKeyword()));
+
+                // Build like predicate
+                Predicate name = criteriaBuilder.like(root.get("name"), likeCondition);
+                Predicate description = criteriaBuilder
+                        .like(root.get("description"), likeCondition);
+
+                predicates.add(criteriaBuilder.or(name, description));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         };

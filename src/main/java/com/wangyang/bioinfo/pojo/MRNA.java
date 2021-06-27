@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo;
 
+import com.wangyang.bioinfo.pojo.base.BaseRNA;
 import lombok.Data;
 
 import javax.persistence.DiscriminatorValue;

@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo;
 
+import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.ProjectStatus;
 import lombok.Getter;
 import lombok.Setter;
@@ -14,7 +15,7 @@ import java.util.Date;
 @Getter
 @Setter
 @Entity(name = "t_project")
-public class Project extends BaseEntity{
+public class Project extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

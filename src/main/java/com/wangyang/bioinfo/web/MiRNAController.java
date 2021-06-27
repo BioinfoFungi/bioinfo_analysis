@@ -21,10 +21,11 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class MiRNAController {
     @Autowired
     IMiRNAService miRNAService;
-    @PostMapping
-    public MiRNA add(@RequestBody MiRNA lncRNAInput){
 
-        MiRNA miRNA = miRNAService.add(lncRNAInput);
+    @PostMapping
+    public MiRNA add(@RequestBody MiRNA miRNAInput){
+
+        MiRNA miRNA = miRNAService.add(miRNAInput);
         return miRNA;
     }
 

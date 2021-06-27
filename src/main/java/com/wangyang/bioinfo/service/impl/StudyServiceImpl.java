@@ -6,6 +6,7 @@ import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.repository.StudyRepository;
 import com.wangyang.bioinfo.service.IStudyService;
+import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import java.util.Optional;
  * @date 2021/6/26
  */
 @Service
-public class StudyServiceImpl implements IStudyService {
+public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStudyService {
     @Autowired
     StudyRepository studyRepository;
 

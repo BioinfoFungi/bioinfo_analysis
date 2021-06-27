@@ -8,10 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -25,10 +22,11 @@ public class MRNAController {
     @Autowired
     IMRNAService mrnaService;
 
-    public MRNA add(@RequestBody MRNA lncRNAInput){
+    @PostMapping
+    public MRNA add(@RequestBody MRNA mrnaInput){
 
-        MRNA miRNA = mrnaService.add(lncRNAInput);
-        return miRNA;
+        MRNA mrna = mrnaService.add(mrnaInput);
+        return mrna;
     }
 
     @GetMapping

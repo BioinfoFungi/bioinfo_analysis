@@ -6,6 +6,7 @@ import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.repository.CancerRepository;
 import com.wangyang.bioinfo.service.ICancerService;
+import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,7 +28,7 @@ import java.util.Optional;
  * @date 2021/6/26
  */
 @Service
-public class CancerServiceImpl implements ICancerService {
+public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements ICancerService {
     @Autowired
     CancerRepository cancerRepository;
 

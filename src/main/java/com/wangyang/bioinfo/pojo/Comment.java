@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo;
 
+import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import lombok.Getter;
 import lombok.Setter;
 

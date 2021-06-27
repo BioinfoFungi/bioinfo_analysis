@@ -1,5 +1,6 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.base;
 
+import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import lombok.Data;
 
 import javax.persistence.MappedSuperclass;
@@ -10,7 +11,7 @@ import javax.persistence.MappedSuperclass;
  */
 @MappedSuperclass
 @Data
-public class BaseFile extends BaseEntity{
+public class BaseFile extends BaseEntity {
     private String fileName;
     private String fileType;
     private String path;

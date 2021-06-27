@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo;
 
+import com.wangyang.bioinfo.pojo.base.BaseFile;
 import lombok.Getter;
 import lombok.Setter;
 
@@ -16,7 +17,7 @@ import javax.persistence.Id;
 @Entity(name = "t_cancer_study")
 @Getter
 @Setter
-public class CancerStudy extends BaseFile{
+public class CancerStudy extends BaseFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;

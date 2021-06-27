@@ -5,6 +5,7 @@ import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.repository.DataOriginRepository;
 import com.wangyang.bioinfo.service.IDataOriginService;
+import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +26,7 @@ import java.util.List;
  * @date 2021/6/26
  */
 @Service
-public class DataOriginServiceImpl implements IDataOriginService {
+public class DataOriginServiceImpl extends BaseTermServiceImpl<DataOrigin> implements IDataOriginService {
     @Autowired
     DataOriginRepository dataOriginRepository;
 

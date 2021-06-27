@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.base;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Data;
