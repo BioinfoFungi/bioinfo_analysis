@@ -12,5 +12,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface FileHandler {
     UploadResult upload(@NonNull MultipartFile file);
+    UploadResult upload(@NonNull MultipartFile file,String path,String name,String suffix);
+    UploadResult upload(@NonNull MultipartFile file,String fullPath);
     boolean supportType(@Nullable AttachmentType type);
 }

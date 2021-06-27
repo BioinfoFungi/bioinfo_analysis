@@ -31,18 +31,30 @@ public class LocalFileHandler implements FileHandler {
     @Value("${bioinfo.workDir}")
     private String workDir;
     ReentrantLock lock = new ReentrantLock();
+
     @Override
-    public UploadResult upload(MultipartFile file) {
+    public UploadResult upload(MultipartFile file, String path, String name,String suffix) {
         UploadResult uploadResult = new UploadResult();
         String  originalFilename = file.getOriginalFilename();
         String extension = FilenameUtils.getExtension(originalFilename);
         String basename = FilenameUtils.getBasename(originalFilename);
+        if(name==null){
+            name=basename;
+        }
+        if(suffix==null){
+            suffix = extension;
+        }
+        String subFilePath =path+ "/"+name+"."+suffix;
 
-        String subFilePath = "/upload"+"/"+FilenameUtils.randomName()+"."+extension;
         uploadResult.setFilePath(subFilePath);
         uploadResult.setFilename(basename);
+        uploadResult.setSuffix(extension);
 
         Path uploadPath = Paths.get(workDir, subFilePath);
+        if(uploadPath.toFile().exists()){
+            uploadPath.toFile().delete();
+        }
+        uploadResult.setFullPath(uploadPath.toString());
         try {
             Files.createDirectories(uploadPath.getParent());
             //创建文件
@@ -52,7 +64,8 @@ public class LocalFileHandler implements FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-//        uploadResult.setFilename(originalBasename);
+        long length = uploadPath.toFile().length();
+        uploadResult.setSize(length);
 //        lock.lock();
 //        try (InputStream uploadFileInputStream = new FileInputStream(uploadPath.toFile())) {
 //
@@ -60,6 +73,21 @@ public class LocalFileHandler implements FileHandler {
 //            lock.unlock();
 //        }
         return uploadResult;
+    }
+
+    @Override
+    public UploadResult upload(MultipartFile file) {
+        return  this.upload(file,"upload",FilenameUtils.randomName(),null);
+    }
+
+    @Override
+    public UploadResult upload(MultipartFile file, String fullPath) {
+        Path path = Paths.get(fullPath);
+        Path parent = path.getParent();
+        Path fileName = path.getFileName();
+        String basename = FilenameUtils.getBasename(fileName.toString());
+
+        return upload(file,parent.toString(),basename,null);
     }
 
     @Override

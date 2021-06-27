@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.param.ProjectQuery;
 import com.wangyang.bioinfo.pojo.param.ProjectSDK;
 import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.pojo.vo.ProjectVo;
@@ -21,7 +22,7 @@ public interface IProjectService {
     Project delProject(int id, User user);
     Project findProjectById(int id);
     List<Project> findProjectByName(String name);
-    Page<Project> pageProject(Pageable pageable);
+    Page<Project> pageBy(ProjectQuery projectQuery, Pageable pageable);
     Project updateProject(int id,Project project, User user, Set<Integer> userIds);
     Project updateProject(int id,String content, User user);
     Project updateProject(int id, ProjectSDK projectSDK);

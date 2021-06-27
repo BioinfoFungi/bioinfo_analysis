@@ -17,6 +17,16 @@ public class AliOssFileHandler implements FileHandler {
     }
 
     @Override
+    public UploadResult upload(MultipartFile file, String path, String name,String suffix) {
+        return null;
+    }
+
+    @Override
+    public UploadResult upload(MultipartFile file, String fullPath) {
+        return null;
+    }
+
+    @Override
     public boolean supportType(AttachmentType type) {
         return AttachmentType.ALIOSS.equals(type);
     }

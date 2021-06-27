@@ -13,20 +13,21 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity(name = "t_attachment")
-public class Attachment extends BaseEntity {
+public class Attachment extends BaseFile {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
-    private String name;
-    private String path;
+//    private String name;
+
     private String fileKey;
-    private String suffix;
+//    private String suffix;
     private Long size;
     private AttachmentType type;
-    private String mediaType;
+//    private String mediaType;
     private Integer width;
     private Integer height;
     private String thumbPath;
+
     private Integer projectId;
     private Integer userId;
 }

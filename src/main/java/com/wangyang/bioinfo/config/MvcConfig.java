@@ -10,6 +10,7 @@ import com.wangyang.bioinfo.interceptor.SpringWebSocketHandlerInterceptor;
 import com.wangyang.bioinfo.util.SpringWebSocketHandler;
 import com.wangyang.bioinfo.util.TokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -37,10 +38,12 @@ import java.util.List;
 @Configuration
 @EnableWebSocket
 public class MvcConfig  extends WebMvcConfigurationSupport implements WebSocketConfigurer {
+    @Value("${bioinfo.workDir}")
+    private String workDir;
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")
-                .addResourceLocations("file:/home/wy/.bioinfo/")
+                .addResourceLocations("file:"+workDir+"/")//file:/home/wy/.bioinfo/
                 .addResourceLocations("classpath:/static/html/");
         super.addResourceHandlers(registry);
     }

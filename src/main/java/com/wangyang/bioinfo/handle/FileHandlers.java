@@ -37,6 +37,30 @@ public class FileHandlers {
         throw new BioinfoException("文件长传出错!");
     }
 
+    public UploadResult upload(@NonNull MultipartFile file, @NonNull AttachmentType attachmentType,String path,String name,String suffix) {
+        Assert.notNull(file, "Multipart file must not be null");
+        Assert.notNull(attachmentType, "Attachment type must not be null");
+
+        for (FileHandler fileHandler : fileHandlers) {
+            if (fileHandler.supportType(attachmentType)) {
+                return fileHandler.upload(file,path,name,suffix);
+            }
+        }
+        throw new BioinfoException("文件长传出错!");
+    }
+
+    public UploadResult upload(@NonNull MultipartFile file, @NonNull AttachmentType attachmentType,String fullPath) {
+        Assert.notNull(file, "Multipart file must not be null");
+        Assert.notNull(attachmentType, "Attachment type must not be null");
+
+        for (FileHandler fileHandler : fileHandlers) {
+            if (fileHandler.supportType(attachmentType)) {
+                return fileHandler.upload(file,fullPath);
+            }
+        }
+        throw new BioinfoException("文件长传出错!");
+    }
+
 
     public FileHandlers addFileHandlers(@Nullable Collection<FileHandler> fileHandlers) {
         if (!CollectionUtils.isEmpty(fileHandlers)) {

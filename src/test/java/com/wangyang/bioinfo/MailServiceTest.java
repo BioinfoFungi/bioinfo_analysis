@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo;
 
 import com.wangyang.bioinfo.service.MailService;
+import org.junit.Ignore;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,8 +18,9 @@ import javax.mail.MessagingException;
  * 邮件测试
  */
 
-@RunWith(SpringRunner.class)
-@SpringBootTest
+//@RunWith(SpringRunner.class)
+@Ignore
+//@SpringBootTest(classes = BioinfoApplication.class)
 public class MailServiceTest {
     @Autowired
     private MailService mailService;
@@ -26,12 +28,12 @@ public class MailServiceTest {
     @Resource
     private TemplateEngine templateEngine;
 
-    @Test
+//    @Test
     public void sendSimpleMail() {
-        mailService.sendSimpleMail("3300297450@qq.com","测试spring boot imail-主题","测试spring boot imail - 内容");
+        mailService.sendSimpleMail("1749748955@qq.com","测试spring boot imail-主题","测试spring boot imail - 内容");
     }
 
-    @Test
+//    @Test
     public void sendHtmlMail() throws MessagingException {
 
         String content = "<html>\n" +
@@ -41,10 +43,10 @@ public class MailServiceTest {
                 "<body>\n" +
                 "</html>\n";
 
-        mailService.sendHtmlMail("3300297450@qq.com","这是一封HTML邮件",content);
+        mailService.sendHtmlMail("1749748955@qq.com","这是一封HTML邮件",content);
     }
 
-    @Test
+//    @Test
     public void sendAttachmentsMail() throws MessagingException {
         String filePath = "C:/Users/Administrator/Desktop/aaa.png";
         String content = "<html>\n" +
@@ -57,7 +59,7 @@ public class MailServiceTest {
         mailService.sendAttachmentsMail("3300297450@qq.com","这是一封HTML邮件",content, filePath);
     }
 
-    @Test
+//    @Test
     public void sendInlinkResourceMail() throws MessagingException {
         //TODO 改为本地图片目录
         String imgPath = "C:/Users/Administrator/Desktop/aaa.png";  //?raw=true
@@ -74,7 +76,7 @@ public class MailServiceTest {
         mailService.sendInlinkResourceMail("3300297450@qq.com","这是一封图片邮件",content, imgPath, rscId);
     }
 
-    @Test
+//    @Test
     public void testTemplateMailTest() throws MessagingException {
         Context context = new Context();
         context.setVariable("id","wangyang");

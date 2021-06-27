@@ -9,13 +9,14 @@ import lombok.Data;
  */
 @Data
 public class AttachmentParam {
-    private String name;
+    private String fileName;
+    private String fileType;
     private String path;
+
     private String fileKey;
     private String suffix;
     private Long size;
     private AttachmentType type;
-    private String mediaType;
     private Integer width;
     private Integer height;
     private String thumbPath;

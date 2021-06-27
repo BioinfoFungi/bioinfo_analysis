@@ -15,6 +15,8 @@ public class UploadResult {
 
     private String key;
 
+    private String fullPath;
+
     private String thumbPath;
 
     private String suffix;

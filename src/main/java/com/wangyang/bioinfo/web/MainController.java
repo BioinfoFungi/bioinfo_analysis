@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,6 +18,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.file.Files;
 import java.util.Base64;
+import java.util.HashMap;
+import java.util.Map;
 
 
 /**
@@ -36,6 +39,17 @@ public class MainController {
     public void index(HttpServletResponse response) throws IOException {
         response.sendRedirect("index.html");
     }
+
+    @GetMapping("/api/global")
+    @ResponseBody
+    public Map<String,String> globalConfig(){
+        Map<String,String> map = new HashMap<>();
+        map.put("attachment", StringCacheStore.getValue("workDir")+"/upload");
+        map.put("cancerStudy", StringCacheStore.getValue("workDir")+"/data");
+        map.put("Attachment_base_url", StringCacheStore.getValue("Attachment_base_url"));
+        return map;
+    }
+
 
     @GetMapping("/test")
     @ResponseBody

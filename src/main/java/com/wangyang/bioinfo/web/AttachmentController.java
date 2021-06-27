@@ -42,6 +42,8 @@ public class AttachmentController {
         attachmentParam.setUserId(user.getId());
         return  attachmentService.upload(file,attachmentParam);
     }
+
+
     @PostMapping(value = "/uploadFiles/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Attachment upload(@PathVariable("id") int id,@RequestParam("file") MultipartFile file){
 //        for (MultipartFile file : files) { //因为有上传多个文件，所以用的是MultipartFile[]数组，所以要遍历数组保存里面的每一个文件

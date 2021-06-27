@@ -12,6 +12,7 @@ import com.wangyang.bioinfo.repository.AttachmentRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.FilenameUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -45,13 +46,23 @@ public class AttachmentServiceImpl implements IAttachmentService {
 
     @Override
     public Attachment addAttachment(AttachmentParam attachmentParam) {
-        Attachment attachment = findAttachmentByPathOrName(attachmentParam.getName(),attachmentParam.getPath());
+        Attachment attachment = findAttachmentByPathOrName(attachmentParam.getProjectId(),attachmentParam.getFileName(),attachmentParam.getPath());
 
         if(attachment==null){
             attachment =new Attachment();
         }
         BeanUtils.copyProperties(attachmentParam,attachment);
-
+        if(attachmentParam.getFileType()==null){
+            String extension = FilenameUtils.getExtension(attachmentParam.getPath());
+            if(extension.equals("")){
+                throw new BioinfoException("路径必须添加后缀名！");
+            }
+            attachment.setFileType(extension);
+        }
+        if(attachment.getFileName()==null){
+            String basename = FilenameUtils.getBasename(attachmentParam.getPath());
+            attachment.setFileName(basename);
+        }
         attachment = attachmentRepository.save(attachment);
         return attachment;
     }
@@ -81,7 +92,7 @@ public class AttachmentServiceImpl implements IAttachmentService {
         List<Attachment> attachments = attachmentRepository.findAll(new Specification<Attachment>() {
             @Override
             public Predicate toPredicate(Root<Attachment> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(criteriaBuilder.equal(root.get("name"),name)).getRestriction();
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("fileName"),name)).getRestriction();
             }
         });
         if(attachments.size()==0){
@@ -91,12 +102,13 @@ public class AttachmentServiceImpl implements IAttachmentService {
     }
 
     @Override
-    public Attachment findAttachmentByPathOrName(String name,String path) {
+    public Attachment findAttachmentByPathOrName(int projectId,String name,String path) {
         List<Attachment> attachments = attachmentRepository.findAll(new Specification<Attachment>() {
             @Override
             public Predicate toPredicate(Root<Attachment> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                Predicate predicate = criteriaBuilder.or(criteriaBuilder.equal(root.get("name"), name), criteriaBuilder.equal(root.get("path"), path));
-                return criteriaQuery.where(predicate).getRestriction();
+                Predicate predicateAnd = criteriaBuilder.and(criteriaBuilder.equal(root.get("projectId"), projectId));
+                Predicate predicateOr = criteriaBuilder.or(criteriaBuilder.equal(root.get("fileName"), name), criteriaBuilder.equal(root.get("path"), path));
+                return criteriaQuery.where(predicateOr,predicateAnd).getRestriction();
             }
         });
         if(attachments.size()==0){
@@ -123,13 +135,35 @@ public class AttachmentServiceImpl implements IAttachmentService {
 
     @Override
     public Attachment upload(MultipartFile file,AttachmentParam attachmentParam) {
-        UploadResult uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL);
-        Attachment attachment = new Attachment();
+        String  originalFilename = file.getOriginalFilename();
+        String basename = FilenameUtils.getBasename(originalFilename);
+        if(attachmentParam.getFileName()==null){
+            attachmentParam.setFileName(basename);
+        }
+        Attachment attachment = findAttachmentByPathOrName(attachmentParam.getProjectId(),attachmentParam.getFileName(),"");
+        UploadResult uploadResult;
+        if(attachment==null){
+            attachment = new Attachment();
+            uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL);
+        }else {
+            if(attachment.getPath().startsWith("upload")){
+                uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL,attachment.getPath());
+            }else {
+                uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL);
+            }
+        }
 
 
         BeanUtils.copyProperties(attachmentParam,attachment);
-        attachment.setName(uploadResult.getFilename());
+//        if(attachmentParam.getFileName()==null){
+//            attachment.setFileName(uploadResult.getFilename());
+//        }
+        if(attachment.getFileType()==null){
+            attachment.setFileType(uploadResult.getSuffix());
+        }
+
         attachment.setPath(uploadResult.getFilePath());
+        attachment.setSize(uploadResult.getSize());
 
         attachment = attachmentRepository.save(attachment);
         return attachment;

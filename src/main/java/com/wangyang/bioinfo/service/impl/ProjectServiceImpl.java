@@ -1,9 +1,8 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.Comment;
-import com.wangyang.bioinfo.pojo.Project;
-import com.wangyang.bioinfo.pojo.ProjectUser;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.*;
+import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
+import com.wangyang.bioinfo.pojo.param.ProjectQuery;
 import com.wangyang.bioinfo.pojo.param.ProjectSDK;
 import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.pojo.vo.ProjectVo;
@@ -99,10 +98,20 @@ public class ProjectServiceImpl implements IProjectService {
         }
         return projects;
     }
+    private  Specification<Project> buildSpecByQuery(ProjectQuery projectQuery){
+        return (Specification<Project>) (root, query, criteriaBuilder) ->{
+            List<Predicate> predicates = new LinkedList<>();
+            if(projectQuery.getProjectStatus()!=null){
+                Predicate predicate = criteriaBuilder.equal(root.get("projectStatus"), projectQuery.getProjectStatus());
+                predicates.add(predicate);
+            }
 
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        };
+    }
     @Override
-    public Page<Project> pageProject(Pageable pageable) {
-        Page<Project> projects = projectRepository.findAll(pageable);
+    public Page<Project> pageBy(ProjectQuery projectQuery,Pageable pageable) {
+        Page<Project> projects = projectRepository.findAll(buildSpecByQuery(projectQuery),pageable);
         return projects;
     }
 
@@ -179,6 +188,7 @@ public class ProjectServiceImpl implements IProjectService {
         Set<Integer> ids = ServiceUtil.fetchProperty(projects, Project::getUserId);
         List<User> users = userService.findAllById(ids);
         Map<Integer, User> userMap = ServiceUtil.convertToMap(users, User::getId);
+
         Page<ProjectListVo> projectListVos = pageProject.map(project -> {
             ProjectListVo projectListVo = new ProjectListVo();
             projectListVo.setUser(userMap.get(project.getUserId()));

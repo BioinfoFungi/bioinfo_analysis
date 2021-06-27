@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.ProjectContentParam;
 import com.wangyang.bioinfo.pojo.param.ProjectParam;
+import com.wangyang.bioinfo.pojo.param.ProjectQuery;
 import com.wangyang.bioinfo.pojo.param.ProjectSDK;
 import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.pojo.vo.ProjectVo;
@@ -14,6 +15,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -37,8 +39,8 @@ public class ProjectController {
 
 
     @GetMapping
-    public Page<ProjectListVo> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<Project> projects = projectService.pageProject(pageable);
+    public Page<ProjectListVo> page(ProjectQuery projectQuery, @PageableDefault(sort = {"id"},direction =  Sort.Direction.DESC) Pageable pageable){
+        Page<Project> projects = projectService.pageBy(projectQuery,pageable);
         return projectService.convertProjectListVo(projects);
     }
     @PostMapping

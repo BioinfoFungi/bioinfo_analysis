@@ -22,12 +22,12 @@ public interface IAttachmentService {
     Attachment findAttachmentByName(String name);
 
     /**
-     * 根据path或者name查找附件
+     * 根据path或者name查找附件 projectId and (name or path)
      * @param name
      * @param path
      * @return
      */
-    Attachment findAttachmentByPathOrName(String name,String path);
+    Attachment findAttachmentByPathOrName(int projectId,String name,String path);
     List<Attachment> findAllById(Collection<Integer> id);
     Page<Attachment> pageAttachment(Pageable pageable);
     Attachment updateAttachment(Attachment attachment);
