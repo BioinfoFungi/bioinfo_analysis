@@ -63,10 +63,10 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
         return (Specification<T>) (root, query, criteriaBuilder) ->{
             List<Predicate> predicates = new LinkedList<>();
             if(baseRNAParam.getName()!=null){
-                criteriaBuilder.equal(root.get("name"),baseRNAParam.getName());
+                predicates.add(criteriaBuilder.equal(root.get("name"),baseRNAParam.getName()));
             }
             if(baseRNAParam.getDescription()!=null){
-                criteriaBuilder.equal(root.get("description"),baseRNAParam.getDescription());
+                predicates.add(criteriaBuilder.equal(root.get("description"),baseRNAParam.getDescription()));
             }
             if(baseRNAParam.getKeyword()!=null){
                 String likeCondition = String

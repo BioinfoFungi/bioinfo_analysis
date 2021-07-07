@@ -10,4 +10,5 @@ import lombok.Data;
 public class DataOriginParam {
     private String name;
     private String enName;
+    private String description;
 }

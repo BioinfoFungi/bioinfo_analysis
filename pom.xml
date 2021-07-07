@@ -17,6 +17,7 @@
 		<java.version>1.8</java.version>
 		<jjwt.version>0.10.6</jjwt.version>
 		<flexmark.version>0.62.2</flexmark.version>
+		<fastjson_version>1.2.28</fastjson_version>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -131,6 +132,13 @@
 			<artifactId>junit</artifactId>
 			<scope>test</scope>
 		</dependency>
+
+		<dependency>
+			<groupId>com.alibaba</groupId>
+			<artifactId>fastjson</artifactId>
+			<version>${fastjson_version}</version>
+		</dependency>
+
 	</dependencies>
 <!--	<repositories>-->
 <!--		<repository>-->

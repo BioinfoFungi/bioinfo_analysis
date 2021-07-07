@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.*;
+import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.service.IStudyService;
 import org.springframework.beans.BeanUtils;
@@ -26,8 +27,8 @@ public class StudyController {
     IStudyService studyService;
 
     @GetMapping
-    public Page<Study> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
-        Page<Study> studies = studyService.pageStudy(pageable);
+    public Page<Study> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
+        Page<Study> studies = studyService.pageBy(baseTermParam,pageable);
         return studies;
     }
     @PostMapping

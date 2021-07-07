@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.Cancer;
 import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.Study;
 import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.service.ICancerService;
@@ -31,8 +32,8 @@ public class CancerController {
     ICancerService cancerService;
 
     @GetMapping
-    public Page<Cancer> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
-        Page<Cancer> cancers = cancerService.pageCancer(pageable);
+    public Page<Cancer> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
+        Page<Cancer> cancers = cancerService.pageBy(baseTermParam,pageable);
         return cancers;
     }
 

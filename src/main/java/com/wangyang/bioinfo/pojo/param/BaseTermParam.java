@@ -4,11 +4,11 @@ import lombok.Data;
 
 /**
  * @author wangyang
- * @date 2021/6/26
+ * @date 2021/7/7
  */
 @Data
-public class StudyParam {
+public class BaseTermParam {
     private String name;
     private String enName;
-    private String description;
+    private String keyword;
 }

@@ -3,6 +3,8 @@ package com.wangyang.bioinfo.web;
 import com.wangyang.bioinfo.pojo.DataOrigin;
 import com.wangyang.bioinfo.pojo.Study;
 import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.base.BaseTerm;
+import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.service.IDataOriginService;
 import org.springframework.beans.BeanUtils;
@@ -31,8 +33,8 @@ public class DataOriginController {
 
 
     @GetMapping
-    public Page<DataOrigin> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
-        Page<DataOrigin> dataOrigins = dataOriginService.pageDataOrigin(pageable);
+    public Page<DataOrigin> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
+        Page<DataOrigin> dataOrigins = dataOriginService.pageBy(baseTermParam,pageable);
         return dataOrigins;
     }
     @PostMapping
