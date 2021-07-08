@@ -1,8 +1,8 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.MRNA;
-import com.wangyang.bioinfo.pojo.MiRNA;
-import com.wangyang.bioinfo.pojo.param.BaseRNAParam;
+import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
+import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.service.IMRNAService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,8 +30,8 @@ public class MRNAController {
     }
 
     @GetMapping
-    public Page<MRNA> page(BaseRNAParam baseRNAParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<MRNA> mrnaPage = mrnaService.pageBy(baseRNAParam, pageable);
-        return mrnaPage;
+    public Page<RNAVO> page(BaseRNAQuery baseRNAQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+        Page<MRNA> mrnaPage = mrnaService.pageBy(baseRNAQuery, pageable);
+        return mrnaService.convert(mrnaPage);
     }
 }

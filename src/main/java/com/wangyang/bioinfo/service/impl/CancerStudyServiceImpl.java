@@ -14,6 +14,7 @@ import com.wangyang.bioinfo.service.ICancerService;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.IDataOriginService;
 import com.wangyang.bioinfo.service.IStudyService;
+import com.wangyang.bioinfo.service.base.BaseFileServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import com.wangyang.bioinfo.util.ServiceUtil;
@@ -37,7 +38,9 @@ import java.util.*;
  * @date 2021/6/26
  */
 @Service
-public class CancerStudyServiceImpl implements ICancerStudyService {
+public class CancerStudyServiceImpl
+        extends BaseFileServiceImpl<CancerStudy>
+        implements ICancerStudyService {
     @Autowired
     CancerStudyRepository cancerStudyRepository;
     @Autowired
@@ -47,8 +50,6 @@ public class CancerStudyServiceImpl implements ICancerStudyService {
     @Autowired
     IDataOriginService dataOriginService;
 
-    @Autowired
-    FileHandlers fileHandlers;
 
     @Override
     public CancerStudy addCancerStudy(CancerStudyParam cancerStudyParam) {

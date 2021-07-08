@@ -17,5 +17,6 @@ public class BaseRNA extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String name;
+    private String alias;
     private String description;
 }

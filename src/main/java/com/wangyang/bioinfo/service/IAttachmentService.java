@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service;
 import com.wangyang.bioinfo.pojo.Attachment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
+import com.wangyang.bioinfo.service.base.IBaseFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -15,7 +16,7 @@ import java.util.List;
  * @author wangyang
  * @date 2021/6/13
  */
-public interface IAttachmentService {
+public interface IAttachmentService extends IBaseFileService<Attachment> {
     Attachment addAttachment(AttachmentParam attachment);
     Attachment delAttachment(int id, User user);
     Attachment findAttachmentById(int id);

@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2021/6/27
  */
 @Data
-public class BaseRNAParam {
+public class BaseRNAQuery {
     private String name;
     private String description;
     private String keyword;

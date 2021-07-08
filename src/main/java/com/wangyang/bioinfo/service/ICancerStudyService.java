@@ -7,6 +7,7 @@ import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
+import com.wangyang.bioinfo.service.base.IBaseFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -19,7 +20,7 @@ import java.util.List;
  * @author wangyang
  * @date 2021/6/26
  */
-public interface ICancerStudyService {
+public interface ICancerStudyService extends IBaseFileService<CancerStudy> {
     CancerStudy addCancerStudy(CancerStudyParam cancerStudyParam);
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
     CancerStudy delCancerStudy(int id);

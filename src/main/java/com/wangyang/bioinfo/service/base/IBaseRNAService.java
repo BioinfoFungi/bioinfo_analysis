@@ -1,7 +1,8 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.pojo.base.BaseRNA;
-import com.wangyang.bioinfo.pojo.param.BaseRNAParam;
+import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
+import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -14,5 +15,8 @@ public interface IBaseRNAService<T extends BaseRNA> extends ICrudService<T, Inte
 
     T findByName(String name);
 
-    Page<T> pageBy(BaseRNAParam baseRNAParam, Pageable pageable);
+    Page<T> pageBy(BaseRNAQuery baseRNAQuery, Pageable pageable);
+
+
+    Page<RNAVO> convert(Page<T> page);
 }

@@ -1,10 +1,8 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.CancerStudy;
 import com.wangyang.bioinfo.pojo.LncRNA;
-import com.wangyang.bioinfo.pojo.param.BaseRNAParam;
-import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
+import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
+import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.service.ILncRNAService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -32,9 +30,9 @@ public class LncRNAController {
     }
 
     @GetMapping
-    public Page<LncRNA> page(BaseRNAParam baseRNAParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<LncRNA> lncRNAPage = lncRNAService.pageBy(baseRNAParam, pageable);
-        return lncRNAPage;
+    public Page<RNAVO> page(BaseRNAQuery baseRNAQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+        Page<LncRNA> lncRNAPage = lncRNAService.pageBy(baseRNAQuery, pageable);
+        return lncRNAService.convert(lncRNAPage);
     }
 
 }

@@ -14,6 +14,7 @@ import javax.persistence.MappedSuperclass;
 public class BaseFile extends BaseEntity {
     private String fileName;
     private String fileType;
+    private String enName;
     private String path;
     private Long size;
 }

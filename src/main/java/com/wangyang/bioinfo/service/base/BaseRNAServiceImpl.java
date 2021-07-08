@@ -1,7 +1,8 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.pojo.base.BaseRNA;
-import com.wangyang.bioinfo.pojo.param.BaseRNAParam;
+import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
+import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.repository.base.BaseRNARepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -14,7 +15,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.lang.reflect.ParameterizedType;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,7 +39,7 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
     public T add(T ti) {
         T t = findByName(ti.getName());
         if(t==null){
-            t = getInstanceOfT();
+            t = getInstance();
         }
         BeanUtils.copyProperties(ti,t,"id");
         return super.add(t);
@@ -59,18 +59,18 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
         return tList.get(0);
     }
 
-    private Specification<T> buildSpecByQuery(BaseRNAParam baseRNAParam){
+    private Specification<T> buildSpecByQuery(BaseRNAQuery baseRNAQuery){
         return (Specification<T>) (root, query, criteriaBuilder) ->{
             List<Predicate> predicates = new LinkedList<>();
-            if(baseRNAParam.getName()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("name"),baseRNAParam.getName()));
+            if(baseRNAQuery.getName()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("name"), baseRNAQuery.getName()));
             }
-            if(baseRNAParam.getDescription()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("description"),baseRNAParam.getDescription()));
+            if(baseRNAQuery.getDescription()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("description"), baseRNAQuery.getDescription()));
             }
-            if(baseRNAParam.getKeyword()!=null){
+            if(baseRNAQuery.getKeyword()!=null){
                 String likeCondition = String
-                        .format("%%%s%%", StringUtils.strip(baseRNAParam.getKeyword()));
+                        .format("%%%s%%", StringUtils.strip(baseRNAQuery.getKeyword()));
 
                 // Build like predicate
                 Predicate name = criteriaBuilder.like(root.get("name"), likeCondition);
@@ -83,24 +83,34 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
         };
     }
     @Override
-    public Page<T> pageBy(BaseRNAParam baseRNAParam, Pageable pageable) {
-        Page<T> page = baseRNARepository.findAll(buildSpecByQuery(baseRNAParam),pageable);
+    public Page<T> pageBy(BaseRNAQuery baseRNAQuery, Pageable pageable) {
+        Page<T> page = baseRNARepository.findAll(buildSpecByQuery(baseRNAQuery),pageable);
         return page;
     }
 
-    private T getInstanceOfT()
-    {
-        ParameterizedType superClass = (ParameterizedType) getClass().getGenericSuperclass();
-        Class<T> type = (Class<T>) superClass.getActualTypeArguments()[0];
-        try
-        {
-            return type.newInstance();
-        }
-        catch (Exception e)
-        {
-            // Oops, no default constructor
-            throw new RuntimeException(e);
-        }
+    @Override
+    public Page<RNAVO> convert(Page<T> pages) {
+        Page<RNAVO> rnavos = pages.map(rna -> {
+            RNAVO rnavo = new RNAVO();
+            BeanUtils.copyProperties(rna,rnavo);
+            return rnavo;
+        });
+        return rnavos;
     }
+
+    //    private T getInstanceOfT()
+//    {
+//        ParameterizedType superClass = (ParameterizedType) getClass().getGenericSuperclass();
+//        Class<T> type = (Class<T>) superClass.getActualTypeArguments()[0];
+//        try
+//        {
+//            return type.newInstance();
+//        }
+//        catch (Exception e)
+//        {
+//            // Oops, no default constructor
+//            throw new RuntimeException(e);
+//        }
+//    }
 
 }

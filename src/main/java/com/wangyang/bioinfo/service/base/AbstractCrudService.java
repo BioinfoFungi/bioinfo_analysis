@@ -38,4 +38,19 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
 //        System.out.println(domainName);
         return repository.save(domain);
     }
+
+    protected DOMAIN getInstance()
+    {
+        ParameterizedType superClass = (ParameterizedType) getClass().getGenericSuperclass();
+        Class<DOMAIN> type = (Class<DOMAIN>) superClass.getActualTypeArguments()[0];
+        try
+        {
+            return type.newInstance();
+        }
+        catch (Exception e)
+        {
+            // Oops, no default constructor
+            throw new RuntimeException(e);
+        }
+    }
 }

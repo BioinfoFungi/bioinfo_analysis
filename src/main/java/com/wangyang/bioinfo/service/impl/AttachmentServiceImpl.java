@@ -11,6 +11,7 @@ import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.AttachmentRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
+import com.wangyang.bioinfo.service.base.BaseFileServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import org.springframework.beans.BeanUtils;
@@ -34,15 +35,14 @@ import java.util.Optional;
  * @date 2021/6/13
  */
 @Service
-public class AttachmentServiceImpl implements IAttachmentService {
+public class AttachmentServiceImpl extends BaseFileServiceImpl<Attachment> implements IAttachmentService {
     @Autowired
     AttachmentRepository attachmentRepository;
 
     @Autowired
     IProjectService projectService;
 
-    @Autowired
-    FileHandlers fileHandlers;
+
 
     @Override
     public Attachment addAttachment(AttachmentParam attachmentParam) {
