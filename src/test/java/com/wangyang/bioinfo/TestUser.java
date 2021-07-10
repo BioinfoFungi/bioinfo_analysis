@@ -25,7 +25,7 @@ import java.util.Set;
  */
 @SpringBootTest(classes = BioinfoApplication.class)
 @Transactional
-@TestPropertySource("file:${user.home}/.bioinfo/application.yml")
+//@TestPropertySource("file:${user.home}/.bioinfo/application.yml")
 public class TestUser {
 
     @Autowired

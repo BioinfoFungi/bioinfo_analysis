@@ -8,7 +8,10 @@ import lombok.Data;
  */
 @Data
 public class RNAVO {
+    private Integer id;
+    private String geneId;
     private String name;
     private String alias;
+    private String geneType;
     private String description;
 }

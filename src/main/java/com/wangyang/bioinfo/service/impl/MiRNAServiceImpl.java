@@ -1,8 +1,6 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.LncRNA;
-import com.wangyang.bioinfo.pojo.MRNA;
-import com.wangyang.bioinfo.pojo.MiRNA;
+import com.wangyang.bioinfo.pojo.RNA.MiRNA;
 import com.wangyang.bioinfo.repository.MiRNARepository;
 import com.wangyang.bioinfo.service.IMiRNAService;
 import com.wangyang.bioinfo.service.base.BaseRNAServiceImpl;

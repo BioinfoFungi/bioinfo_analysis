@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.wangyang.bioinfo.txt.IDataInputService;
 import com.wangyang.bioinfo.pojo.base.BaseRNA;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
@@ -28,6 +29,10 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
 
     @Autowired
     BaseRNARepository<T> baseRNARepository;
+    @Autowired
+    IDataInputService dataInputService;
+
+
 
 //    public BaseRNAServiceImpl(BaseRNARepository<T> baseRNARepository) {
 //        super(baseRNARepository);
@@ -37,7 +42,7 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
 
     @Override
     public T add(T ti) {
-        T t = findByName(ti.getName());
+        T t = findByGeneId(ti.getGeneId());
         if(t==null){
             t = getInstance();
         }
@@ -45,6 +50,20 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
         return super.add(t);
     }
 
+
+    @Override
+    public T findByGeneId(String geneId){
+        List<T> tList = baseRNARepository.findAll(new Specification<T>() {
+            @Override
+            public Predicate toPredicate(Root<T> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("geneId"),geneId)).getRestriction();
+            }
+        });
+        if(tList.size()==0){
+            return null;
+        }
+        return tList.get(0);
+    }
     @Override
     public T findByName(String name){
         List<T> tList = baseRNARepository.findAll(new Specification<T>() {
@@ -73,11 +92,13 @@ public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T
                         .format("%%%s%%", StringUtils.strip(baseRNAQuery.getKeyword()));
 
                 // Build like predicate
+                Predicate geneId = criteriaBuilder.like(root.get("geneId"), likeCondition);
+                Predicate alias = criteriaBuilder.like(root.get("alias"), likeCondition);
                 Predicate name = criteriaBuilder.like(root.get("name"), likeCondition);
                 Predicate description = criteriaBuilder
                         .like(root.get("description"), likeCondition);
 
-                predicates.add(criteriaBuilder.or(name, description));
+                predicates.add(criteriaBuilder.or(name, description,geneId,alias));
             }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         };

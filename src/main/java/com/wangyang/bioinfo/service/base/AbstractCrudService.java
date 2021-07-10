@@ -1,9 +1,14 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.univocity.parsers.common.processor.BeanListProcessor;
+import com.univocity.parsers.tsv.TsvParser;
+import com.univocity.parsers.tsv.TsvParserSettings;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -52,5 +57,28 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
             // Oops, no default constructor
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public List<DOMAIN> initData(String filePath){
+        try {
+            try(FileInputStream inputStream = new FileInputStream(filePath)){
+                repository.deleteAll();
+                DOMAIN instance = getInstance();
+                BeanListProcessor<DOMAIN> beanListProcessor = new BeanListProcessor<>((Class<DOMAIN>) getInstance().getClass());
+                TsvParserSettings settings = new TsvParserSettings();
+                settings.setProcessor(beanListProcessor);
+                settings.setHeaderExtractionEnabled(true);
+                TsvParser parser = new TsvParser(settings);
+                parser.parse(inputStream);
+                List<DOMAIN> beans = beanListProcessor.getBeans();
+                List<DOMAIN> list = repository.saveAll(beans);
+                return list;
+            }
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 }

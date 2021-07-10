@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.LncRNA;
+import com.wangyang.bioinfo.pojo.RNA.LncRNA;
 import com.wangyang.bioinfo.service.base.IBaseRNAService;
 
 /**
@@ -8,4 +8,6 @@ import com.wangyang.bioinfo.service.base.IBaseRNAService;
  * @date 2021/6/27
  */
 public interface ILncRNAService extends IBaseRNAService<LncRNA> {
+
+
 }

@@ -1,10 +1,8 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.MRNA;
 import com.wangyang.bioinfo.pojo.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
-import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
-import com.wangyang.bioinfo.service.IOrganizeService;
+import com.wangyang.bioinfo.service.IOrganizeFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -22,7 +20,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class OrganizeFileController {
 
     @Autowired
-    IOrganizeService organizeService;
+    IOrganizeFileService organizeService;
     @PostMapping
     public OrganizeFile add(@RequestBody OrganizeFile organizeFileParam){
         OrganizeFile organizeFile = organizeService.add(organizeFileParam);

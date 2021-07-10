@@ -1,10 +1,10 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.RNA.MiRNA;
+import com.wangyang.bioinfo.pojo.RNA.CircRNA;
 import com.wangyang.bioinfo.pojo.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
-import com.wangyang.bioinfo.service.IMiRNAService;
+import com.wangyang.bioinfo.service.ICircRNAService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,33 +17,33 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 /**
  * @author wangyang
- * @date 2021/6/27
+ * @date 2021/7/10
  */
 @RestController
-@RequestMapping("/api/miRNA")
-public class MiRNAController {
+@RequestMapping("/api/circRNA")
+public class CircRNAController {
     @Autowired
-    IMiRNAService miRNAService;
+    ICircRNAService circRNAService;
     @Autowired
     IOrganizeFileService organizeFileService;
 
     @PostMapping
-    public MiRNA add(@RequestBody MiRNA miRNAInput){
+    public CircRNA add(@RequestBody CircRNA circRNAInput){
 
-        MiRNA miRNA = miRNAService.add(miRNAInput);
-        return miRNA;
+        CircRNA circRNA = circRNAService.add(circRNAInput);
+        return circRNA;
     }
 
     @GetMapping
     public Page<RNAVO> page(BaseRNAQuery baseRNAQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<MiRNA> miRNAPage = miRNAService.pageBy(baseRNAQuery, pageable);
-        return miRNAService.convert(miRNAPage);
+        Page<CircRNA> page = circRNAService.pageBy(baseRNAQuery, pageable);
+        return circRNAService.convert(page);
     }
 
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
-        miRNAService.initData(organizeFile.getLocalPath());
-        return BaseResponse.ok("miRNA初始化完成!");
+        circRNAService.initData(organizeFile.getLocalPath());
+        return BaseResponse.ok("circRNA初始化完成!");
     }
 }

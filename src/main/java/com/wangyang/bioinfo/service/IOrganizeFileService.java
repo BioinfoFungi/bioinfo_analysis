@@ -7,5 +7,5 @@ import com.wangyang.bioinfo.service.base.IBaseFileService;
  * @author wangyang
  * @date 2021/7/8
  */
-public interface IOrganizeService extends IBaseFileService<OrganizeFile> {
+public interface IOrganizeFileService extends IBaseFileService<OrganizeFile> {
 }

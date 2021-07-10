@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.OrganizeFile;
 import com.wangyang.bioinfo.repository.OrganizeFileRepository;
-import com.wangyang.bioinfo.service.IOrganizeService;
+import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.service.base.BaseFileServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,7 +14,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrganizeFileServiceImpl
         extends BaseFileServiceImpl<OrganizeFile>
-        implements IOrganizeService {
+        implements IOrganizeFileService {
 
     @Autowired
     OrganizeFileRepository organizeFileRepository;

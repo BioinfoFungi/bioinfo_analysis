@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.RNA;
 
 import com.wangyang.bioinfo.pojo.base.BaseRNA;
 import lombok.Data;
@@ -8,10 +8,10 @@ import javax.persistence.Entity;
 
 /**
  * @author wangyang
- * @date 2021/6/27
+ * @date 2021/7/10
  */
-@Entity
-@DiscriminatorValue(value = "1")
+@Entity(name = "t_circRNA")
+@DiscriminatorValue(value = "3")
 @Data
-public class MiRNA extends BaseRNA {
+public class CircRNA extends BaseRNA {
 }
