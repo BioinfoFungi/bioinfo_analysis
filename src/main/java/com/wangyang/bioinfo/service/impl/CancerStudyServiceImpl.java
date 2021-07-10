@@ -32,6 +32,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -207,7 +208,45 @@ public class CancerStudyServiceImpl
     }
 
     @Override
-    public Page<CancerStudyVo> convertProjectVo(Page<CancerStudy> fromCancerStudies) {
+    public List<CancerStudy> listByCancerId(Integer cancerId){
+        return cancerStudyRepository.findAll(new Specification<CancerStudy>() {
+            @Override
+            public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("cancerId"),cancerId)).getRestriction();
+            }
+        });
+    }
+
+    @Override
+    public List<CancerStudyVo> convertVo(List<CancerStudy> cancerStudies) {
+        Set<Integer> cancerIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getCancerId);
+        List<Cancer> cancers = cancerService.findAllById(cancerIds);
+        Map<Integer, Cancer> cancerMap = ServiceUtil.convertToMap(cancers, Cancer::getId);
+
+
+        Set<Integer> studyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getStudyId);
+        List<Study> studies = studyService.findAllById(studyIds);
+        Map<Integer, Study> studyMap = ServiceUtil.convertToMap(studies, Study::getId);
+
+
+        Set<Integer> dataOriginIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getDataOriginId);
+        List<DataOrigin> dataOrigins = dataOriginService.findAllById(dataOriginIds);
+        Map<Integer, DataOrigin> dataOriginMap = ServiceUtil.convertToMap(dataOrigins, DataOrigin::getId);
+
+        List<CancerStudyVo> cancerStudyVos = cancerStudies.stream().map(cancerStudy -> {
+            CancerStudyVo cancerStudyVo = new CancerStudyVo();
+            cancerStudyVo.setCancer(cancerMap.get(cancerStudy.getCancerId()));
+            cancerStudyVo.setStudy(studyMap.get(cancerStudy.getStudyId()));
+            cancerStudyVo.setDataOrigin(dataOriginMap.get(cancerStudy.getDataOriginId()));
+            BeanUtils.copyProperties(cancerStudy, cancerStudyVo);
+            return cancerStudyVo;
+        }).collect(Collectors.toList());
+
+        return cancerStudyVos;
+    }
+
+    @Override
+    public Page<CancerStudyVo> convertVo(Page<CancerStudy> fromCancerStudies) {
 
         List<CancerStudy> cancerStudies = fromCancerStudies.getContent();
         Set<Integer> cancerIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getCancerId);

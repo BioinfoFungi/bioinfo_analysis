@@ -21,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.util.List;
+
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 /**
@@ -36,7 +38,14 @@ public class CancerStudyController {
     @GetMapping
     public Page<CancerStudyVo> page(CancerStudyQuery cancerStudyQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
         Page<CancerStudy> cancerStudies = cancerStudyService.pageCancerStudy(cancerStudyQuery,pageable);
-        return cancerStudyService.convertProjectVo(cancerStudies);
+        return cancerStudyService.convertVo(cancerStudies);
+    }
+
+
+    @GetMapping("/listByCancerId/{id}")
+    public List<CancerStudyVo> listByCancerId(@PathVariable("id") Integer id){
+        List<CancerStudy> cancerStudies = cancerStudyService.listByCancerId(id);
+        return cancerStudyService.convertVo(cancerStudies);
     }
 
 

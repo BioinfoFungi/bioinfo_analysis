@@ -31,6 +31,9 @@ public interface ICancerStudyService extends IBaseFileService<CancerStudy> {
     List<CancerStudy> listAll();
     Page<CancerStudy> pageCancerStudy(Pageable pageable);
     Page<CancerStudy> pageCancerStudy(CancerStudyQuery cancerStudyQuery, Pageable pageable);
-    Page<CancerStudyVo> convertProjectVo( Page<CancerStudy> cancerStudies);
+
+    List<CancerStudy> listByCancerId(Integer cancerId);
+    List<CancerStudyVo> convertVo(List<CancerStudy> cancerStudies);
+    Page<CancerStudyVo> convertVo(Page<CancerStudy> cancerStudies);
 
 }
