@@ -28,6 +28,7 @@ public interface ICancerStudyService extends IBaseFileService<CancerStudy> {
     CancerStudy findCancerStudyByAndThree(int cancerId,int studyId,int dataOriginId);
     CancerStudy findCancerStudyByAndThree(FindCancer findCancer);
     List<CancerStudy> findAllById(Collection<Integer> id);
+    @Override
     List<CancerStudy> listAll();
     Page<CancerStudy> pageCancerStudy(Pageable pageable);
     Page<CancerStudy> pageCancerStudy(CancerStudyQuery cancerStudyQuery, Pageable pageable);

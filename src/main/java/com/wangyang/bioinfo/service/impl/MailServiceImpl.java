@@ -39,6 +39,7 @@ public class MailServiceImpl implements MailService {
      * @param subject 邮件主题
      * @param content 邮件内容
      */
+    @Override
     public void sendSimpleMail(String to, String subject, String content) {
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(to);
@@ -55,6 +56,7 @@ public class MailServiceImpl implements MailService {
      * @param content HTML内容
      * @throws MessagingException
      */
+    @Override
     public void sendHtmlMail(String to, String subject, String content) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
 
@@ -75,6 +77,7 @@ public class MailServiceImpl implements MailService {
      * @param filePath 附件路径
      * @throws MessagingException
      */
+    @Override
     public void sendAttachmentsMail(String to, String subject, String content, String filePath) throws MessagingException {
         MimeMessage message = mailSender.createMimeMessage();
 
@@ -100,6 +103,7 @@ public class MailServiceImpl implements MailService {
      * @param rscId   图片ID
      * @throws MessagingException
      */
+    @Override
     public void sendInlinkResourceMail(String to, String subject, String content,
                                        String rscPath, String rscId) throws MessagingException {
         logger.info("发送静态邮件开始: {},{},{},{},{}", to, subject, content, rscPath, rscId);

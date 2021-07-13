@@ -26,8 +26,9 @@ public class BeanUtil {
      * @return 目标对象
      */
     public static <T, M> T copyProperties(M source, Class<T> clazz) {
-        if (Objects.isNull(source) || Objects.isNull(clazz))
+        if (Objects.isNull(source) || Objects.isNull(clazz)) {
             throw new IllegalArgumentException();
+        }
         T t = null;
         try {
             t = clazz.newInstance();
@@ -56,8 +57,9 @@ public class BeanUtil {
 //                .collect(Collectors.toList());
 //    }
     public static <T, M> List<T> copyObjects(List<M> sources, Class<T> clazz) {
-        if (Objects.isNull(sources) || Objects.isNull(clazz))
+        if (Objects.isNull(sources) || Objects.isNull(clazz)) {
             throw new IllegalArgumentException();
+        }
         return Optional.of(sources)
                 .orElse(Lists.newArrayList())
                 .stream().map(m -> copyProperties(m, clazz))

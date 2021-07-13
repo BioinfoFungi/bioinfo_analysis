@@ -23,6 +23,7 @@ public interface IStudyService extends IBaseTermService<Study> {
     Study findAndCheckByEnName(String name);
 
     List<Study> findAllById(Collection<Integer> id);
+    @Override
     List<Study> listAll();
     Page<Study> pageStudy(Pageable pageable);
 }

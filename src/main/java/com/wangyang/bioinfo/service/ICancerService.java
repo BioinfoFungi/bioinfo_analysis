@@ -22,6 +22,7 @@ public interface ICancerService extends IBaseTermService<Cancer> {
     Cancer findCancerByEnName(String name);
     Cancer findAndCheckByEnName(String name);
     List<Cancer> findAllById(Collection<Integer> id);
+    @Override
     List<Cancer> listAll();
     Page<Cancer> pageCancer(Pageable pageable);
 }
