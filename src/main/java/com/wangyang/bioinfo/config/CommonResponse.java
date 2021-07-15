@@ -17,7 +17,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseBodyAdvice;
  * @date 2021/4/24
  * ref:https://blog.csdn.net/yanmh007/article/details/88871705
  */
-@ControllerAdvice
+@ControllerAdvice("com.wangyang.bioinfo.web")
 public class CommonResponse implements ResponseBodyAdvice<Object> {
 
 

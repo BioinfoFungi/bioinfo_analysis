@@ -27,7 +27,7 @@ public class BioInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
         if("OPTIONS".equals(request.getMethod().toString()))return true;
         String uri = request.getRequestURI();
-        System.out.println(uri);
+        System.out.println("BioInterceptor: "+uri);
 //        if(uri.equals("/api/user/login")){
 //            return true;
 //        }

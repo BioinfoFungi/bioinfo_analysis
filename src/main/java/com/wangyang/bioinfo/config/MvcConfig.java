@@ -37,7 +37,7 @@ import java.util.List;
  */
 @Configuration
 @EnableWebSocket
-public class MvcConfig  extends WebMvcConfigurationSupport implements WebSocketConfigurer {
+public class MvcConfig   extends WebMvcConfigurationSupport implements WebSocketConfigurer {
     @Value("${bioinfo.workDir}")
     private String workDir;
     @Override
@@ -45,6 +45,12 @@ public class MvcConfig  extends WebMvcConfigurationSupport implements WebSocketC
         registry.addResourceHandler("/**")
                 .addResourceLocations("file:"+workDir+"/")//file:/home/wy/.bioinfo/
                 .addResourceLocations("classpath:/static/html/");
+        registry.addResourceHandler("swagger-ui.html")
+                .addResourceLocations("classpath:/META-INF/resources/");
+        registry.addResourceHandler("/webjars/**")
+                .addResourceLocations("classpath:/META-INF/resources/webjars/");
+        registry.addResourceHandler("doc.html")
+                .addResourceLocations("classpath:/META-INF/resources/");;
         super.addResourceHandlers(registry);
     }
 
@@ -63,7 +69,8 @@ public class MvcConfig  extends WebMvcConfigurationSupport implements WebSocketC
     @Override
     protected void addInterceptors(InterceptorRegistry registry) {
         registry.addInterceptor(bioInterceptor()).addPathPatterns("/**")
-                .excludePathPatterns("/api/user/login", "/logout/**", "/loginPage/**", "/error/**");
+                .excludePathPatterns("/api/user/login", "/logout/**", "/loginPage/**", "/error/**",
+                        "/doc.html","/swagger-resources/**", "/webjars/**", "/v2/**", "/swagger-ui.html/**");
     }
 
     /**

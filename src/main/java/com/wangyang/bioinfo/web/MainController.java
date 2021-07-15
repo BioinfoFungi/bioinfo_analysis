@@ -1,6 +1,8 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.util.StringCacheStore;
+import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,11 +37,10 @@ public class MainController {
     TestAsync testAsync;
 
 
-    @RequestMapping("/")
-    public void index(HttpServletResponse response) throws IOException {
-        response.sendRedirect("index.html");
-    }
-
+//    @RequestMapping("/")
+//    public void index(HttpServletResponse response) throws IOException {
+//        response.sendRedirect("index.html");
+//    }
     @GetMapping("/api/global")
     @ResponseBody
     public Map<String,String> globalConfig(){

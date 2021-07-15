@@ -144,10 +144,112 @@
 			<artifactId>univocity-parsers</artifactId>
 			<version>2.8.4</version>
 		</dependency>
+
+
+
+<!--		&lt;!&ndash; swagger2 &ndash;&gt;-->
 		<dependency>
-			<groupId>com.google.code.google-collections</groupId>
-			<artifactId>google-collect</artifactId>
-			<version>snapshot-20080530</version>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger2</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+		<!-- springfox-swagger-ui -->
+		<dependency>
+			<groupId>io.springfox</groupId>
+			<artifactId>springfox-swagger-ui</artifactId>
+			<version>2.9.2</version>
+		</dependency>
+
+		<dependency>
+			<groupId>com.github.xiaoymin</groupId>
+			<artifactId>swagger-bootstrap-ui</artifactId>
+			<version>1.9.5</version>
+		</dependency>
+		<!--Swagger2-->
+<!--		<dependency>-->
+<!--			<groupId>io.springfox</groupId>-->
+<!--			<artifactId>springfox-swagger2</artifactId>-->
+<!--			<exclusions>-->
+<!--				&lt;!&ndash;swagger2.92默认依赖1.5.0版本的models和annotations-->
+<!--                排除掉此版本，引入一个其他版本，不让项目启动时未报Illegal DefaultValue null for parameter type integer的警告&ndash;&gt;-->
+<!--				<exclusion>-->
+<!--					<groupId>io.swagger</groupId>-->
+<!--					<artifactId>swagger-models</artifactId>-->
+<!--				</exclusion>-->
+<!--				<exclusion>-->
+<!--					<groupId>io.swagger</groupId>-->
+<!--					<artifactId>swagger-annotations</artifactId>-->
+<!--				</exclusion>-->
+<!--			</exclusions>-->
+<!--			<version>2.9.2</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>io.swagger</groupId>-->
+<!--			<artifactId>swagger-models</artifactId>-->
+<!--			<version>1.5.22</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>io.swagger</groupId>-->
+<!--			<artifactId>swagger-annotations</artifactId>-->
+<!--			<version>1.5.22</version>-->
+<!--		</dependency>-->
+
+<!--		&lt;!&ndash;Swagger-UI&ndash;&gt;-->
+<!--		&lt;!&ndash;访问路径：http://localhost:8080/swagger-ui.html&ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>io.springfox</groupId>-->
+<!--			<artifactId>springfox-swagger-ui</artifactId>-->
+<!--			<version>2.9.2</version>-->
+<!--		</dependency>-->
+
+<!--		&lt;!&ndash;swaggerui  几个自定义界面方便查看接口&ndash;&gt;-->
+<!--		&lt;!&ndash;访问路径：http://localhost:8080/doc.html&ndash;&gt;-->
+<!--		<dependency>-->
+<!--			<groupId>com.github.xiaoymin</groupId>-->
+<!--			<artifactId>swagger-bootstrap-ui</artifactId>-->
+<!--			<version>1.9.5</version>-->
+<!--		</dependency>-->
+
+
+
+
+
+
+<!--		<dependency>-->
+<!--			<groupId>com.google.code.google-collections</groupId>-->
+<!--			<artifactId>google-collect</artifactId>-->
+<!--			<version>snapshot-20080530</version>-->
+<!--		</dependency>-->
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>0.38.1</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-jsplot</artifactId>
+			<version>0.38.1</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-json</artifactId>
+			<version>0.38.1</version>
+		</dependency>
+
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>3.9</version>
+		</dependency>
+		<dependency>
+			<groupId>sh.joinery</groupId>
+			<artifactId>joinery-dataframe</artifactId>
+			<version>1.10</version>
+		</dependency>
+		<dependency>
+			<groupId>de.unknownreality</groupId>
+			<artifactId>dataframe</artifactId>
+			<version>0.7.6</version>
 		</dependency>
 
 	</dependencies>
