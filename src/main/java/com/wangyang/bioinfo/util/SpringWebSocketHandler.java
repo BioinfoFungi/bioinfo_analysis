@@ -96,6 +96,7 @@ public class SpringWebSocketHandler extends TextWebSocketHandler {
         users.remove(userId);
     }
 
+    @Override
     public boolean supportsPartialMessages() {
 
         return false;

@@ -25,6 +25,7 @@ public interface IDataOriginService extends IBaseTermService<DataOrigin> {
     DataOrigin findAndCheckByEnName(String name);
 
     List<DataOrigin> findAllById(Collection<Integer> id);
+    @Override
     List<DataOrigin> listAll();
     Page<DataOrigin> pageDataOrigin(Pageable pageable);
 }
