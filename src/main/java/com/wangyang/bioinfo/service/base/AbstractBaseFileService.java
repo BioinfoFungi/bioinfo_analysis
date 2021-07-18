@@ -32,6 +32,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wangyang
@@ -68,7 +69,14 @@ public class AbstractBaseFileService<FILE extends BaseFile>
         }
         return file;
     }
-
+    @Override
+    public FILE findById(Integer Id){
+        Optional<FILE> fileOptional = baseFileRepository.findById(Id);
+        if(!fileOptional.isPresent()){
+            throw new BioinfoException("查找的File对象不存在!");
+        }
+        return fileOptional.get();
+    }
     @Override
     public FILE findByEnName(String name){
         List<FILE> files = baseFileRepository.findAll(new Specification<FILE>() {
@@ -124,6 +132,11 @@ public class AbstractBaseFileService<FILE extends BaseFile>
         return download(file,response);
     }
 
+    @Override
+    public FILE download(Integer id, HttpServletResponse response){
+        FILE file = findById(id);
+        return download(file,response);
+    }
 
     public FILE download(FILE file, HttpServletResponse response){
         try {
@@ -135,7 +148,7 @@ public class AbstractBaseFileService<FILE extends BaseFile>
             outputStream.flush();
             outputStream.close();
             file.setTimes(file.getTimes()+1);
-            return file;
+            return baseFileRepository.save(file);
         } catch (IOException e) {
             e.printStackTrace();
             throw new BioinfoException(e.getMessage());

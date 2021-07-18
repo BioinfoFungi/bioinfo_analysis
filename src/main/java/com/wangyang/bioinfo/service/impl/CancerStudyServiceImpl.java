@@ -69,9 +69,9 @@ public class CancerStudyServiceImpl
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
-            cancerStudy.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+            cancerStudy.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         }
-        cancerStudyParam.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+        cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
 
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
 
@@ -91,9 +91,9 @@ public class CancerStudyServiceImpl
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
-            cancerStudy.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+            cancerStudy.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         }
-        cancerStudyParam.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+        cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
         UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" ,FileLocation.LOCAL);
         return super.upload(uploadResult,cancerStudy,cancerStudyParam);

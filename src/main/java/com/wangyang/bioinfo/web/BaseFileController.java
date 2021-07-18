@@ -27,7 +27,15 @@ public class BaseFileController {
         BaseFile baseFile = baseFileService.download(enName, response);
         return baseFile;
     }
-
+    @GetMapping("/downloadById/{Id}")
+    public BaseFile downloadById(@PathVariable("Id") Integer Id, HttpServletResponse response){
+        BaseFile baseFile = baseFileService.download(Id, response);
+        return baseFile;
+    }
+    @GetMapping("/findById/{Id}")
+    public BaseFile findById(@PathVariable("Id") Integer Id){
+        return baseFileService.findById(Id);
+    }
     @GetMapping("/findOne/{enName}")
     public BaseFile findByEnName(@PathVariable("enName") String enName){
         return baseFileService.findByEnNameAndCheck(enName);

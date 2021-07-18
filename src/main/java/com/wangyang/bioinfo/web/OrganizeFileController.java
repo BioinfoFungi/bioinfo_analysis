@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.file.Attachment;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
@@ -48,6 +49,11 @@ public class OrganizeFileController {
     public OrganizeFile download(@PathVariable("enName") String enName, HttpServletResponse response){
         OrganizeFile organizeFile = organizeService.download(enName, response);
         return organizeFile;
+    }
+
+    @GetMapping("/findOne/{enName}")
+    public OrganizeFile findByEnName(@PathVariable("enName") String enName){
+        return organizeService.findByEnNameAndCheck(enName);
     }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public OrganizeFile upload(@RequestParam("file") MultipartFile file, OrganizeFileParam organizeFileParam, HttpServletRequest request){

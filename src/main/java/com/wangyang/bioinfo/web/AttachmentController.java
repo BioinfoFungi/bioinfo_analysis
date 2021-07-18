@@ -1,8 +1,10 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
+import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,8 +64,8 @@ public class AttachmentController {
     }
 
     @GetMapping
-    public Page<Attachment> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<Attachment> attachments = attachmentService.pageAttachment(pageable);
+    public Page<Attachment> page(BaseFileQuery baseFileQuery,@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+        Page<Attachment> attachments = attachmentService.pageBy(baseFileQuery,pageable);
         return attachments;
     }
 
@@ -87,6 +89,11 @@ public class AttachmentController {
     public Attachment download(@PathVariable("enName") String enName, HttpServletResponse response){
         Attachment attachment = attachmentService.download(enName, response);
         return attachment;
+    }
+
+    @GetMapping("/findOne/{enName}")
+    public Attachment findByEnName(@PathVariable("enName") String enName){
+        return attachmentService.findByEnNameAndCheck(enName);
     }
 
 }

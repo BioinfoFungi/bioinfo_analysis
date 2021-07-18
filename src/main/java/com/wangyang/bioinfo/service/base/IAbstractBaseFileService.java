@@ -17,11 +17,15 @@ public interface IAbstractBaseFileService<FILE extends BaseFile> extends ICrudSe
 
     FILE findByEnNameAndCheck(String name);
 
+    FILE findById(Integer Id);
+
     FILE findByEnName(String name);
 
     Page<FILE> pageBy(BaseFileQuery baseFileQuery, Pageable pageable);
 
     FILE download(String enName, HttpServletResponse response);
+
+    FILE download(Integer id, HttpServletResponse response);
 
     FILE save(BaseFileParam baseFileParam);
 

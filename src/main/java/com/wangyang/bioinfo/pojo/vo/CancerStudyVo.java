@@ -19,11 +19,14 @@ public class CancerStudyVo {
     private Cancer cancer;
     private Study study;
     private DataOrigin dataOrigin;
-    private String localPath;
-    private String networkPath;
     private String fileName;
     private String fileType;
     private Long size;
-    private int width;
-    private int height;
+    private Integer width;
+    private Integer height;
+    private String absolutePath;
+    private String relativePath;
+    private Boolean status;
+    private String enName;
+    private Integer times;
 }
