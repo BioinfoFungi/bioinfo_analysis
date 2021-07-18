@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.param.BaseFileParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import org.springframework.data.domain.Page;
@@ -25,7 +26,7 @@ public interface IAbstractBaseFileService<FILE extends BaseFile> extends ICrudSe
 
     FILE download(String enName, HttpServletResponse response);
 
-    FILE download(Integer id, HttpServletResponse response);
+    FILE download(Integer id, FileLocation fileLocation, HttpServletResponse response);
 
     FILE save(BaseFileParam baseFileParam);
 

@@ -28,8 +28,10 @@ public class FilenameUtils {
         }
 
         // Find last dot
-        int dotLastIndex = StringUtils.lastIndexOf(filename, '.');
-
+        int dotLastIndex = StringUtils.lastOrdinalIndexOf(filename,".",2);
+        if(dotLastIndex==-1){
+            dotLastIndex = StringUtils.lastOrdinalIndexOf(filename,".",1);
+        }
         if (dotLastIndex < 0) {
             return StringUtils.EMPTY;
         }

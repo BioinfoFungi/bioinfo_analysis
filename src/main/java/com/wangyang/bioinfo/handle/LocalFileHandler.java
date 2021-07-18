@@ -57,8 +57,8 @@ public class LocalFileHandler implements FileHandler {
         } catch (IOException e) {
             e.printStackTrace();
         }
-        long length = uploadPath.toFile().length();
-        uploadResult.setSize(length);
+//        long length = uploadPath.toFile().length();
+//        uploadResult.setSize(length);
 //        lock.lock();
 //        try (InputStream uploadFileInputStream = new FileInputStream(uploadPath.toFile())) {
 //

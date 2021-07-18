@@ -29,4 +29,6 @@ public class CancerStudyVo {
     private Boolean status;
     private String enName;
     private Integer times;
+    private String md5;
+    private Boolean isCompress;
 }

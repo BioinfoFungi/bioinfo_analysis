@@ -74,8 +74,12 @@ public class AttachmentServiceImpl extends AbstractBaseFileService<Attachment> i
             String basename = FilenameUtils.getBasename(uploadResult.getAbsolutePath());
             attachmentParam.setEnName(basename);
         }
+
         Project project = projectService.findProjectById(attachmentParam.getProjectId());
         Attachment attachment = findAttachmentByPathOrName(project.getId(),uploadResult.getAbsolutePath(),uploadResult.getRelativePath(),attachmentParam.getEnName());
+        if(attachment==null){
+            attachment =new Attachment();
+        }
         BeanUtils.copyProperties(attachmentParam,attachment);
         return super.upload(uploadResult,attachment,attachmentParam);
     }

@@ -49,8 +49,12 @@ public class BaseFile extends BaseEntity {
     private Integer height;
     private Integer userId;
 
+    private String md5;
+    private Boolean isCompress=false;
+
+
 
     public Long getSize() {
-        return size/1024/1024;
+        return size;
     }
 }

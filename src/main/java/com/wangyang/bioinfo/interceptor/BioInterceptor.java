@@ -34,13 +34,21 @@ public class BioInterceptor implements HandlerInterceptor {
 //            return true;
 //        }
         String authorization_sdk = request.getHeader("Authorization_SDK");
+        String authorize = request.getParameter("authorize");
 
-        if(authorization_sdk!=null){
+        if(authorization_sdk!=null || authorize!=null){
             Optional<String> authorizationSdkDB = StringCacheStore.get("Authorization_SDK");
             if(!authorizationSdkDB.isPresent()){
                 throw new BioinfoException("请在服务器配置Authorization_SDK Options");
             }
             if(authorizationSdkDB.get().equals(authorization_sdk)){
+                User user = new User();
+                user.setId(-1);
+                user.setUsername("admin");
+                request.setAttribute("user",user);
+                return true;
+            }
+            if(authorizationSdkDB.get().equals(authorize)){
                 User user = new User();
                 user.setId(-1);
                 user.setUsername("admin");

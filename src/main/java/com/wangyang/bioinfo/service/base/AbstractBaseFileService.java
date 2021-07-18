@@ -10,9 +10,7 @@ import com.wangyang.bioinfo.pojo.param.BaseFileParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.base.BaseFileRepository;
-import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.FileUtil;
-import com.wangyang.bioinfo.util.FilenameUtils;
+import com.wangyang.bioinfo.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -133,30 +131,49 @@ public class AbstractBaseFileService<FILE extends BaseFile>
     }
 
     @Override
-    public FILE download(Integer id, HttpServletResponse response){
+    public FILE download(Integer id,FileLocation fileLocation, HttpServletResponse response){
         FILE file = findById(id);
+        if(fileLocation!=null){
+            file.setLocation(fileLocation);
+        }
         return download(file,response);
     }
 
     public FILE download(FILE file, HttpServletResponse response){
-        try {
-            ServletOutputStream outputStream = response.getOutputStream();
-            byte[] bytes = FileUtils.readFileToByteArray(new File(file.getAbsolutePath()));
-            //写之前设置响应流以附件的形式打开返回值,这样可以保证前边打开文件出错时异常可以返回给前台
-            response.setHeader("Content-Disposition","attachment;filename="+file.getAbsolutePath());
-            outputStream.write(bytes);
-            outputStream.flush();
-            outputStream.close();
+        if(file.getLocation().equals(FileLocation.LOCAL)){
+            try {
+                ServletOutputStream outputStream = response.getOutputStream();
+                byte[] bytes = FileUtils.readFileToByteArray(new File(file.getAbsolutePath()));
+                //写之前设置响应流以附件的形式打开返回值,这样可以保证前边打开文件出错时异常可以返回给前台
+                response.setHeader("Content-Disposition","attachment;filename="+file.getAbsolutePath());
+                outputStream.write(bytes);
+                outputStream.flush();
+                outputStream.close();
+                file.setTimes(file.getTimes()+1);
+                return baseFileRepository.save(file);
+            } catch (IOException e) {
+                e.printStackTrace();
+                throw new BioinfoException(e.getMessage());
+            }
+        }else if (file.getLocation().equals(FileLocation.ALIOSS)){
+            try {
+                response.sendRedirect(StringCacheStore.getValue("oss_url")+"/"+file.getRelativePath());
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
             file.setTimes(file.getTimes()+1);
             return baseFileRepository.save(file);
-        } catch (IOException e) {
-            e.printStackTrace();
-            throw new BioinfoException(e.getMessage());
+        }else {
+            return null;
         }
-
     }
 
     public FILE saveAndCheckFile(FILE file){
+        if(file.getFileType().endsWith(".gz")){
+            file.setIsCompress(true);
+        }else {
+            file.setIsCompress(false);
+        }
         FileLocation location= file.getLocation();
         if(location.equals(FileLocation.LOCAL)){
             File f = new File(file.getAbsolutePath());
@@ -166,7 +183,8 @@ public class AbstractBaseFileService<FILE extends BaseFile>
             }else {
                 file.setStatus(false);
             }
-
+            String md5String = FileMd5Utils.getFileMD5String(f);
+            file.setMd5(md5String);
         }
         return baseFileRepository.save(file);
     }
@@ -219,7 +237,6 @@ public class AbstractBaseFileService<FILE extends BaseFile>
         file.setAbsolutePath(uploadResult.getAbsolutePath());
         file.setSize(uploadResult.getSize());
 
-        file = baseFileRepository.save(file);
-        return file;
+        return saveAndCheckFile(file);
     }
 }

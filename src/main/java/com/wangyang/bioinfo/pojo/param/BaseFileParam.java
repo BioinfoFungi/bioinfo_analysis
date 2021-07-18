@@ -14,5 +14,6 @@ public class BaseFileParam {
     private String fileType;
     private String relativePath;
     private Integer userId;
+    private Boolean isCompress;
 
 }
