@@ -68,8 +68,8 @@ public class CancerStudyController {
     }
 
     @GetMapping("/download/{enName}")
-    public CancerStudy download(@PathVariable("enName") String enName, HttpServletResponse response){
-        CancerStudy cancerStudy = cancerStudyService.download(enName, response);
+    public CancerStudy download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
+        CancerStudy cancerStudy = cancerStudyService.download(enName, response,request);
         return cancerStudy;
     }
     @GetMapping("/findOne/{enName}")

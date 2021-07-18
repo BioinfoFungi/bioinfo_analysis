@@ -21,10 +21,7 @@ public class OrganizeFileServiceImpl
     @Autowired
     OrganizeFileRepository organizeFileRepository;
 
-    @Override
-    public OrganizeFile download(String enName, HttpServletResponse response){
-        return super.download(enName,response);
-    }
+
 
 
 }

@@ -20,7 +20,6 @@ import java.util.List;
  * @date 2021/6/26
  */
 public interface ICancerStudyService extends IAbstractBaseFileService<CancerStudy> {
-    CancerStudy download(String enName, HttpServletResponse response);
 
     CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam);
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);

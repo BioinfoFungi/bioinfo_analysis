@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
@@ -18,7 +19,7 @@ import java.util.List;
  * @date 2021/6/13
  */
 public interface IAttachmentService extends IAbstractBaseFileService<Attachment> {
-    Attachment download(String enName, HttpServletResponse response);
+    Attachment download(String enName, HttpServletResponse response,HttpServletRequest request);
 
     Attachment saveAttachment(AttachmentParam attachmentParam);
 

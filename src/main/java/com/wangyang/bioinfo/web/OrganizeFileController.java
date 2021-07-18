@@ -46,8 +46,8 @@ public class OrganizeFileController {
 
 
     @GetMapping("/download/{enName}")
-    public OrganizeFile download(@PathVariable("enName") String enName, HttpServletResponse response){
-        OrganizeFile organizeFile = organizeService.download(enName, response);
+    public OrganizeFile download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
+        OrganizeFile organizeFile = organizeService.download(enName, response,request);
         return organizeFile;
     }
 

@@ -24,7 +24,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
@@ -125,27 +127,28 @@ public class AbstractBaseFileService<FILE extends BaseFile>
     }
 
     @Override
-    public FILE download(String enName, HttpServletResponse response){
+    public FILE download(String enName, HttpServletResponse response,HttpServletRequest request){
         FILE file = findByEnNameAndCheck(enName);
-        return download(file,response);
+        return download(file,response,request);
     }
 
     @Override
-    public FILE download(Integer id,FileLocation fileLocation, HttpServletResponse response){
+    public FILE download(Integer id,FileLocation fileLocation, HttpServletResponse response,HttpServletRequest request){
         FILE file = findById(id);
         if(fileLocation!=null){
             file.setLocation(fileLocation);
         }
-        return download(file,response);
+        return download(file,response,request);
     }
 
-    public FILE download(FILE file, HttpServletResponse response){
+    public FILE download(FILE file, HttpServletResponse response, HttpServletRequest request){
         if(file.getLocation().equals(FileLocation.LOCAL)){
             try {
                 ServletOutputStream outputStream = response.getOutputStream();
                 byte[] bytes = FileUtils.readFileToByteArray(new File(file.getAbsolutePath()));
                 //写之前设置响应流以附件的形式打开返回值,这样可以保证前边打开文件出错时异常可以返回给前台
-                response.setHeader("Content-Disposition","attachment;filename="+file.getAbsolutePath());
+                response.setHeader("Content-Disposition","attachment;filename="+file.getFileName()+"."+file.getFileType());
+//                response.setContentType("text/tab-separated-values");
                 outputStream.write(bytes);
                 outputStream.flush();
                 outputStream.close();
@@ -157,7 +160,8 @@ public class AbstractBaseFileService<FILE extends BaseFile>
             }
         }else if (file.getLocation().equals(FileLocation.ALIOSS)){
             try {
-                response.sendRedirect(StringCacheStore.getValue("oss_url")+"/"+file.getRelativePath());
+                String oss_url = StringCacheStore.getValue("oss_url") + "/" + file.getRelativePath();
+                response.sendRedirect(oss_url);
             } catch (IOException e) {
                 e.printStackTrace();
             }

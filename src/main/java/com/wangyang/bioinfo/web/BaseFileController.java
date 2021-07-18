@@ -8,6 +8,7 @@ import com.wangyang.bioinfo.service.base.IAbstractBaseFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -21,15 +22,16 @@ public class BaseFileController {
     IBaseFileService baseFileService;
 
     @GetMapping("/download/{enName}")
-    public BaseFile download(@PathVariable("enName") String enName, HttpServletResponse response){
-        BaseFile baseFile = baseFileService.download(enName, response);
+    public BaseFile download(@PathVariable("enName") String enName, HttpServletResponse response, HttpServletRequest request){
+        BaseFile baseFile = baseFileService.download(enName, response,request);
         return baseFile;
     }
     @GetMapping("/downloadById/{Id}")
     public BaseFile downloadById(@PathVariable("Id") Integer Id,
                                  @RequestParam(value = "location",defaultValue = "LOCAL") FileLocation location,
-                                 HttpServletResponse response){
-        BaseFile baseFile = baseFileService.download(Id,location, response);
+                                 HttpServletResponse response,
+                                 HttpServletRequest request){
+        BaseFile baseFile = baseFileService.download(Id,location, response,request);
         return baseFile;
     }
     @GetMapping("/findById/{Id}")

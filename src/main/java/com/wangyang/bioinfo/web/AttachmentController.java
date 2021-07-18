@@ -86,8 +86,8 @@ public class AttachmentController {
     }
 
     @GetMapping("/download/{enName}")
-    public Attachment download(@PathVariable("enName") String enName, HttpServletResponse response){
-        Attachment attachment = attachmentService.download(enName, response);
+    public Attachment download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
+        Attachment attachment = attachmentService.download(enName, response,request);
         return attachment;
     }
 

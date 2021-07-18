@@ -51,10 +51,7 @@ public class CancerStudyServiceImpl
     @Autowired
     IDataOriginService dataOriginService;
 
-    @Override
-    public CancerStudy download(String enName, HttpServletResponse response){
-        return super.download(enName,response);
-    }
+
 
 
     @Override

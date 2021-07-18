@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
@@ -42,8 +43,8 @@ public class AttachmentServiceImpl extends AbstractBaseFileService<Attachment> i
     IProjectService projectService;
 
     @Override
-    public Attachment download(String enName, HttpServletResponse response){
-        return super.download(enName,response);
+    public Attachment download(String enName, HttpServletResponse response, HttpServletRequest request){
+        return super.download(enName,response,request);
     }
 
 

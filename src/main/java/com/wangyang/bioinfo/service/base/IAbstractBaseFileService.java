@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 /**
@@ -24,9 +25,9 @@ public interface IAbstractBaseFileService<FILE extends BaseFile> extends ICrudSe
 
     Page<FILE> pageBy(BaseFileQuery baseFileQuery, Pageable pageable);
 
-    FILE download(String enName, HttpServletResponse response);
+    FILE download(String enName, HttpServletResponse response, HttpServletRequest request);
 
-    FILE download(Integer id, FileLocation fileLocation, HttpServletResponse response);
+    FILE download(Integer id, FileLocation fileLocation, HttpServletResponse response,HttpServletRequest request);
 
     FILE save(BaseFileParam baseFileParam);
 
