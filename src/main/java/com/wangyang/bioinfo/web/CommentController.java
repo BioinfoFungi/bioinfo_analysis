@@ -1,6 +1,5 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.Attachment;
 import com.wangyang.bioinfo.pojo.Comment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.CommentParam;

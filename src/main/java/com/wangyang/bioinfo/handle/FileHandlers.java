@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.handle;
 
-import com.wangyang.bioinfo.pojo.enums.AttachmentType;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.context.ApplicationContext;
@@ -25,41 +25,53 @@ public class FileHandlers {
         // Add all file handler
         addFileHandlers(applicationContext.getBeansOfType(FileHandler.class).values());
     }
-    public UploadResult upload(@NonNull MultipartFile file, @NonNull AttachmentType attachmentType) {
+    public UploadResult upload(@NonNull MultipartFile file, @NonNull FileLocation fileLocation) {
         Assert.notNull(file, "Multipart file must not be null");
-        Assert.notNull(attachmentType, "Attachment type must not be null");
+        Assert.notNull(fileLocation, "Attachment type must not be null");
 
         for (FileHandler fileHandler : fileHandlers) {
-            if (fileHandler.supportType(attachmentType)) {
+            if (fileHandler.supportType(fileLocation)) {
                 return fileHandler.upload(file);
             }
         }
         throw new BioinfoException("文件长传出错!");
     }
-
-    public UploadResult upload(@NonNull MultipartFile file, @NonNull AttachmentType attachmentType,String path,String name,String suffix) {
+    public UploadResult uploadFixed(@NonNull MultipartFile file,String path, @NonNull FileLocation fileLocation) {
         Assert.notNull(file, "Multipart file must not be null");
-        Assert.notNull(attachmentType, "Attachment type must not be null");
+        Assert.notNull(fileLocation, "Attachment type must not be null");
 
         for (FileHandler fileHandler : fileHandlers) {
-            if (fileHandler.supportType(attachmentType)) {
+            if (fileHandler.supportType(fileLocation)) {
+                return fileHandler.uploadFixed(file,path);
+            }
+        }
+        throw new BioinfoException("文件长传出错!");
+    }
+    public UploadResult upload(@NonNull MultipartFile file, @NonNull FileLocation fileLocation, String path, String name, String suffix) {
+        Assert.notNull(file, "Multipart file must not be null");
+        Assert.notNull(fileLocation, "Attachment type must not be null");
+
+        for (FileHandler fileHandler : fileHandlers) {
+            if (fileHandler.supportType(fileLocation)) {
                 return fileHandler.upload(file,path,name,suffix);
             }
         }
         throw new BioinfoException("文件长传出错!");
     }
 
-    public UploadResult upload(@NonNull MultipartFile file, @NonNull AttachmentType attachmentType,String fullPath) {
+    public UploadResult upload(@NonNull MultipartFile file, @NonNull FileLocation fileLocation, String fullPath) {
         Assert.notNull(file, "Multipart file must not be null");
-        Assert.notNull(attachmentType, "Attachment type must not be null");
+        Assert.notNull(fileLocation, "Attachment type must not be null");
 
         for (FileHandler fileHandler : fileHandlers) {
-            if (fileHandler.supportType(attachmentType)) {
+            if (fileHandler.supportType(fileLocation)) {
                 return fileHandler.upload(file,fullPath);
             }
         }
         throw new BioinfoException("文件长传出错!");
     }
+
+
 
 
     public FileHandlers addFileHandlers(@Nullable Collection<FileHandler> fileHandlers) {

@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.RNA.MRNA;
-import com.wangyang.bioinfo.pojo.OrganizeFile;
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.service.IMRNAService;
@@ -46,7 +46,7 @@ public class MRNAController {
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
-        List<MRNA> mrnas = mrnaService.initData(organizeFile.getLocalPath());
+        List<MRNA> mrnas = mrnaService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("mRNA初始化完成!");
     }
 }

@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.RNA.MiRNA;
-import com.wangyang.bioinfo.pojo.OrganizeFile;
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.service.IMiRNAService;
@@ -43,7 +43,7 @@ public class MiRNAController {
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
-        miRNAService.initData(organizeFile.getLocalPath());
+        miRNAService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("miRNA初始化完成!");
     }
 }

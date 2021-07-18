@@ -1,10 +1,8 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.Attachment;
-import com.wangyang.bioinfo.pojo.Project;
+import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
-import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -15,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -34,7 +33,7 @@ public class AttachmentController {
     public Attachment add(@RequestBody AttachmentParam attachmentParam,HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         attachmentParam.setUserId(user.getId());
-        return attachmentService.addAttachment(attachmentParam);
+        return attachmentService.saveAttachment(attachmentParam);
     }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Attachment upload(@RequestParam("file") MultipartFile file,AttachmentParam attachmentParam,HttpServletRequest request){
@@ -82,6 +81,12 @@ public class AttachmentController {
     public Attachment delAttachment(@PathVariable("id") int id, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return attachmentService.delAttachment(id,user);
+    }
+
+    @GetMapping("/download/{enName}")
+    public Attachment download(@PathVariable("enName") String enName, HttpServletResponse response){
+        Attachment attachment = attachmentService.download(enName, response);
+        return attachment;
     }
 
 }

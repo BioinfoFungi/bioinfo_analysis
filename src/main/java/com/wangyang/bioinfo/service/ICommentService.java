@@ -1,11 +1,8 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Attachment;
 import com.wangyang.bioinfo.pojo.Comment;
-import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.vo.CommentVo;
-import com.wangyang.bioinfo.pojo.vo.ProjectVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

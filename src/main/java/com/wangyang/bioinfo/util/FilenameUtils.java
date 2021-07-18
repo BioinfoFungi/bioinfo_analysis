@@ -6,6 +6,7 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.util.Calendar;
+import java.util.Optional;
 
 /**
  * @author wangyang
@@ -59,6 +60,25 @@ public class FilenameUtils {
         return filename.substring(0, dotLastIndex);
     }
 
+    public static String relativePath(@NonNull String relativePath) {
+        Assert.hasText(relativePath, "relativePath must not be blank");
+        String workDir = StringCacheStore.getValue("workDir");
+        if(relativePath.contains(workDir)){
+            relativePath.replace(workDir+"/","");
+            return relativePath;
+        }
+        int separatorLastIndex = StringUtils.lastIndexOf(relativePath, File.separatorChar);
+
+        if (separatorLastIndex == relativePath.length() - 1) {
+            return StringUtils.EMPTY;
+        }
+
+        if (separatorLastIndex >= 0 && separatorLastIndex < relativePath.length() - 1) {
+            relativePath = relativePath.substring(separatorLastIndex + 1);
+        }
+
+        return relativePath;
+    }
     public static String randomName(){
         Calendar date = Calendar.getInstance();
         int year = date.get(Calendar.YEAR);

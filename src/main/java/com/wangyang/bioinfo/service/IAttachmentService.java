@@ -1,14 +1,15 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Attachment;
+import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
-import com.wangyang.bioinfo.service.base.IBaseFileService;
+import com.wangyang.bioinfo.service.base.IAbstractBaseFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 
@@ -16,8 +17,12 @@ import java.util.List;
  * @author wangyang
  * @date 2021/6/13
  */
-public interface IAttachmentService extends IBaseFileService<Attachment> {
-    Attachment addAttachment(AttachmentParam attachment);
+public interface IAttachmentService extends IAbstractBaseFileService<Attachment> {
+    Attachment download(String enName, HttpServletResponse response);
+
+    Attachment saveAttachment(AttachmentParam attachmentParam);
+
+    //    Attachment addAttachment(AttachmentParam attachment);
     Attachment delAttachment(int id, User user);
     Attachment findAttachmentById(int id);
     Attachment findAttachmentByName(String name);
@@ -28,7 +33,7 @@ public interface IAttachmentService extends IBaseFileService<Attachment> {
      * @param path
      * @return
      */
-    Attachment findAttachmentByPathOrName(int projectId,String name,String path);
+    Attachment findAttachmentByPathOrName(int projectId,String absolutePath,String relativePath,String enName);
     List<Attachment> findAllById(Collection<Integer> id);
     Page<Attachment> pageAttachment(Pageable pageable);
     Attachment updateAttachment(Attachment attachment);

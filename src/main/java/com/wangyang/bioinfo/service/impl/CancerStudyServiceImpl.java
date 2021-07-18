@@ -1,9 +1,9 @@
 package com.wangyang.bioinfo.service.impl;
 
 
-import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.*;
-import com.wangyang.bioinfo.pojo.enums.AttachmentType;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.param.FindCancer;
@@ -14,11 +14,10 @@ import com.wangyang.bioinfo.service.ICancerService;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.IDataOriginService;
 import com.wangyang.bioinfo.service.IStudyService;
-import com.wangyang.bioinfo.service.base.BaseFileServiceImpl;
+import com.wangyang.bioinfo.service.base.AbstractBaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import com.wangyang.bioinfo.util.ServiceUtil;
-import com.wangyang.bioinfo.util.StringCacheStore;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -31,6 +30,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +40,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class CancerStudyServiceImpl
-        extends BaseFileServiceImpl<CancerStudy>
+        extends AbstractBaseFileService<CancerStudy>
         implements ICancerStudyService {
     @Autowired
     CancerStudyRepository cancerStudyRepository;
@@ -51,53 +51,37 @@ public class CancerStudyServiceImpl
     @Autowired
     IDataOriginService dataOriginService;
 
+    @Override
+    public CancerStudy download(String enName, HttpServletResponse response){
+        return super.download(enName,response);
+    }
+
 
     @Override
-    public CancerStudy addCancerStudy(CancerStudyParam cancerStudyParam) {
+    public CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam) {
         Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
         Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
         CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId());
+
         if(cancerStudy==null){
             cancerStudy = new CancerStudy();
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
+            cancerStudy.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         }
+        cancerStudyParam.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
-        if(cancerStudyParam.getPath().startsWith("http")){
-            cancerStudy.setNetworkPath(cancerStudyParam.getPath());
-        }else {
-            cancerStudy.setLocalPath(StringCacheStore.getValue("workDir")+"/data/"+cancerStudyParam.getPath());
-            cancerStudy.setNetworkPath("data/"+cancerStudyParam.getPath());
-        }
 
-
-
-        if(cancerStudyParam.getFileType()==null){
-            String extension = FilenameUtils.getExtension(cancerStudyParam.getPath());
-            if(extension.equals("")){
-                throw new BioinfoException("路径必须添加后缀名！");
-            }
-            cancerStudy.setFileType(extension);
-        }
-
-        if(cancerStudyParam.getFileName()==null){
-            String basename = FilenameUtils.getBasename(cancerStudyParam.getPath());
-            cancerStudy.setFileName(basename);
-        }
-//        if(cancerStudyParam.getLocalPath()!=null){
-//            cancerStudy.setLocalPath(cancerStudyParam.getLocalPath());
-//        }
-//        if(cancerStudyParam.getNetworkPath()!=null){
-//            cancerStudy.setNetworkPath(cancerStudyParam.getNetworkPath());
-//        }
-
-        return cancerStudyRepository.save(cancerStudy);
+        return saveAndCheckFile(cancerStudy,cancerStudyParam);
     }
 
     @Override
     public CancerStudy upload(MultipartFile file, CancerStudyParam cancerStudyParam) {
+
+
         Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
         Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
@@ -107,25 +91,12 @@ public class CancerStudyServiceImpl
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
+            cancerStudy.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         }
-
-        UploadResult uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL,"data",cancerStudyParam.getFileName(),cancerStudyParam.getFileType());
-
+        cancerStudyParam.setEnName(cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
-
-        cancerStudy.setLocalPath(uploadResult.getFullPath());
-        cancerStudy.setPath(uploadResult.getFilePath());
-        cancerStudy.setNetworkPath(uploadResult.getFilePath());
-        cancerStudy.setSize(uploadResult.getSize());
-
-        if(cancerStudyParam.getFileName()==null){
-            cancerStudy.setFileName(uploadResult.getFilename());
-        }
-        if(cancerStudyParam.getFileType()==null){
-            cancerStudy.setFileType(uploadResult.getSuffix());
-
-        }
-        return cancerStudyRepository.save(cancerStudy);
+        UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" ,FileLocation.LOCAL);
+        return super.upload(uploadResult,cancerStudy,cancerStudyParam);
     }
 
     @Override

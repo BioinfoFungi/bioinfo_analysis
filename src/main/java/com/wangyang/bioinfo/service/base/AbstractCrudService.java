@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.base;
 import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
+import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
@@ -81,4 +82,5 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         }
         return null;
     }
+
 }

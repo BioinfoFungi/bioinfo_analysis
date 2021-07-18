@@ -19,6 +19,6 @@ public class BaseTerm extends BaseEntity{
     private String name;
     private String enName;
     private int userId;
-    @Column(columnDefinition = "longtext not null")
+    @Column(columnDefinition = "longtext")
     private String description;
 }

@@ -1,11 +1,13 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.OrganizeFile;
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.repository.OrganizeFileRepository;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
-import com.wangyang.bioinfo.service.base.BaseFileServiceImpl;
+import com.wangyang.bioinfo.service.base.AbstractBaseFileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.servlet.http.HttpServletResponse;
 
 /**
  * @author wangyang
@@ -13,9 +15,16 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class OrganizeFileServiceImpl
-        extends BaseFileServiceImpl<OrganizeFile>
+        extends AbstractBaseFileService<OrganizeFile>
         implements IOrganizeFileService {
 
     @Autowired
     OrganizeFileRepository organizeFileRepository;
+
+    @Override
+    public OrganizeFile download(String enName, HttpServletResponse response){
+        return super.download(enName,response);
+    }
+
+
 }

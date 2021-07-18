@@ -165,6 +165,12 @@
 			<artifactId>swagger-bootstrap-ui</artifactId>
 			<version>1.9.5</version>
 		</dependency>
+
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.6</version>
+		</dependency>
 		<!--Swagger2-->
 <!--		<dependency>-->
 <!--			<groupId>io.springfox</groupId>-->

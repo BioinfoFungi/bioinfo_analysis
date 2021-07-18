@@ -1,15 +1,11 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.Attachment;
-import com.wangyang.bioinfo.pojo.CancerStudy;
-import com.wangyang.bioinfo.pojo.Project;
-import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.param.AttachmentParam;
+import com.wangyang.bioinfo.pojo.*;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
-import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -20,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -53,7 +50,7 @@ public class CancerStudyController {
     public CancerStudy add(@RequestBody CancerStudyParam cancerStudyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         cancerStudyParam.setUserId(user.getId());
-        CancerStudy cancerStudy = cancerStudyService.addCancerStudy(cancerStudyParam);
+        CancerStudy cancerStudy = cancerStudyService.saveCancerStudy(cancerStudyParam);
         return cancerStudy;
     }
 
@@ -67,5 +64,11 @@ public class CancerStudyController {
     @GetMapping("/findOne")
     public CancerStudy findBy(FindCancer findCancer){
         return cancerStudyService.findCancerStudyByAndThree(findCancer);
+    }
+
+    @GetMapping("/download/{enName}")
+    public CancerStudy download(@PathVariable("enName") String enName, HttpServletResponse response){
+        CancerStudy cancerStudy = cancerStudyService.download(enName, response);
+        return cancerStudy;
     }
 }

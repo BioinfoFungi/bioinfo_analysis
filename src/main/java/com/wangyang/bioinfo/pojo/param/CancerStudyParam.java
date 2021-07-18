@@ -7,16 +7,9 @@ import lombok.Data;
  * @date 2021/6/26
  */
 @Data
-public class CancerStudyParam {
-    private String fileName;
-    private String path;
+public class CancerStudyParam  extends BaseFileParam{
+
     private String cancer;
     private String study;
     private String dataOrigin;
-//    private String localPath;
-//    private String networkPath;
-    private String fileType;
-    private int userId;
-    private int width;
-    private int height;
 }

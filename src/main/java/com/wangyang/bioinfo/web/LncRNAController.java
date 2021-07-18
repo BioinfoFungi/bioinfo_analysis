@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.RNA.LncRNA;
-import com.wangyang.bioinfo.pojo.OrganizeFile;
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.service.ILncRNAService;
@@ -43,7 +43,7 @@ public class LncRNAController {
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
-        lncRNAService.initData(organizeFile.getLocalPath());
+        lncRNAService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("lncRNA初始化完成!");
     }
 

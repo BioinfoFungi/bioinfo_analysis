@@ -1,17 +1,15 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.handle.FileHandler;
-import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.Attachment;
+import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.enums.AttachmentType;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.AttachmentRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
-import com.wangyang.bioinfo.service.base.BaseFileServiceImpl;
+import com.wangyang.bioinfo.service.base.AbstractBaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import org.springframework.beans.BeanUtils;
@@ -26,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -35,37 +34,50 @@ import java.util.Optional;
  * @date 2021/6/13
  */
 @Service
-public class AttachmentServiceImpl extends BaseFileServiceImpl<Attachment> implements IAttachmentService {
+public class AttachmentServiceImpl extends AbstractBaseFileService<Attachment> implements IAttachmentService {
     @Autowired
     AttachmentRepository attachmentRepository;
 
     @Autowired
     IProjectService projectService;
 
+    @Override
+    public Attachment download(String enName, HttpServletResponse response){
+        return super.download(enName,response);
+    }
+
+
 
 
     @Override
-    public Attachment addAttachment(AttachmentParam attachmentParam) {
+    public Attachment saveAttachment(AttachmentParam attachmentParam) {
         Project project = projectService.findProjectById(attachmentParam.getProjectId());
-        Attachment attachment = findAttachmentByPathOrName(project.getId(),attachmentParam.getFileName(),attachmentParam.getPath());
+        Attachment attachment = findAttachmentByPathOrName(project.getId(),attachmentParam.getAbsolutePath(),attachmentParam.getRelativePath(),attachmentParam.getEnName());
 
         if(attachment==null){
             attachment =new Attachment();
         }
+        BeanUtils.copyProperties(attachmentParam,attachment,"enName");
+
+        if(attachmentParam.getEnName()==null){
+            String basename = FilenameUtils.getBasename(attachmentParam.getAbsolutePath());
+            attachment.setEnName(basename);
+        }else {
+            attachment.setEnName(attachmentParam.getEnName());
+        }
+        return saveAndCheckFile(attachment,attachmentParam);
+    }
+    @Override
+    public Attachment upload(MultipartFile file,AttachmentParam attachmentParam) {
+        UploadResult uploadResult = fileHandlers.uploadFixed(file, "attachment",FileLocation.LOCAL);
+        if(attachmentParam.getEnName()==null){
+            String basename = FilenameUtils.getBasename(uploadResult.getAbsolutePath());
+            attachmentParam.setEnName(basename);
+        }
+        Project project = projectService.findProjectById(attachmentParam.getProjectId());
+        Attachment attachment = findAttachmentByPathOrName(project.getId(),uploadResult.getAbsolutePath(),uploadResult.getRelativePath(),attachmentParam.getEnName());
         BeanUtils.copyProperties(attachmentParam,attachment);
-        if(attachmentParam.getFileType()==null){
-            String extension = FilenameUtils.getExtension(attachmentParam.getPath());
-            if(extension.equals("")){
-                throw new BioinfoException("路径必须添加后缀名！");
-            }
-            attachment.setFileType(extension);
-        }
-        if(attachment.getFileName()==null){
-            String basename = FilenameUtils.getBasename(attachmentParam.getPath());
-            attachment.setFileName(basename);
-        }
-        attachment = attachmentRepository.save(attachment);
-        return attachment;
+        return super.upload(uploadResult,attachment,attachmentParam);
     }
 
     @Override
@@ -103,12 +115,15 @@ public class AttachmentServiceImpl extends BaseFileServiceImpl<Attachment> imple
     }
 
     @Override
-    public Attachment findAttachmentByPathOrName(int projectId,String name,String path) {
+    public Attachment findAttachmentByPathOrName(int projectId,String absolutePath,String relativePath,String enName) {
         List<Attachment> attachments = attachmentRepository.findAll(new Specification<Attachment>() {
             @Override
             public Predicate toPredicate(Root<Attachment> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 Predicate predicateAnd = criteriaBuilder.and(criteriaBuilder.equal(root.get("projectId"), projectId));
-                Predicate predicateOr = criteriaBuilder.or(criteriaBuilder.equal(root.get("fileName"), name), criteriaBuilder.equal(root.get("path"), path));
+                Predicate predicateOr = criteriaBuilder.or(
+                        criteriaBuilder.equal(root.get("absolutePath"), absolutePath),
+                        criteriaBuilder.equal(root.get("relativePath"), relativePath),
+                        criteriaBuilder.equal(root.get("enName"), enName));
                 return criteriaQuery.where(predicateOr,predicateAnd).getRestriction();
             }
         });
@@ -134,43 +149,7 @@ public class AttachmentServiceImpl extends BaseFileServiceImpl<Attachment> imple
         return null;
     }
 
-    @Override
-    public Attachment upload(MultipartFile file,AttachmentParam attachmentParam) {
-        Project project = projectService.findProjectById(attachmentParam.getProjectId());
 
-        String  originalFilename = file.getOriginalFilename();
-        String basename = FilenameUtils.getBasename(originalFilename);
-        if(attachmentParam.getFileName()==null){
-            attachmentParam.setFileName(basename);
-        }
-        Attachment attachment = findAttachmentByPathOrName(project.getId(),attachmentParam.getFileName(),"");
-        UploadResult uploadResult;
-        if(attachment==null){
-            attachment = new Attachment();
-            uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL);
-        }else {
-            if(attachment.getPath().startsWith("upload")){
-                uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL,attachment.getPath());
-            }else {
-                uploadResult = fileHandlers.upload(file, AttachmentType.LOCAL);
-            }
-        }
-
-
-        BeanUtils.copyProperties(attachmentParam,attachment);
-//        if(attachmentParam.getFileName()==null){
-//            attachment.setFileName(uploadResult.getFilename());
-//        }
-        if(attachment.getFileType()==null){
-            attachment.setFileType(uploadResult.getSuffix());
-        }
-
-        attachment.setPath(uploadResult.getFilePath());
-        attachment.setSize(uploadResult.getSize());
-
-        attachment = attachmentRepository.save(attachment);
-        return attachment;
-    }
 
     @Override
     public Attachment upload(int id, MultipartFile file) {

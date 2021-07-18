@@ -1,24 +1,17 @@
 package com.wangyang.bioinfo.handle;
 
-import com.wangyang.bioinfo.pojo.enums.AttachmentType;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.ApplicationContext;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Collection;
-import java.util.Date;
 import java.util.concurrent.locks.ReentrantLock;
 
 /**
@@ -46,7 +39,7 @@ public class LocalFileHandler implements FileHandler {
         }
         String subFilePath =path+ "/"+name+"."+suffix;
 
-        uploadResult.setFilePath(subFilePath);
+        uploadResult.setRelativePath(subFilePath);
         uploadResult.setFilename(basename);
         uploadResult.setSuffix(extension);
 
@@ -54,7 +47,7 @@ public class LocalFileHandler implements FileHandler {
         if(uploadPath.toFile().exists()){
             uploadPath.toFile().delete();
         }
-        uploadResult.setFullPath(uploadPath.toString());
+        uploadResult.setAbsolutePath(uploadPath.toString());
         try {
             Files.createDirectories(uploadPath.getParent());
             //创建文件
@@ -80,6 +73,12 @@ public class LocalFileHandler implements FileHandler {
         return  this.upload(file,"upload",FilenameUtils.randomName(),null);
     }
 
+
+    @Override
+    public UploadResult uploadFixed(MultipartFile file,String path) {
+        return  this.upload(file,path,null,null);
+    }
+
     @Override
     public UploadResult upload(MultipartFile file, String fullPath) {
         Path path = Paths.get(fullPath);
@@ -91,7 +90,7 @@ public class LocalFileHandler implements FileHandler {
     }
 
     @Override
-    public boolean supportType(AttachmentType type) {
-        return AttachmentType.LOCAL.equals(type);
+    public boolean supportType(FileLocation type) {
+        return FileLocation.LOCAL.equals(type);
     }
 }
