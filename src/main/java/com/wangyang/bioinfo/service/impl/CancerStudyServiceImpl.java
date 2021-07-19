@@ -59,17 +59,17 @@ public class CancerStudyServiceImpl
         Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
         Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
-        CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId());
+        CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId(),cancerStudyParam.getEnName());
 
         if(cancerStudy==null){
             cancerStudy = new CancerStudy();
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
-            cancerStudy.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         }
-        cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
-
+        if(cancerStudyParam.getEnName()==null){
+            cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+        }
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
 
         return saveAndCheckFile(cancerStudy,cancerStudyParam);
@@ -82,15 +82,16 @@ public class CancerStudyServiceImpl
         Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
         Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
-        CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId());
+        CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId(),cancerStudyParam.getEnName());
         if(cancerStudy==null){
             cancerStudy = new CancerStudy();
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
-            cancerStudy.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
         }
-        cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+        if(cancerStudyParam.getEnName()==null){
+            cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
+        }
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
         UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" ,FileLocation.LOCAL);
         return super.upload(uploadResult,cancerStudy,cancerStudyParam);
@@ -107,14 +108,16 @@ public class CancerStudyServiceImpl
     }
 
     @Override
-    public CancerStudy findCancerStudyByAndThree(int cancerId, int studyId, int dataOriginId) {
+    public CancerStudy findCancerStudyByAndThree(int cancerId, int studyId, int dataOriginId,String enName) {
+
         List<CancerStudy> cancerStudies = cancerStudyRepository.findAll(new Specification<CancerStudy>() {
             @Override
             public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 Predicate predicate = criteriaBuilder.and(
                         criteriaBuilder.equal(root.get("cancerId"), cancerId),
                         criteriaBuilder.equal(root.get("studyId"), studyId),
-                        criteriaBuilder.equal(root.get("dataOriginId"), dataOriginId));
+                        criteriaBuilder.equal(root.get("dataOriginId"), dataOriginId),
+                        criteriaBuilder.equal(root.get("enName"), enName));
                 return criteriaQuery.where(predicate).getRestriction();
             }
         });
@@ -129,7 +132,7 @@ public class CancerStudyServiceImpl
         Cancer cancer = cancerService.findAndCheckByEnName(findCancer.getCancer());
         Study study = studyService.findAndCheckByEnName(findCancer.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(findCancer.getDataOrigin());
-        return findCancerStudyByAndThree(cancer.getId(),study.getId(),dataOrigin.getId());
+        return findCancerStudyByAndThree(cancer.getId(),study.getId(),dataOrigin.getId(),findCancer.getEnName());
     }
 
     @Override

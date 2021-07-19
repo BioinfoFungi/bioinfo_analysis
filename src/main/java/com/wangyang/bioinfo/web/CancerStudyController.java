@@ -13,11 +13,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.Valid;
 
 import java.util.List;
 
@@ -48,7 +50,7 @@ public class CancerStudyController {
 
 
     @PostMapping
-    public CancerStudy add(@RequestBody CancerStudyParam cancerStudyParam, HttpServletRequest request){
+    public CancerStudy add(@RequestBody @Valid  CancerStudyParam cancerStudyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         cancerStudyParam.setUserId(user.getId());
         CancerStudy cancerStudy = cancerStudyService.saveCancerStudy(cancerStudyParam);
@@ -63,7 +65,7 @@ public class CancerStudyController {
     }
 
     @GetMapping("/findOne")
-    public CancerStudy findBy(FindCancer findCancer){
+    public CancerStudy findBy(@Valid FindCancer findCancer){
         return cancerStudyService.findCancerStudyByAndThree(findCancer);
     }
 

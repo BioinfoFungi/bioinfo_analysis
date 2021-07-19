@@ -25,7 +25,7 @@ public interface ICancerStudyService extends IAbstractBaseFileService<CancerStud
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
     CancerStudy delCancerStudy(int id);
     CancerStudy findCancerStudyById(int id);
-    CancerStudy findCancerStudyByAndThree(int cancerId,int studyId,int dataOriginId);
+    CancerStudy findCancerStudyByAndThree(int cancerId,int studyId,int dataOriginId,String enName);
     CancerStudy findCancerStudyByAndThree(FindCancer findCancer);
     List<CancerStudy> findAllById(Collection<Integer> id);
     @Override
