@@ -1,5 +1,8 @@
 package com.wangyang.bioinfo.web;
 
+import com.github.rcaller.graphics.SkyTheme;
+import com.github.rcaller.rstuff.RCaller;
+import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -18,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.HashMap;
@@ -75,5 +79,54 @@ public class MainController {
 //        os.write(base64.);
         os.flush();
         os.close();
+    }
+
+
+    @RequestMapping("/testJavaCallR")
+    @ResponseBody
+    public void testJavaCallR(HttpServletRequest httpServletRequest,
+                        HttpServletResponse httpServletResponse) throws IOException {
+
+        RCaller caller = RCaller.create();
+        RCode code = RCode.create();
+
+        code.addRCode("x <- rnorm(30)");
+        code.addRCode("y <- rnorm(30)");
+        code.addRCode("ols <- lm(y~x)");
+
+        caller.setGraphicsTheme(new SkyTheme());
+        File plt = code.startPlot();
+        code.addRCode("barplot(x,y)");
+        code.addRCode("abline(ols$coefficients[1], ols$coefficients[2])");
+        code.addRCode("abline(mean(y), 0)");
+        code.addRCode("abline(v = mean(x))");
+        code.endPlot();
+        caller.setRCode(code);
+        caller.runAndReturnResult("ols");
+
+
+        byte[] img = Files.readAllBytes(plt.toPath());
+        String base64 = Base64.getEncoder().encodeToString(img);
+        httpServletResponse.setContentType("image/png");
+        OutputStream os = httpServletResponse.getOutputStream();
+        os.write(img);
+//        os.write(base64.);
+        os.flush();
+        os.close();
+    }
+    @RequestMapping("/testJavaCallData")
+    @ResponseBody
+    public void testJavaCallData(HttpServletRequest httpServletRequest,
+                              HttpServletResponse httpServletResponse) throws IOException {
+
+        RCaller caller = RCaller.create();
+        RCode code = RCode.create();
+
+//        code.addRCode("df <- read.csv(\"~/Downloads/TCGA_COAD_Counts.tsv\")");
+//        code.addRCode("df <- head(df)");
+        caller.redirectROutputToStream(httpServletResponse.getOutputStream());
+        code.addRCode("a<-1");
+        code.addRCode("version");
+        caller.runAndReturnResultOnline("a");
     }
 }

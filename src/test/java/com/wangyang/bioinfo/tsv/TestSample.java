@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo;
+package com.wangyang.bioinfo.tsv;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
