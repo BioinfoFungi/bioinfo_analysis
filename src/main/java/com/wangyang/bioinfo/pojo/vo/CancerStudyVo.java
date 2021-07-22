@@ -31,4 +31,8 @@ public class CancerStudyVo {
     private Integer times;
     private String md5;
     private Boolean isCompress;
+    private String processedAbsolutePath;
+    private String processedRelativePath;
+    private Integer processedId;
+    private Boolean isProcessed;
 }

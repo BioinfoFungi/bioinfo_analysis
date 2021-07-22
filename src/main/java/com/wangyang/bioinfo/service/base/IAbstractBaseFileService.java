@@ -25,6 +25,8 @@ public interface IAbstractBaseFileService<FILE extends BaseFile> extends ICrudSe
 
     Page<FILE> pageBy(BaseFileQuery baseFileQuery, Pageable pageable);
 
+    FILE save(FILE inputFile);
+
     FILE download(String enName, HttpServletResponse response, HttpServletRequest request);
 
     FILE download(Integer id, FileLocation fileLocation, HttpServletResponse response,HttpServletRequest request);

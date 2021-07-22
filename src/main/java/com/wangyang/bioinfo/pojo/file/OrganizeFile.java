@@ -2,6 +2,8 @@ package com.wangyang.bioinfo.pojo.file;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 
 import javax.persistence.*;
 
@@ -11,7 +13,7 @@ import javax.persistence.*;
  */
 @Data
 @Entity(name = "t_organize_file")
-@DiscriminatorValue(value = "1")
+//@DiscriminatorValue(value = "1")
 public class OrganizeFile extends BaseFile {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)

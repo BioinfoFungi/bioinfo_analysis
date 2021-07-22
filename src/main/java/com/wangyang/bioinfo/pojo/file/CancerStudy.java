@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Entity(name = "t_cancer_study")
 @Getter
 @Setter
-@DiscriminatorValue(value = "2")
+//@DiscriminatorValue(value = "2")
 public class CancerStudy extends BaseFile {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -22,7 +22,12 @@ public class CancerStudy extends BaseFile {
     private int cancerId;
     private int studyId;
     private int dataOriginId;
-
+    @Column(columnDefinition = "longtext")
+    private String description;
+    private String processedAbsolutePath;
+    private String processedRelativePath;
+    private Integer processedId;
+    private Boolean isProcessed;
 
 
 

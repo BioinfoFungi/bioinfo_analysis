@@ -117,13 +117,9 @@ public class AbstractBaseFileService<FILE extends BaseFile>
     }
 
 
+    @Override
     public FILE save(FILE inputFile) {
-        FILE file = findByEnName(inputFile.getEnName());
-        if (file==null){
-            file = super.getInstance();
-        }
-        BeanUtils.copyProperties(inputFile,file);
-        return super.add(file);
+        return super.add(inputFile);
     }
 
     @Override

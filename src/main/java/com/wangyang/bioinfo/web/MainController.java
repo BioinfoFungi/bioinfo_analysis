@@ -127,6 +127,41 @@ public class MainController {
         caller.redirectROutputToStream(httpServletResponse.getOutputStream());
         code.addRCode("a<-1");
         code.addRCode("version");
-        caller.runAndReturnResultOnline("a");
+        caller.runAndReturnResult("a");
+    }
+
+    @RequestMapping("/testJavaCallOnline")
+    @ResponseBody
+    public void testJavaCallOnline(HttpServletRequest httpServletRequest,
+                                 HttpServletResponse httpServletResponse) throws IOException {
+
+        RCaller rcaller = RCaller.create();
+        rcaller.redirectROutputToStream(httpServletResponse.getOutputStream());
+
+        RCode code = RCode.create();
+        code.addRCode("b<-1:10");
+        code.addRCode("m<-mean(b)");
+
+        rcaller.runAndReturnResultOnline("m");
+        code.addRCode("b<-1:10");
+        code.addRCode("m<-mean(b)");
+
+        rcaller.runAndReturnResultOnline("m");
+        rcaller.stopRCallerOnline();
+
+    }
+
+    @RequestMapping("/testCmd")
+    @ResponseBody
+    public void testCmd(){
+        try {
+            ProcessBuilder pb = new ProcessBuilder("");
+            Process process =pb.start();
+            OutputStream outputStream = process.getOutputStream();
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 }

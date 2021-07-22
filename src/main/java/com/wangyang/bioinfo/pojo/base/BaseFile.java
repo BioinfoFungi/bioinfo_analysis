@@ -10,10 +10,10 @@ import javax.persistence.*;
  * @author wangyang
  * @date 2021/6/26
  */
-@Entity(name = "t_base_file")
-@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.INTEGER, columnDefinition = "int default 0")
+//@Entity(name = "t_base_file")
+//@DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.INTEGER, columnDefinition = "int default 0")
 
-//@MappedSuperclass
+@MappedSuperclass
 @Data
 public class BaseFile extends BaseEntity {
     @Id
@@ -41,6 +41,8 @@ public class BaseFile extends BaseEntity {
     private Integer times=0;
 
     private FileLocation location = FileLocation.LOCAL;
+
+
     /**
      * 留用
      */
@@ -50,6 +52,9 @@ public class BaseFile extends BaseEntity {
     private Integer userId;
 
     private String md5;
+    /**
+     * 是否压缩
+     */
     private Boolean isCompress=false;
 
 

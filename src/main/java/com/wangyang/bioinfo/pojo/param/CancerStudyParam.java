@@ -16,4 +16,8 @@ public class CancerStudyParam  extends BaseFileParam{
     private String study;
     @NotBlank(message = "dataOrigin不能为空!")
     private String dataOrigin;
+
+    private String processedAbsolutePath;
+    private String processedRelativePath;
+    private Integer processedId;
 }

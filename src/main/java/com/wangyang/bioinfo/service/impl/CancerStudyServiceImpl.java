@@ -104,7 +104,11 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy findCancerStudyById(int id) {
-        return null;
+        Optional<CancerStudy> cancerStudyOptional = cancerStudyRepository.findById(id);
+        if(!cancerStudyOptional.isPresent()){
+            throw new BioinfoException("Cancer Study 对象不存在!");
+        }
+        return cancerStudyOptional.get();
     }
 
     @Override

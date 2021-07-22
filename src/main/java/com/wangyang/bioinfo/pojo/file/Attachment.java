@@ -14,7 +14,7 @@ import javax.persistence.*;
 @Getter
 @Setter
 @Entity(name = "t_attachment")
-@DiscriminatorValue(value = "3")
+//@DiscriminatorValue(value = "3")
 public class Attachment extends BaseFile {
     private String thumbPath;
 
