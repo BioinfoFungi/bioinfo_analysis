@@ -153,6 +153,7 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
                 TsvParser parser = new TsvParser(settings);
                 parser.parse(inputStream);
                 List<DOMAIN> beans = beanListProcessor.getBeans();
+                inputStream.close();
                 return beans;
             }
 

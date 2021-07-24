@@ -19,6 +19,7 @@ import javax.persistence.*;
 public class BaseFile extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Parsed
     private int id;
     /**
      * 显示文件的名称
@@ -35,6 +36,7 @@ public class BaseFile extends BaseEntity {
 
     @Parsed(field = "absolute_path")
     private String absolutePath;
+    @Parsed(field = "relative_path")
     private String relativePath;
     private Long size=0L;
     /**
@@ -43,6 +45,7 @@ public class BaseFile extends BaseEntity {
     private Boolean status=true;
     private Integer times=0;
 
+    @Parsed
     private FileLocation location = FileLocation.LOCAL;
 
 

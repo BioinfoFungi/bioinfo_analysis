@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo.file;
 
+import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import lombok.Getter;
 import lombok.Setter;
@@ -19,8 +20,11 @@ public class CancerStudy extends BaseFile {
 //    @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
 //    private int id;
+    @Parsed
     private int cancerId;
+    @Parsed
     private int studyId;
+    @Parsed
     private int dataOriginId;
     @Column(columnDefinition = "longtext")
     private String description;
