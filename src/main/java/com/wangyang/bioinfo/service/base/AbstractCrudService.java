@@ -1,15 +1,22 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.univocity.parsers.common.processor.BeanListProcessor;
+import com.univocity.parsers.common.processor.BeanWriterProcessor;
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
+import com.univocity.parsers.tsv.TsvWriter;
+import com.univocity.parsers.tsv.TsvWriterSettings;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
+import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.StringCacheStore;
+import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.util.Assert;
 
-import java.io.FileInputStream;
-import java.io.IOException;
+import javax.servlet.ServletOutputStream;
+import javax.servlet.http.HttpServletResponse;
+import java.io.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
@@ -66,10 +73,78 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
     }
 
     @Override
-    public List<DOMAIN> initData(String filePath){
+    public  void   createTSVFile(HttpServletResponse response){
+        List<DOMAIN> domains = listAll();
+        String name = getInstance().getClass().getSimpleName();
+        File tsvFile = createTSVFile(domains,
+                StringCacheStore.getValue("workDir")+"/export/"+name+".tsv", null);
+        ServletOutputStream outputStream = null;
+        try {
+            outputStream = response.getOutputStream();
+            byte[] bytes = FileUtils.readFileToByteArray(tsvFile);
+            //写之前设置响应流以附件的形式打开返回值,这样可以保证前边打开文件出错时异常可以返回给前台
+            response.setHeader("Content-Disposition","attachment;filename="+tsvFile.getName());
+            outputStream.write(bytes);
+            outputStream.flush();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }finally {
+            try {
+                if(outputStream!=null){
+                    outputStream.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+    }
+
+    @Override
+    public File createTSVFile(List<DOMAIN> domains, String filePath,String[] heads){
+        File csvFile = new File(filePath);
+        File parent = csvFile.getParentFile();
+        if (parent != null && !parent.exists())
+        {
+            parent.mkdirs();
+        }
+        TsvWriter writer=null;
+        Writer fileWriter =null;
+        try {
+            TsvWriterSettings settings = new TsvWriterSettings();
+            BeanWriterProcessor<DOMAIN> beanWriterProcessor = new BeanWriterProcessor<>((Class<DOMAIN>) getInstance().getClass());
+            settings.setRowWriterProcessor(beanWriterProcessor);
+            fileWriter = new FileWriter(csvFile);
+            settings.setHeaderWritingEnabled(true);
+            if(heads!=null){
+                settings.setHeaders(heads);
+            }
+            writer = new TsvWriter(fileWriter,settings);
+
+            writer.writeHeaders();
+            writer.processRecords(domains);
+            return csvFile;
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new BioinfoException(e.getMessage());
+        } finally {
+            if(writer!=null){
+                writer.close();
+            }
+            try {
+                if(fileWriter!=null){
+                    fileWriter.close();
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
+    @Override
+    public List<DOMAIN> tsvToBean(String filePath){
         try {
             try(FileInputStream inputStream = new FileInputStream(filePath)){
-                repository.deleteAll();
                 DOMAIN instance = getInstance();
                 BeanListProcessor<DOMAIN> beanListProcessor = new BeanListProcessor<>((Class<DOMAIN>) getInstance().getClass());
                 TsvParserSettings settings = new TsvParserSettings();
@@ -78,14 +153,24 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
                 TsvParser parser = new TsvParser(settings);
                 parser.parse(inputStream);
                 List<DOMAIN> beans = beanListProcessor.getBeans();
-                List<DOMAIN> list = repository.saveAll(beans);
-                return list;
+                return beans;
             }
 
         } catch (IOException e) {
             e.printStackTrace();
         }
         return null;
+    }
+
+
+    @Override
+    public List<DOMAIN> initData(String filePath){
+        repository.deleteAll();
+        List<DOMAIN> beans = tsvToBean(filePath);
+        if(beans.size()!=0){
+            beans = repository.saveAll(beans);
+        }
+        return beans;
     }
 
 }

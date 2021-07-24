@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo.base;
 
+import com.univocity.parsers.annotations.Parsed;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -14,9 +15,11 @@ import javax.persistence.*;
 public class BaseTerm extends BaseEntity{
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Parsed
     private int id;
-
+    @Parsed
     private String name;
+    @Parsed
     private String enName;
     private int userId;
     @Column(columnDefinition = "longtext")

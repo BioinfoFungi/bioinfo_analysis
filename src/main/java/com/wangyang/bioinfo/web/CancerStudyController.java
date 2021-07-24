@@ -4,11 +4,14 @@ import com.wangyang.bioinfo.pojo.*;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
 import com.wangyang.bioinfo.service.ICancerStudyService;
+import com.wangyang.bioinfo.service.IOrganizeFileService;
+import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +38,9 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class CancerStudyController {
     @Autowired
     ICancerStudyService cancerStudyService;
+
+    @Autowired
+    IOrganizeFileService organizeFileService;
 
     @GetMapping
     public Page<CancerStudyVo> page(CancerStudyQuery cancerStudyQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
@@ -69,6 +75,12 @@ public class CancerStudyController {
     public CancerStudy findBy(@Valid FindCancer findCancer){
         return cancerStudyService.findCancerStudyByAndThree(findCancer);
     }
+
+    @GetMapping("/createTSVFile")
+    public void createTSVFile(HttpServletResponse response){
+        cancerStudyService.createTSVFile(response);
+    }
+
     @GetMapping("/download/{enName}")
     public CancerStudy download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
         CancerStudy cancerStudy = cancerStudyService.download(enName, response,request);
@@ -86,5 +98,13 @@ public class CancerStudyController {
     @GetMapping("/findOne/{enName}")
     public CancerStudy findByEnName(@PathVariable("enName") String enName){
         return cancerStudyService.findByEnNameAndCheck(enName);
+    }
+
+
+    @GetMapping("/init/{name}")
+    public BaseResponse initData(@PathVariable("name") String name){
+        OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
+        cancerStudyService.initData(organizeFile.getAbsolutePath());
+        return BaseResponse.ok("CancerStudy初始化完成!");
     }
 }

@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo.base;
 
+import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import lombok.Data;
@@ -31,6 +32,8 @@ public class BaseFile extends BaseEntity {
      * 获取唯一文件的名称
      */
     private String enName;
+
+    @Parsed(field = "absolute_path")
     private String absolutePath;
     private String relativePath;
     private Long size=0L;

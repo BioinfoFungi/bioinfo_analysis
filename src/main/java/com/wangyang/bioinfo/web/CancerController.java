@@ -16,6 +16,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import java.util.List;
 
@@ -41,6 +42,10 @@ public class CancerController {
     public Cancer add(@RequestBody  CancerParam cancerParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return  cancerService.addCancer(cancerParam,user);
+    }
+    @GetMapping("/createTSVFile")
+    public void createTSVFile(HttpServletResponse response){
+        cancerService.createTSVFile(response);
     }
 
     @GetMapping("/listAll")

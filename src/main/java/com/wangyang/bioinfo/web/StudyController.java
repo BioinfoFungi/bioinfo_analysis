@@ -12,6 +12,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -35,6 +36,11 @@ public class StudyController {
     public Study add(@RequestBody  StudyParam studyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return  studyService.addStudy(studyParam,user);
+    }
+
+    @GetMapping("/createTSVFile")
+    public void createTSVFile(HttpServletResponse response){
+        studyService.createTSVFile(response);
     }
     @GetMapping("/listAll")
     public List<Study> listAll(){

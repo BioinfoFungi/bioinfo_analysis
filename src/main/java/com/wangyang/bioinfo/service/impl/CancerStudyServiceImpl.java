@@ -144,10 +144,7 @@ public class CancerStudyServiceImpl
         return null;
     }
 
-    @Override
-    public List<CancerStudy> listAll() {
-        return null;
-    }
+
 
     @Override
     public Page<CancerStudy> pageCancerStudy(Pageable pageable) {
@@ -219,6 +216,7 @@ public class CancerStudyServiceImpl
 
         return cancerStudyVos;
     }
+
 
     @Override
     public Page<CancerStudyVo> convertVo(Page<CancerStudy> fromCancerStudies) {

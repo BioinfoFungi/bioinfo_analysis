@@ -15,6 +15,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -42,7 +43,10 @@ public class DataOriginController {
         User user = (User) request.getAttribute("user");
         return  dataOriginService.addDataOrigin(dataOriginParam,user);
     }
-
+    @GetMapping("/createTSVFile")
+    public void createTSVFile(HttpServletResponse response){
+        dataOriginService.createTSVFile(response);
+    }
     @GetMapping("/listAll")
     public List<DataOrigin> listAll(){
         return dataOriginService.listAll();
