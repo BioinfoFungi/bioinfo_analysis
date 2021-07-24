@@ -2,12 +2,16 @@ package com.wangyang.bioinfo.task;
 
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.atomic.AtomicInteger;
 
 /**
  * @author wangyang
  * @date 2021/7/24
  */
 public class TaskQueue {
+
+    private AtomicInteger mAtomicInteger = new AtomicInteger();
 
     // 某机构排的队，队里面是办事的人。
     private BlockingQueue<ITask> mTaskQueue;
@@ -16,7 +20,7 @@ public class TaskQueue {
 
     // 在开发者new队列的时候，要指定窗口数量。
     public TaskQueue(int size) {
-        mTaskQueue = new LinkedBlockingQueue<>();
+        mTaskQueue = new PriorityBlockingQueue<>();
         mTaskExecutors = new TaskExecutor[size];
     }
 
@@ -41,6 +45,7 @@ public class TaskQueue {
     // 开一个门，让办事的人能进来。
     public <T extends ITask> int add(T task) {
         if (!mTaskQueue.contains(task)) {
+            task.setSequence(mAtomicInteger.incrementAndGet());
             mTaskQueue.add(task);
         }
         // 返回排的队的人数，公开透明，让外面的人看的有多少人在等着办事。
