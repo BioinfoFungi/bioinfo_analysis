@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
@@ -48,6 +49,15 @@ public class OrganizeFileController {
     @GetMapping("/download/{enName}")
     public OrganizeFile download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
         OrganizeFile organizeFile = organizeService.download(enName, response,request);
+        return organizeFile;
+    }
+
+    @GetMapping("/downloadById/{Id}")
+    public OrganizeFile downloadById(@PathVariable("Id") Integer id,
+                                   @RequestParam(value = "location",defaultValue = "LOCAL")
+                                           FileLocation fileLocation, HttpServletResponse response,
+                                   HttpServletRequest request){
+        OrganizeFile organizeFile = organizeService.download(id, fileLocation,response,request);
         return organizeFile;
     }
 

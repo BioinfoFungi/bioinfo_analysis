@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.task;
+package com.wangyang.bioinfo.task.manage1;
 
 import java.util.concurrent.BlockingQueue;
 
@@ -11,7 +11,7 @@ public class TaskExecutor extends Thread  {
     private BlockingQueue<ITask> taskQueue;
 
     // 这个办事窗口是否在等待着办事。
-    private boolean isRunning = true;
+    private volatile boolean isRunning = true;
 
     public TaskExecutor(BlockingQueue<ITask> taskQueue) {
         this.taskQueue = taskQueue;
@@ -20,7 +20,7 @@ public class TaskExecutor extends Thread  {
     // 下班。
     public void quit() {
         isRunning = false;
-        interrupt();
+//        interrupt();
     }
 
     @Override

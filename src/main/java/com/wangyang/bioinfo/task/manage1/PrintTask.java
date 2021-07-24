@@ -1,10 +1,13 @@
-package com.wangyang.bioinfo.task;
+package com.wangyang.bioinfo.task.manage1;
+
+import com.wangyang.bioinfo.task.manage1.ITask;
+import com.wangyang.bioinfo.task.manage1.Priority;
 
 /**
  * @author wangyang
  * @date 2021/7/24
  */
-public class PrintTask  implements ITask{
+public class PrintTask  implements ITask {
     // 默认优先级。
     private Priority priority = Priority.DEFAULT;
     private int id;

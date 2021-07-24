@@ -36,3 +36,9 @@ jwt:
   base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
 bioinfo:
     workDir: ${user.home}/.bioinfo
+
+#https://www.jianshu.com/p/35878d4ec130
+server:
+  tomcat:
+    max-threads: 200
+    max-connections: 300

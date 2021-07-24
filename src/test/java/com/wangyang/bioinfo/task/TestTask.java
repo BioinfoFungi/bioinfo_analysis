@@ -1,5 +1,8 @@
 package com.wangyang.bioinfo.task;
 
+import com.wangyang.bioinfo.task.manage1.PrintTask;
+import com.wangyang.bioinfo.task.manage1.Priority;
+import com.wangyang.bioinfo.task.manage1.TaskQueue;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -8,7 +11,7 @@ import org.junit.jupiter.api.Test;
  */
 public class TestTask {
 
-    @Test
+
     public void task1(){
         // 这里暂时只开一个窗口。
         TaskQueue taskQueue = new TaskQueue(5);
@@ -19,6 +22,7 @@ public class TestTask {
             taskQueue.add(task);
         }
         taskQueue.start();//打开窗口
+        taskQueue.stop();
     }
     public void task2() {
         // 开一个窗口，这样会让优先级更加明显。

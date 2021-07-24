@@ -14,7 +14,7 @@ import java.util.Scanner;
  * @date 2021/7/21
  */
 public class TestProcess {
-    @Test
+//    @Test
     public void test1() throws Exception {
         Process process = Runtime.getRuntime().exec("/usr/bin/R --vanilla ");
         OutputStream outputStream = process.getOutputStream();
@@ -30,7 +30,7 @@ public class TestProcess {
         }
 
     }
-    @Test
+//    @Test
     public void test2() throws IOException {
         RCaller rcaller = RCaller.create();
 
@@ -43,7 +43,7 @@ public class TestProcess {
 
     }
 
-    @Test
+//    @Test
     public void test3() throws IOException {
         Process process = null;
         try {
@@ -87,7 +87,7 @@ public class TestProcess {
         System.out.println();
     }
 
-    @Test
+//    @Test
     public void test4() throws IOException {
         String line;
         Scanner scan = new Scanner(System.in);
@@ -156,7 +156,7 @@ public class TestProcess {
 //        }
     }
     private final static double delta = 1.0 / 1000.0;
-    @Test
+//    @Test
     public void test6(){
         RCaller caller = RCaller.create();
         RCode code = RCode.create();

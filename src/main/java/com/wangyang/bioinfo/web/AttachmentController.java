@@ -1,8 +1,10 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.service.IAttachmentService;
@@ -84,7 +86,14 @@ public class AttachmentController {
         User user = (User) request.getAttribute("user");
         return attachmentService.delAttachment(id,user);
     }
-
+    @GetMapping("/downloadById/{Id}")
+    public Attachment downloadById(@PathVariable("Id") Integer id,
+                                    @RequestParam(value = "location",defaultValue = "LOCAL")
+                                            FileLocation fileLocation, HttpServletResponse response,
+                                    HttpServletRequest request){
+        Attachment attachment = attachmentService.download(id, fileLocation,response,request);
+        return attachment;
+    }
     @GetMapping("/download/{enName}")
     public Attachment download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
         Attachment attachment = attachmentService.download(enName, response,request);

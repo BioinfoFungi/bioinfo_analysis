@@ -53,7 +53,7 @@ public class LocalFileHandler implements FileHandler {
             //创建文件
             Files.createFile(uploadPath);
             file.transferTo(uploadPath);
-            log.info("上传文件到",uploadPath.toFile().getPath());
+            log.info("upload file to :{}",uploadPath.toFile().getPath());
         } catch (IOException e) {
             e.printStackTrace();
         }

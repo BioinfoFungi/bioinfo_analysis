@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.*;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
@@ -68,12 +69,20 @@ public class CancerStudyController {
     public CancerStudy findBy(@Valid FindCancer findCancer){
         return cancerStudyService.findCancerStudyByAndThree(findCancer);
     }
-
     @GetMapping("/download/{enName}")
     public CancerStudy download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
         CancerStudy cancerStudy = cancerStudyService.download(enName, response,request);
         return cancerStudy;
     }
+    @GetMapping("/downloadById/{Id}")
+    public CancerStudy downloadById(@PathVariable("Id") Integer id,
+                                    @RequestParam(value = "location",defaultValue = "LOCAL")
+                                            FileLocation fileLocation, HttpServletResponse response,
+                                    HttpServletRequest request){
+        CancerStudy cancerStudy = cancerStudyService.download(id, fileLocation,response,request);
+        return cancerStudy;
+    }
+
     @GetMapping("/findOne/{enName}")
     public CancerStudy findByEnName(@PathVariable("enName") String enName){
         return cancerStudyService.findByEnNameAndCheck(enName);

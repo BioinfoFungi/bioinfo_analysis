@@ -45,6 +45,11 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         return repository.save(domain);
     }
 
+    @Override
+    public DOMAIN save(DOMAIN domain) {
+        return repository.save(domain);
+    }
+
     protected DOMAIN getInstance()
     {
         ParameterizedType superClass = (ParameterizedType) getClass().getGenericSuperclass();

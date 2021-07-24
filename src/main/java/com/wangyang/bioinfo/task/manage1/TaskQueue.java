@@ -1,7 +1,6 @@
-package com.wangyang.bioinfo.task;
+package com.wangyang.bioinfo.task.manage1;
 
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.PriorityBlockingQueue;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -20,7 +19,7 @@ public class TaskQueue {
 
     // 在开发者new队列的时候，要指定窗口数量。
     public TaskQueue(int size) {
-        mTaskQueue = new PriorityBlockingQueue<>();
+        mTaskQueue = new PriorityBlockingQueue<>(10);
         mTaskExecutors = new TaskExecutor[size];
     }
 

@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.task;
+package com.wangyang.bioinfo.task.manage1;
 
 /**
  * @author wangyang

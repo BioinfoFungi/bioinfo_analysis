@@ -11,6 +11,6 @@ import java.util.List;
 public interface ICrudService<DOMAIN, ID> {
     List<DOMAIN> listAll();
     DOMAIN add(@NonNull DOMAIN domain);
-
+    DOMAIN save(@NonNull DOMAIN domain);
     List<DOMAIN> initData(String filePath);
 }

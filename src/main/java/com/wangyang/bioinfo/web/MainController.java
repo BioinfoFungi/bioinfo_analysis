@@ -10,6 +10,7 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -26,6 +27,8 @@ import java.nio.file.Files;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.Executor;
 
 
 /**
@@ -39,7 +42,17 @@ public class MainController {
 
     @Autowired
     TestAsync testAsync;
+    @Autowired
+    ThreadPoolTaskExecutor executor;
 
+
+    @GetMapping("/testExecutor")
+    @ResponseBody
+    public String testExecutor(){
+        BlockingQueue<Runnable> queue = executor.getThreadPoolExecutor().getQueue();
+        System.out.println(queue.size());
+        return "queue size:"+ queue.size();
+    }
 
 //    @RequestMapping("/")
 //    public void index(HttpServletResponse response) throws IOException {
@@ -163,5 +176,11 @@ public class MainController {
             e.printStackTrace();
         }
 
+    }
+    @GetMapping("/testSleep")
+    @ResponseBody
+    public String testSleep() throws InterruptedException {
+        Thread.sleep(3000);
+        return "success!";
     }
 }

@@ -3,18 +3,24 @@ package com.wangyang.bioinfo.service.impl;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
+import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.repository.RCodeRepository;
+import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
+import com.wangyang.bioinfo.service.ITaskService;
 import com.wangyang.bioinfo.service.base.AbstractBaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -35,7 +41,7 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ICodeServiceImpl extends AbstractBaseFileService<Code>
+public class ICodeServiceImpl  extends AbstractBaseFileService<Code>
         implements ICodeService {
 
     @Autowired
@@ -44,6 +50,8 @@ public class ICodeServiceImpl extends AbstractBaseFileService<Code>
     ICancerStudyService cancerStudyService;
     @Autowired
     SpringWebSocketHandler springWebSocketHandler;
+    @Autowired
+    TaskRepository taskRepository;
 
     private Code findOneBy(int dataOriginId,int studyId){
         List<Code> codes = rCodeRepository.findAll(new Specification<Code>() {
@@ -58,7 +66,7 @@ public class ICodeServiceImpl extends AbstractBaseFileService<Code>
         }
         return codes.get(0);
     }
-
+//
     private Code findOneCheckBy(int dataOriginId,int studyId){
         Code code = findOneBy(dataOriginId, studyId);
         if(code==null){
@@ -66,19 +74,66 @@ public class ICodeServiceImpl extends AbstractBaseFileService<Code>
         }
         return code;
     }
-
-    @Override
-    public void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream)  {
-        CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
+//
+//
+//    public void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream)  {
+//
+//        CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
+//        Code code = findOneCheckBy(cancerStudy.getDataOriginId(), cancerStudy.getStudyId());
+//        String absolutePath = cancerStudy.getAbsolutePath();
+//        String codeAbsolutePath = code.getAbsolutePath();
+//        String processedAbsolutePath = cancerStudy.getAbsolutePath()+"_p."+cancerStudy.getFileType();
+//        String processedRelativePath = cancerStudy.getRelativePath()+"_p."+cancerStudy.getFileType();;
+//
+//        Task task = new Task();
+//        task.setCodeId(code.getId());
+//        task.setName(cancerStudy.getEnName());
+////        taskService.add(task);
+//
+//        task.setTaskStatus(TaskStatus.RUNNING);
+//        try {
+//            Thread.sleep(5000);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
+//        RCaller rcaller = RCaller.create();
+//        rcaller.redirectROutputToStream(outputStream);
+//
+//        RCode rcode = RCode.create();
+//        rcode.R_source(codeAbsolutePath);
+//        rcode.addString("res", new String());
+//        rcode.addRCode("res <- processFile('"+absolutePath+"','"+processedAbsolutePath+"')");
+//        log.info("processFile('"+absolutePath+"','"+processedAbsolutePath+"')");
+//        rcaller.setRCode(rcode);
+//        rcaller.runAndReturnResultOnline("res");
+//
+//        cancerStudy.setProcessedAbsolutePath(processedAbsolutePath);
+//        cancerStudy.setProcessedRelativePath(processedRelativePath);
+//        cancerStudyService.save(cancerStudy);
+//        task.setTaskStatus(TaskStatus.FINISH);
+//
+//    }
+//
+//    @Override
+    @Async("taskExecutor")
+    public void processAsyncByCancerStudy(Task task,CancerStudy cancerStudy)  {
         Code code = findOneCheckBy(cancerStudy.getDataOriginId(), cancerStudy.getStudyId());
         String absolutePath = cancerStudy.getAbsolutePath();
         String codeAbsolutePath = code.getAbsolutePath();
         String processedAbsolutePath = cancerStudy.getAbsolutePath()+"_p."+cancerStudy.getFileType();
         String processedRelativePath = cancerStudy.getRelativePath()+"_p."+cancerStudy.getFileType();;
+        //设置task状态 RUNNING
+        task.setCodeId(code.getId());
+        task.setTaskStatus(TaskStatus.RUNNING);
+        taskRepository.save(task);
+
+//        try {
+//            Thread.sleep(1000*50);
+//        } catch (InterruptedException e) {
+//            e.printStackTrace();
+//        }
 
         RCaller rcaller = RCaller.create();
-        rcaller.redirectROutputToStream(outputStream);
-
         RCode rcode = RCode.create();
         rcode.R_source(codeAbsolutePath);
         rcode.addString("res", new String());
@@ -90,6 +145,10 @@ public class ICodeServiceImpl extends AbstractBaseFileService<Code>
         cancerStudy.setProcessedAbsolutePath(processedAbsolutePath);
         cancerStudy.setProcessedRelativePath(processedRelativePath);
         cancerStudyService.save(cancerStudy);
+
+        //设置task状态 FINISH
+        task.setTaskStatus(TaskStatus.FINISH);
+        taskRepository.save(task);
     }
 }
 
