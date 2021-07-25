@@ -27,7 +27,7 @@ public class TestSample {
         Sample sample = new Sample();
         List<Integer[]> list = new ArrayList<>();
 //        list.add();
-        sample.setGeneData(Arrays.array(1,2,3,4));
+//        sample.setGeneData(Arrays.array(1,2,3,4));
         sampleService.add(sample);
     }
 

@@ -36,13 +36,11 @@ public class AttachmentController {
     @PostMapping
     public Attachment add(@RequestBody AttachmentParam attachmentParam,HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        attachmentParam.setUserId(user.getId());
         return attachmentService.saveAttachment(attachmentParam);
     }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Attachment upload(@RequestParam("file") MultipartFile file,AttachmentParam attachmentParam,HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        attachmentParam.setUserId(user.getId());
         return  attachmentService.upload(file,attachmentParam);
     }
 
@@ -88,21 +86,22 @@ public class AttachmentController {
     }
     @GetMapping("/downloadById/{Id}")
     public Attachment downloadById(@PathVariable("Id") Integer id,
-                                    @RequestParam(value = "location",defaultValue = "LOCAL")
-                                            FileLocation fileLocation, HttpServletResponse response,
-                                    HttpServletRequest request){
-        Attachment attachment = attachmentService.download(id, fileLocation,response,request);
+                                    @RequestParam(value = "location",defaultValue = "LOCAL")FileLocation fileLocation,
+                                   HttpServletResponse response){
+        Attachment attachment = attachmentService.download(id, fileLocation,response);
         return attachment;
     }
-    @GetMapping("/download/{enName}")
-    public Attachment download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
-        Attachment attachment = attachmentService.download(enName, response,request);
+    @GetMapping("/download/{uuid}")
+    public Attachment download(@PathVariable("uuid") String uuid,
+                                @RequestParam(value = "location",defaultValue = "LOCAL")FileLocation fileLocation,
+                                HttpServletResponse response){
+        Attachment attachment = attachmentService.download(uuid,fileLocation, response);
         return attachment;
     }
 
-    @GetMapping("/findOne/{enName}")
-    public Attachment findByEnName(@PathVariable("enName") String enName){
-        return attachmentService.findByEnNameAndCheck(enName);
+    @GetMapping("/findOne/{uuid}")
+    public Attachment findByUUID(@PathVariable("uuid") String uuid){
+        return attachmentService.findByUUID(uuid);
     }
 
 }

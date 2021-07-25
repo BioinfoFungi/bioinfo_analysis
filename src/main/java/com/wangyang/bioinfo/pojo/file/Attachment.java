@@ -17,7 +17,10 @@ import javax.persistence.*;
 //@DiscriminatorValue(value = "3")
 public class Attachment extends BaseFile {
     private String thumbPath;
-
+    /**
+     * 获取唯一文件的名称
+     */
+    private String enName;
     private Integer projectId;
 
 }

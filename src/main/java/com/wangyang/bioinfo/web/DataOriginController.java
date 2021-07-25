@@ -1,13 +1,10 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.DataOrigin;
-import com.wangyang.bioinfo.pojo.Study;
+import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.service.IDataOriginService;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;

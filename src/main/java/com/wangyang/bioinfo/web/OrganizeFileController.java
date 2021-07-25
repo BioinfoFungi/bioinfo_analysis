@@ -35,7 +35,6 @@ public class OrganizeFileController {
     @PostMapping
     public OrganizeFile add(@RequestBody OrganizeFileParam organizeFileParam,HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        organizeFileParam.setUserId(user.getId());
         return organizeService.save(organizeFileParam);
     }
 
@@ -46,30 +45,34 @@ public class OrganizeFileController {
     }
 
 
-    @GetMapping("/download/{enName}")
-    public OrganizeFile download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
-        OrganizeFile organizeFile = organizeService.download(enName, response,request);
+    @GetMapping("/download/{uuid}")
+    public OrganizeFile download(@PathVariable("uuid") String uuid,
+                               @RequestParam(value = "location",defaultValue = "LOCAL")FileLocation fileLocation,
+                               HttpServletResponse response){
+        OrganizeFile organizeFile = organizeService.download(uuid,fileLocation, response);
         return organizeFile;
     }
 
     @GetMapping("/downloadById/{Id}")
     public OrganizeFile downloadById(@PathVariable("Id") Integer id,
-                                   @RequestParam(value = "location",defaultValue = "LOCAL")
-                                           FileLocation fileLocation, HttpServletResponse response,
-                                   HttpServletRequest request){
-        OrganizeFile organizeFile = organizeService.download(id, fileLocation,response,request);
+                                   @RequestParam(value = "location",defaultValue = "LOCAL")FileLocation fileLocation,
+                                     HttpServletResponse response){
+        OrganizeFile organizeFile = organizeService.download(id, fileLocation,response);
         return organizeFile;
     }
 
-    @GetMapping("/findOne/{enName}")
+    @GetMapping("/findName/{enName}")
     public OrganizeFile findByEnName(@PathVariable("enName") String enName){
-        return organizeService.findByEnNameAndCheck(enName);
+        return organizeService.findByEnName(enName);
+    }
+    @GetMapping("/findOne/{uuid}")
+    public OrganizeFile findByUUID(@PathVariable("uuid") String uuid){
+        return organizeService.findByUUID(uuid);
     }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public OrganizeFile upload(@RequestParam("file") MultipartFile file, OrganizeFileParam organizeFileParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        organizeFileParam.setUserId(user.getId());
-        return  organizeService.upload(file,"organizeFile",organizeFileParam);
+        return  organizeService.upload(file,organizeFileParam);
     }
 
 }

@@ -59,21 +59,24 @@ public class CancerStudyController {
     @PostMapping
     public CancerStudy add(@RequestBody @Valid  CancerStudyParam cancerStudyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        cancerStudyParam.setUserId(user.getId());
-        CancerStudy cancerStudy = cancerStudyService.saveCancerStudy(cancerStudyParam);
+        CancerStudy cancerStudy = cancerStudyService.saveCancerStudy(cancerStudyParam,user);
         return cancerStudy;
     }
 
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CancerStudy upload(@RequestParam("file") MultipartFile file, CancerStudyParam cancerStudyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        cancerStudyParam.setUserId(user.getId());
         return  cancerStudyService.upload(file,cancerStudyParam);
     }
 
-    @GetMapping("/findOne")
-    public CancerStudy findBy(@Valid FindCancer findCancer){
-        return cancerStudyService.findCancerStudyByAndThree(findCancer);
+    @GetMapping("/findByCategory")
+    public List<CancerStudy> findByCategory(@Valid FindCancer findCancer){
+        return cancerStudyService.findCancerStudyStudy(findCancer);
+    }
+
+    @GetMapping("/findVoByCategory")
+    public List<CancerStudyVo> findVoByCategory(@Valid FindCancer findCancer){
+        return cancerStudyService.findCancerStudyVoStudy(findCancer);
     }
 
     @GetMapping("/createTSVFile")
@@ -81,29 +84,35 @@ public class CancerStudyController {
         cancerStudyService.createTSVFile(response);
     }
 
-    @GetMapping("/download/{enName}")
-    public CancerStudy download(@PathVariable("enName") String enName, HttpServletResponse response,HttpServletRequest request){
-        CancerStudy cancerStudy = cancerStudyService.download(enName, response,request);
+    @GetMapping("/download/{uuid}")
+    public CancerStudy download(@PathVariable("uuid") String uuid,
+                                @RequestParam(value = "location",defaultValue = "LOCAL")FileLocation fileLocation,
+                                HttpServletResponse response){
+        CancerStudy cancerStudy = cancerStudyService.download(uuid,fileLocation, response);
         return cancerStudy;
     }
     @GetMapping("/downloadById/{Id}")
     public CancerStudy downloadById(@PathVariable("Id") Integer id,
-                                    @RequestParam(value = "location",defaultValue = "LOCAL")
-                                            FileLocation fileLocation, HttpServletResponse response,
-                                    HttpServletRequest request){
-        CancerStudy cancerStudy = cancerStudyService.download(id, fileLocation,response,request);
+                                    @RequestParam(value = "location",defaultValue = "LOCAL")FileLocation fileLocation,
+                                    HttpServletResponse response){
+        CancerStudy cancerStudy = cancerStudyService.download(id, fileLocation,response);
         return cancerStudy;
     }
 
-    @GetMapping("/findOne/{enName}")
-    public CancerStudy findByEnName(@PathVariable("enName") String enName){
-        return cancerStudyService.findByEnNameAndCheck(enName);
+    @GetMapping("/findById/{id}")
+    public CancerStudy findById(@PathVariable("id") Integer id){
+        return cancerStudyService.findCancerStudyById(id);
     }
 
 
+    @GetMapping("/findOne/{uuid}")
+    public CancerStudy findByUUID(@PathVariable("uuid") String uuid){
+        return cancerStudyService.findByUUIDAndCheck(uuid);
+    }
+
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
-        OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         cancerStudyService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("CancerStudy初始化完成!");
     }

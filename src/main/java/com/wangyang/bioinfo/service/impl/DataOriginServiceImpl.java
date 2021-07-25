@@ -1,8 +1,9 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.DataOrigin;
+import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
+import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
 import com.wangyang.bioinfo.repository.DataOriginRepository;
 import com.wangyang.bioinfo.service.IDataOriginService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
@@ -71,15 +72,11 @@ public class DataOriginServiceImpl extends BaseTermServiceImpl<DataOrigin> imple
         DataOrigin dataOrigin = findDataOriginByEnName(name);
         if(dataOrigin==null){
             throw new BioinfoException("要查找的对象DataOrigin不存在！");
-
         }
         return dataOrigin;
     }
 
-    @Override
-    public List<DataOrigin> findAllById(Collection<Integer> id) {
-        return dataOriginRepository.findAllById(id);
-    }
+
 
     @Override
     public List<DataOrigin> listAll() {

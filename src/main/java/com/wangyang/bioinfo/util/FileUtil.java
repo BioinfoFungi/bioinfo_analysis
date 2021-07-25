@@ -73,18 +73,18 @@ public class FileUtil {
 
     public static  <FILE extends BaseFile> FILE checkPath(BaseFileParam baseFileParam,FILE file){
 
-        if(baseFileParam.getFileType()==null){
-            String extension = FilenameUtils.getExtension(baseFileParam.getAbsolutePath());
-            if(extension.equals("")){
-                throw new BioinfoException("路径必须添加后缀名！");
-            }
-            file.setFileType(extension);
-        }
+//        if(baseFileParam.getFileType()==null){
+//            String extension = FilenameUtils.getExtension(baseFileParam.getAbsolutePath());
+//            if(extension.equals("")){
+//                throw new BioinfoException("路径必须添加后缀名！");
+//            }
+//            file.setFileType(extension);
+//        }
 
-        if(baseFileParam.getFileName()==null){
-            String basename = FilenameUtils.getBasename(baseFileParam.getAbsolutePath());
-            file.setFileName(basename);
-        }
+//        if(baseFileParam.getFileName()==null){
+//            String basename = FilenameUtils.getBasename(baseFileParam.getAbsolutePath());
+//            file.setFileName(basename);
+//        }
         if(baseFileParam.getRelativePath()==null){
             String relativePath = FilenameUtils.relativePath(baseFileParam.getAbsolutePath());
             file.setRelativePath(relativePath);

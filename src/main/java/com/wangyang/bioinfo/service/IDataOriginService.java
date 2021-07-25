@@ -1,11 +1,9 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Cancer;
-import com.wangyang.bioinfo.pojo.DataOrigin;
-import com.wangyang.bioinfo.pojo.Study;
+import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
+import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,7 +22,6 @@ public interface IDataOriginService extends IBaseTermService<DataOrigin> {
     DataOrigin findDataOriginByEnName(String name);
     DataOrigin findAndCheckByEnName(String name);
 
-    List<DataOrigin> findAllById(Collection<Integer> id);
     @Override
     List<DataOrigin> listAll();
     Page<DataOrigin> pageDataOrigin(Pageable pageable);

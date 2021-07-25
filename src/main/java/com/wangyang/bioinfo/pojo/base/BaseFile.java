@@ -29,10 +29,7 @@ public class BaseFile extends BaseEntity {
      * 文件后缀
      */
     private String fileType;
-    /**
-     * 获取唯一文件的名称
-     */
-    private String enName;
+
 
     @Parsed(field = "absolute_path")
     private String absolutePath;
@@ -57,6 +54,7 @@ public class BaseFile extends BaseEntity {
     private Integer height;
     private Integer userId;
 
+    private String uuid;
     private String md5;
     /**
      * 是否压缩

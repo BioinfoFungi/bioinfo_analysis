@@ -10,13 +10,6 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class BaseFileParam {
-    @NotBlank(message = "enName不能为空!")
-    private String enName;
-    private String fileName;
     private String absolutePath;
-    private String fileType;
     private String relativePath;
-    private Integer userId;
-    private Boolean isCompress;
-
 }

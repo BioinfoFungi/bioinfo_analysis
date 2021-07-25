@@ -42,7 +42,7 @@ public class LncRNAController {
 
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
-        OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         lncRNAService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("lncRNA初始化完成!");
     }

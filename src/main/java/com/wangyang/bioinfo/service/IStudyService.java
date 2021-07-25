@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Cancer;
-import com.wangyang.bioinfo.pojo.Study;
+import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
+import com.wangyang.bioinfo.pojo.trem.Study;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
@@ -22,7 +22,6 @@ public interface IStudyService extends IBaseTermService<Study> {
     Study findStudyByEnName(String name);
     Study findAndCheckByEnName(String name);
 
-    List<Study> findAllById(Collection<Integer> id);
     @Override
     List<Study> listAll();
     Page<Study> pageStudy(Pageable pageable);

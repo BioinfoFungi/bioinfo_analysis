@@ -48,7 +48,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     public Task addTaskByCancerStudyId(Integer cancerStudyId){
         CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
         Task task = new Task();
-        task.setName(cancerStudy.getEnName());
+//        task.setName(cancerStudy.getEnName());
         task.setObjId(cancerStudy.getId());
 
         int size = executor.getThreadPoolExecutor().getQueue().size();

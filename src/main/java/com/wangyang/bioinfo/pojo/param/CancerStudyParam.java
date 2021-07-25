@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo.param;
 
+import com.univocity.parsers.annotations.Parsed;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -16,6 +17,10 @@ public class CancerStudyParam  extends BaseFileParam{
     private String study;
     @NotBlank(message = "dataOrigin不能为空!")
     private String dataOrigin;
+    @NotBlank(message = "experimentalStrategy不能为空!")
+    private String experimentalStrategy;
+    @NotBlank(message = "analysisSoftware不能为空!")
+    private String analysisSoftware;
 
     private String processedAbsolutePath;
     private String processedRelativePath;

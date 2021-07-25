@@ -1,11 +1,8 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.Attachment;
-import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
@@ -24,7 +21,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.servlet.ServletException;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -33,15 +29,16 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 /**
  * @author wangyang
  * @date 2021/7/8
  */
 
-public class AbstractBaseFileService<FILE extends BaseFile>
+public class BaseFileService<FILE extends BaseFile>
         extends AbstractCrudService<FILE,Integer>
-        implements IAbstractBaseFileService<FILE> {
+        implements IBaseFileService<FILE> {
 
     @Autowired
     BaseFileRepository<FILE> baseFileRepository;
@@ -62,8 +59,8 @@ public class AbstractBaseFileService<FILE extends BaseFile>
 
 
     @Override
-    public FILE findByEnNameAndCheck(String name){
-        FILE file = findByEnName(name);
+    public FILE findByUUIDAndCheck(String uuid){
+        FILE file = findByUUID(uuid);
         if (file==null){
             throw new BioinfoException("要查找的文件对象不存在!");
         }
@@ -78,11 +75,11 @@ public class AbstractBaseFileService<FILE extends BaseFile>
         return fileOptional.get();
     }
     @Override
-    public FILE findByEnName(String name){
+    public FILE findByUUID(String uuid){
         List<FILE> files = baseFileRepository.findAll(new Specification<FILE>() {
             @Override
             public Predicate toPredicate(Root<FILE> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(criteriaBuilder.equal(root.get("enName"),name)).getRestriction();
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("uuid"),uuid)).getRestriction();
             }
         });
         if(files.size()==0){
@@ -118,26 +115,21 @@ public class AbstractBaseFileService<FILE extends BaseFile>
 
 
     @Override
-    public FILE save(FILE inputFile) {
-        return super.add(inputFile);
+    public FILE download(String uuid, FileLocation fileLocation,HttpServletResponse response){
+        FILE file = findByUUIDAndCheck(uuid);
+        return download(file,response);
     }
 
     @Override
-    public FILE download(String enName, HttpServletResponse response,HttpServletRequest request){
-        FILE file = findByEnNameAndCheck(enName);
-        return download(file,response,request);
-    }
-
-    @Override
-    public FILE download(Integer id,FileLocation fileLocation, HttpServletResponse response,HttpServletRequest request){
+    public FILE download(Integer id,FileLocation fileLocation, HttpServletResponse response){
         FILE file = findById(id);
         if(fileLocation!=null){
             file.setLocation(fileLocation);
         }
-        return download(file,response,request);
+        return download(file,response);
     }
 
-    public FILE download(FILE file, HttpServletResponse response, HttpServletRequest request){
+    public FILE download(FILE file, HttpServletResponse response){
         if(file.getLocation().equals(FileLocation.LOCAL)){
             try {
                 ServletOutputStream outputStream = response.getOutputStream();
@@ -169,6 +161,18 @@ public class AbstractBaseFileService<FILE extends BaseFile>
     }
 
     public FILE saveAndCheckFile(FILE file){
+        if(file.getUuid()==null){
+            file.setUuid(UUID.randomUUID().toString());
+        }
+        if(file.getFileName()==null){
+            String basename = FilenameUtils.getBasename(file.getAbsolutePath());
+            file.setFileName(basename);
+        }
+        if(file.getRelativePath()==null){
+            FilenameUtils.relativePath(file.getAbsolutePath());
+        }
+        String extension = FilenameUtils.getExtension(file.getAbsolutePath());
+        file.setFileType(extension);
         if(file.getFileType().endsWith(".gz")){
             file.setIsCompress(true);
         }else {
@@ -180,59 +184,21 @@ public class AbstractBaseFileService<FILE extends BaseFile>
             if(f.exists()){
                 file.setStatus(true);
                 file.setSize(f.length());
+                String md5String = FileMd5Utils.getFileMD5String(f);
+                file.setMd5(md5String);
             }else {
-                file.setStatus(false);
+                throw new BioinfoException("添加的文件不存在!");
             }
-            String md5String = FileMd5Utils.getFileMD5String(f);
-            file.setMd5(md5String);
         }
+
         return baseFileRepository.save(file);
     }
-    public FILE saveAndCheckFile(FILE file, BaseFileParam baseFileParam){
-        FileUtil.checkPath(baseFileParam, file);
-        return saveAndCheckFile(file);
-    }
-
-    @Override
-    public FILE save(BaseFileParam baseFileParam) {
-        FILE file = findByEnName(baseFileParam.getEnName());
-        if (file==null){
-            file = super.getInstance();
-        }
-        BeanUtils.copyProperties(baseFileParam,file);
-        return saveAndCheckFile(file,baseFileParam);
-    }
-    @Override
-    public FILE upload(MultipartFile multipartFile, String path,BaseFileParam baseFileParam) {
-        UploadResult uploadResult = fileHandlers.uploadFixed(multipartFile, path,FileLocation.LOCAL);
-        if(baseFileParam.getEnName()==null){
-            String basename = FilenameUtils.getBasename(uploadResult.getAbsolutePath());
-            baseFileParam.setEnName(basename);
-        }
-
-        FILE file = findByEnName(baseFileParam.getEnName());
-        if(file==null){
-            file =getInstance();
-        }
-        BeanUtils.copyProperties(baseFileParam,file);
-        return upload(uploadResult,file,baseFileParam);
-    }
-
-    public FILE upload(UploadResult uploadResult,FILE file,BaseFileParam baseFileParam) {
 
 
 
 
-        if(baseFileParam.getFileName()==null){
-            String basename = FilenameUtils.getBasename(uploadResult.getAbsolutePath());
-            file.setFileName(basename);
-        }else {
-            file.setFileName(baseFileParam.getEnName());
-        }
-        if(file.getFileType()==null){
-            file.setFileType(uploadResult.getSuffix());
-        }
-
+    public FILE upload(UploadResult uploadResult,FILE file) {
+        file.setFileType(uploadResult.getSuffix());
         file.setRelativePath(uploadResult.getRelativePath());
         file.setAbsolutePath(uploadResult.getAbsolutePath());
         file.setSize(uploadResult.getSize());

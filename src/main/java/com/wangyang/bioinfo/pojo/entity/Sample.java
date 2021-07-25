@@ -22,7 +22,7 @@ public class Sample extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    @Convert(converter = JpaConverterListJson.class)
-    @Column(columnDefinition = "TEXT")
-    private Integer[] geneData;
+//    @Convert(converter = JpaConverterListJson.class)
+//    @Column(columnDefinition = "TEXT")
+//    private Integer[] geneData;
 }

@@ -9,7 +9,7 @@ import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.AttachmentRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
-import com.wangyang.bioinfo.service.base.AbstractBaseFileService;
+import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import org.springframework.beans.BeanUtils;
@@ -35,17 +35,13 @@ import java.util.Optional;
  * @date 2021/6/13
  */
 @Service
-public class AttachmentServiceImpl extends AbstractBaseFileService<Attachment> implements IAttachmentService {
+public class AttachmentServiceImpl extends BaseFileService<Attachment> implements IAttachmentService {
     @Autowired
     AttachmentRepository attachmentRepository;
 
     @Autowired
     IProjectService projectService;
 
-    @Override
-    public Attachment download(String enName, HttpServletResponse response, HttpServletRequest request){
-        return super.download(enName,response,request);
-    }
 
 
 
@@ -66,7 +62,7 @@ public class AttachmentServiceImpl extends AbstractBaseFileService<Attachment> i
         }else {
             attachment.setEnName(attachmentParam.getEnName());
         }
-        return saveAndCheckFile(attachment,attachmentParam);
+        return saveAndCheckFile(attachment);
     }
     @Override
     public Attachment upload(MultipartFile file,AttachmentParam attachmentParam) {
@@ -82,7 +78,7 @@ public class AttachmentServiceImpl extends AbstractBaseFileService<Attachment> i
             attachment =new Attachment();
         }
         BeanUtils.copyProperties(attachmentParam,attachment);
-        return super.upload(uploadResult,attachment,attachmentParam);
+        return super.upload(uploadResult,attachment);
     }
 
     @Override

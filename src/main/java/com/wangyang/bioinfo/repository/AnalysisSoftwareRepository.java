@@ -1,11 +1,12 @@
 package com.wangyang.bioinfo.repository;
 
+import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 
 /**
  * @author wangyang
- * @date 2021/6/26
+ * @date 2021/7/25
  */
-public interface CancerRepository  extends BaseTermRepository<Cancer> {
+public interface AnalysisSoftwareRepository  extends BaseTermRepository<AnalysisSoftware> {
 }

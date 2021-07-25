@@ -1,23 +1,26 @@
 package com.wangyang.bioinfo.service.impl;
 
 
-import com.wangyang.bioinfo.pojo.*;
+import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.dto.DataCategoryIdDto;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import com.wangyang.bioinfo.pojo.file.BaseDataCategory;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
+import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
 import com.wangyang.bioinfo.repository.CancerStudyRepository;
-import com.wangyang.bioinfo.service.ICancerService;
-import com.wangyang.bioinfo.service.ICancerStudyService;
-import com.wangyang.bioinfo.service.IDataOriginService;
-import com.wangyang.bioinfo.service.IStudyService;
-import com.wangyang.bioinfo.service.base.AbstractBaseFileService;
+import com.wangyang.bioinfo.service.*;
+import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
+import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import com.wangyang.bioinfo.util.ServiceUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -30,7 +33,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.servlet.http.HttpServletResponse;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -40,7 +42,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class CancerStudyServiceImpl
-        extends AbstractBaseFileService<CancerStudy>
+        extends BaseDataCategoryServiceImpl<CancerStudy>
         implements ICancerStudyService {
     @Autowired
     CancerStudyRepository cancerStudyRepository;
@@ -51,50 +53,50 @@ public class CancerStudyServiceImpl
     @Autowired
     IDataOriginService dataOriginService;
 
+    @Autowired
+    IExperimentalStrategyService experimentalStrategyService;
 
+    @Autowired
+    IAnalysisSoftwareService analysisSoftwareService;
 
-
-    @Override
-    public CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam) {
+    private  CancerStudy checkCancerStudy(CancerStudyParam cancerStudyParam){
         Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
         Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
-        CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId(),cancerStudyParam.getEnName());
-
-        if(cancerStudy==null){
+        ExperimentalStrategy experimentalStrategy =experimentalStrategyService.findAndCheckByEnName(cancerStudyParam.getExperimentalStrategy());
+        AnalysisSoftware analysisSoftware=analysisSoftwareService.findAndCheckByEnName(cancerStudyParam.getAnalysisSoftware());
+        List<CancerStudy> cancerStudies = findDataByCategoryId(new DataCategoryIdDto(cancer.getId(),study.getId(),dataOrigin.getId(),experimentalStrategy.getId(),analysisSoftware.getId()));
+        if(cancerStudies.size()>1){
+            throw new BioinfoException("查找到文件数目大于1!");
+        }
+        CancerStudy cancerStudy;
+        if(cancerStudies.size()==1){
+            cancerStudy = cancerStudies.get(0);
+        }else {
             cancerStudy = new CancerStudy();
             cancerStudy.setCancerId(cancer.getId());
             cancerStudy.setStudyId(study.getId());
             cancerStudy.setDataOriginId(dataOrigin.getId());
+            cancerStudy.setAnalysisSoftwareId(analysisSoftware.getId());
+            cancerStudy.setExperimentalStrategyId(experimentalStrategy.getId());
         }
-        if(cancerStudyParam.getEnName()==null){
-            cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
-        }
+        cancerStudy.setFileName(dataOrigin.getEnName()+"_"+cancer.getEnName()+"_"+study.getEnName()+"_"+ FilenameUtils.randomName());
         BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
+        return cancerStudy;
+    }
 
-        return saveAndCheckFile(cancerStudy,cancerStudyParam);
+    @Override
+    public CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam, User user) {
+        CancerStudy cancerStudy = checkCancerStudy(cancerStudyParam);
+        cancerStudy.setUserId(user.getId());
+        return saveAndCheckFile(cancerStudy);
     }
 
     @Override
     public CancerStudy upload(MultipartFile file, CancerStudyParam cancerStudyParam) {
-
-
-        Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
-        Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
-        DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
-        CancerStudy cancerStudy = findCancerStudyByAndThree(cancer.getId(), study.getId(), dataOrigin.getId(),cancerStudyParam.getEnName());
-        if(cancerStudy==null){
-            cancerStudy = new CancerStudy();
-            cancerStudy.setCancerId(cancer.getId());
-            cancerStudy.setStudyId(study.getId());
-            cancerStudy.setDataOriginId(dataOrigin.getId());
-        }
-        if(cancerStudyParam.getEnName()==null){
-            cancerStudyParam.setEnName("cancer_"+cancer.getEnName()+"_"+study.getEnName()+"_"+dataOrigin.getEnName());
-        }
-        BeanUtils.copyProperties(cancerStudyParam,cancerStudy);
+        CancerStudy cancerStudy = checkCancerStudy(cancerStudyParam);
         UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" ,FileLocation.LOCAL);
-        return super.upload(uploadResult,cancerStudy,cancerStudyParam);
+        return super.upload(uploadResult,cancerStudy);
     }
 
     @Override
@@ -111,32 +113,90 @@ public class CancerStudyServiceImpl
         return cancerStudyOptional.get();
     }
 
-    @Override
-    public CancerStudy findCancerStudyByAndThree(int cancerId, int studyId, int dataOriginId,String enName) {
 
-        List<CancerStudy> cancerStudies = cancerStudyRepository.findAll(new Specification<CancerStudy>() {
-            @Override
-            public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                Predicate predicate = criteriaBuilder.and(
-                        criteriaBuilder.equal(root.get("cancerId"), cancerId),
-                        criteriaBuilder.equal(root.get("studyId"), studyId),
-                        criteriaBuilder.equal(root.get("dataOriginId"), dataOriginId),
-                        criteriaBuilder.equal(root.get("enName"), enName));
-                return criteriaQuery.where(predicate).getRestriction();
-            }
-        });
-        if(cancerStudies.size()==0){
-            return null;
-        }
-        return cancerStudies.get(0);
-    }
+
 
     @Override
-    public CancerStudy findCancerStudyByAndThree(FindCancer findCancer) {
+    public  List<CancerStudyVo> findCancerStudyVoStudy(FindCancer findCancer) {
         Cancer cancer = cancerService.findAndCheckByEnName(findCancer.getCancer());
         Study study = studyService.findAndCheckByEnName(findCancer.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(findCancer.getDataOrigin());
-        return findCancerStudyByAndThree(cancer.getId(),study.getId(),dataOrigin.getId(),findCancer.getEnName());
+        Integer experimentalStrategyId = null;
+        Integer analysisSoftwareId=null;
+        AnalysisSoftware analysisSoftware=null;
+        ExperimentalStrategy experimentalStrategy=null;
+        if(findCancer.getExperimentalStrategy()!=null){
+            experimentalStrategy=experimentalStrategyService.findAndCheckByEnName(findCancer.getExperimentalStrategy());
+            experimentalStrategyId = experimentalStrategy.getId();
+        }
+        if(findCancer.getAnalysisSoftware()!=null){
+            analysisSoftware=analysisSoftwareService.findAndCheckByEnName(findCancer.getAnalysisSoftware());
+            analysisSoftwareId=analysisSoftware.getId();
+        }
+
+        List<CancerStudy> cancerStudies = findDataByCategoryId(new DataCategoryIdDto(cancer.getId(),study.getId(),dataOrigin.getId(),experimentalStrategyId,analysisSoftwareId));
+        if (cancerStudies.size()==0){
+            throw new BioinfoException("查找的对象不存在!");
+        }
+
+        Map<Integer, ExperimentalStrategy> strategyMap = null;
+        if(findCancer.getExperimentalStrategy()==null) {
+            Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getExperimentalStrategyId);
+            List<ExperimentalStrategy> experimentalStrategies = experimentalStrategyService.findAllById(experimentalStrategyIds);
+            strategyMap= ServiceUtil.convertToMap(experimentalStrategies, ExperimentalStrategy::getId);
+        }
+        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= null;
+        if(findCancer.getAnalysisSoftware()==null){
+            Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getAnalysisSoftwareId);
+            List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
+            analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
+        }
+
+        AnalysisSoftware finalAnalysisSoftware = analysisSoftware;
+        ExperimentalStrategy finalExperimentalStrategy = experimentalStrategy;
+        Map<Integer, ExperimentalStrategy> finalStrategyMap = strategyMap;
+        Map<Integer, AnalysisSoftware> finalAnalysisSoftwareMap = analysisSoftwareMap;
+        List<CancerStudyVo> cancerStudyVos = cancerStudies.stream().map(cancerStudy -> {
+            CancerStudyVo cancerStudyVo = new CancerStudyVo();
+            cancerStudyVo.setCancer(cancer);
+            cancerStudyVo.setDataOrigin(dataOrigin);
+            cancerStudyVo.setStudy(study);
+            if(finalAnalysisSoftware !=null){
+                cancerStudyVo.setAnalysisSoftware(finalAnalysisSoftware);
+            }else {
+
+                cancerStudyVo.setAnalysisSoftware(finalAnalysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
+            }
+            if(finalExperimentalStrategy!=null){
+                cancerStudyVo.setExperimentalStrategy(finalExperimentalStrategy);
+            }else {
+                cancerStudyVo.setExperimentalStrategy(finalStrategyMap.get(cancerStudy.getExperimentalStrategyId()));
+            }
+            BeanUtils.copyProperties(cancerStudy,cancerStudyVo);
+            return cancerStudyVo;
+        }).collect(Collectors.toList());
+        return cancerStudyVos;
+    }
+
+    @Override
+    public  List<CancerStudy> findCancerStudyStudy(FindCancer findCancer) {
+        Cancer cancer = cancerService.findAndCheckByEnName(findCancer.getCancer());
+        Study study = studyService.findAndCheckByEnName(findCancer.getStudy());
+        DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(findCancer.getDataOrigin());
+        Integer experimentalStrategyId = null;
+        Integer analysisSoftwareId=null;
+        AnalysisSoftware analysisSoftware=null;
+        ExperimentalStrategy experimentalStrategy=null;
+        if(findCancer.getExperimentalStrategy()!=null){
+            experimentalStrategy=experimentalStrategyService.findAndCheckByEnName(findCancer.getExperimentalStrategy());
+            experimentalStrategyId = experimentalStrategy.getId();
+        }
+        if(findCancer.getAnalysisSoftware()!=null){
+            analysisSoftware=analysisSoftwareService.findAndCheckByEnName(findCancer.getAnalysisSoftware());
+            analysisSoftwareId=analysisSoftware.getId();
+        }
+        List<CancerStudy> cancerStudies = findDataByCategoryId(new DataCategoryIdDto(cancer.getId(),study.getId(),dataOrigin.getId(),experimentalStrategyId,analysisSoftwareId));
+        return cancerStudies;
     }
 
     @Override
@@ -205,12 +265,25 @@ public class CancerStudyServiceImpl
         List<DataOrigin> dataOrigins = dataOriginService.findAllById(dataOriginIds);
         Map<Integer, DataOrigin> dataOriginMap = ServiceUtil.convertToMap(dataOrigins, DataOrigin::getId);
 
+
+        Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getExperimentalStrategyId);
+        List<ExperimentalStrategy> experimentalStrategies = experimentalStrategyService.findAllById(experimentalStrategyIds);
+        Map<Integer, ExperimentalStrategy> strategyMap= ServiceUtil.convertToMap(experimentalStrategies, ExperimentalStrategy::getId);
+
+
+        Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getAnalysisSoftwareId);
+        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
+        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
+
+
         List<CancerStudyVo> cancerStudyVos = cancerStudies.stream().map(cancerStudy -> {
             CancerStudyVo cancerStudyVo = new CancerStudyVo();
             cancerStudyVo.setCancer(cancerMap.get(cancerStudy.getCancerId()));
             cancerStudyVo.setStudy(studyMap.get(cancerStudy.getStudyId()));
             cancerStudyVo.setDataOrigin(dataOriginMap.get(cancerStudy.getDataOriginId()));
             BeanUtils.copyProperties(cancerStudy, cancerStudyVo);
+            cancerStudyVo.setExperimentalStrategy(strategyMap.get(cancerStudy.getExperimentalStrategyId()));
+            cancerStudyVo.setAnalysisSoftware(analysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
             return cancerStudyVo;
         }).collect(Collectors.toList());
 
@@ -238,11 +311,23 @@ public class CancerStudyServiceImpl
 
 
 
+        Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getExperimentalStrategyId);
+        List<ExperimentalStrategy> experimentalStrategies = experimentalStrategyService.findAllById(experimentalStrategyIds);
+        Map<Integer, ExperimentalStrategy> strategyMap= ServiceUtil.convertToMap(experimentalStrategies, ExperimentalStrategy::getId);
+
+
+        Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getAnalysisSoftwareId);
+        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
+        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
+
+
         Page<CancerStudyVo> cancerStudyVos = fromCancerStudies.map(cancerStudy -> {
             CancerStudyVo cancerStudyVo = new CancerStudyVo();
             cancerStudyVo.setCancer(cancerMap.get(cancerStudy.getCancerId()));
             cancerStudyVo.setStudy(studyMap.get(cancerStudy.getStudyId()));
             cancerStudyVo.setDataOrigin(dataOriginMap.get(cancerStudy.getDataOriginId()));
+            cancerStudyVo.setExperimentalStrategy(strategyMap.get(cancerStudy.getExperimentalStrategyId()));
+            cancerStudyVo.setAnalysisSoftware(analysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
             BeanUtils.copyProperties(cancerStudy,cancerStudyVo);
             return cancerStudyVo;
         });

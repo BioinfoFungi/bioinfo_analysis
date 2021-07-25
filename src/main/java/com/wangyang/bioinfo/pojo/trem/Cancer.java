@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.trem;
 
 import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.base.BaseTerm;
@@ -9,13 +9,13 @@ import lombok.Setter;
 import javax.persistence.*;
 
 /**
- * 关于癌症的研究类型
+ * 癌症的分类
  * @author wangyang
  * @date 2021/6/26
  */
 @Entity
-@DiscriminatorValue(value = "1")
+@DiscriminatorValue(value = "2")
 @Data
-public class Study extends BaseTerm {
+public class Cancer extends BaseTerm {
 
 }

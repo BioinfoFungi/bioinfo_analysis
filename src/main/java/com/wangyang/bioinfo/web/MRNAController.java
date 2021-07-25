@@ -45,7 +45,7 @@ public class MRNAController {
 
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
-        OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         List<MRNA> mrnas = mrnaService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("mRNA初始化完成!");
     }

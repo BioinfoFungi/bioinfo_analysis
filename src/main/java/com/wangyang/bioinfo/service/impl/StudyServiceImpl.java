@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.Cancer;
-import com.wangyang.bioinfo.pojo.Study;
+import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
+import com.wangyang.bioinfo.pojo.trem.Study;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.repository.StudyRepository;
@@ -81,11 +81,7 @@ public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStu
         return study;
     }
 
-    @Override
-    public List<Study> findAllById(Collection<Integer> id) {
-        List<Study> studies = studyRepository.findAllById(id);
-        return studies;
-    }
+
 
     @Override
     public List<Study> listAll() {

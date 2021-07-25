@@ -1,8 +1,6 @@
 package com.wangyang.bioinfo.pojo.vo;
 
-import com.wangyang.bioinfo.pojo.Cancer;
-import com.wangyang.bioinfo.pojo.DataOrigin;
-import com.wangyang.bioinfo.pojo.Study;
+import com.wangyang.bioinfo.pojo.trem.*;
 import lombok.Data;
 
 import java.util.Date;
@@ -18,6 +16,8 @@ public class CancerStudyVo {
     private Date updateDate;
     private Cancer cancer;
     private Study study;
+    private AnalysisSoftware analysisSoftware;
+    private ExperimentalStrategy experimentalStrategy;
     private DataOrigin dataOrigin;
     private String fileName;
     private String fileType;
@@ -35,4 +35,5 @@ public class CancerStudyVo {
     private String processedRelativePath;
     private Integer processedId;
     private Boolean isProcessed;
+    private String uuid;
 }

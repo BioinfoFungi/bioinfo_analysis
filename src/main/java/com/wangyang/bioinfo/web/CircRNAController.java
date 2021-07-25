@@ -42,7 +42,7 @@ public class CircRNAController {
 
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
-        OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         circRNAService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("circRNA初始化完成!");
     }

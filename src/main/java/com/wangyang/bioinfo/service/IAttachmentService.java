@@ -3,7 +3,7 @@ package com.wangyang.bioinfo.service;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
-import com.wangyang.bioinfo.service.base.IAbstractBaseFileService;
+import com.wangyang.bioinfo.service.base.IBaseFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -18,8 +18,7 @@ import java.util.List;
  * @author wangyang
  * @date 2021/6/13
  */
-public interface IAttachmentService extends IAbstractBaseFileService<Attachment> {
-    Attachment download(String enName, HttpServletResponse response,HttpServletRequest request);
+public interface IAttachmentService extends IBaseFileService<Attachment> {
 
     Attachment saveAttachment(AttachmentParam attachmentParam);
 

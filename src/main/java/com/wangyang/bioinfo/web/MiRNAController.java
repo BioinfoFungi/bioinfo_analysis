@@ -42,7 +42,7 @@ public class MiRNAController {
 
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
-        OrganizeFile organizeFile = organizeFileService.findByEnNameAndCheck(name);
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         miRNAService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("miRNA初始化完成!");
     }

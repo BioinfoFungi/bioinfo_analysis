@@ -1,17 +1,19 @@
 package com.wangyang.bioinfo.service;
 
+import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.dto.DataCategoryIdDto;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
-import com.wangyang.bioinfo.service.base.IAbstractBaseFileService;
+import com.wangyang.bioinfo.service.base.IBaseDataCategoryService;
+import com.wangyang.bioinfo.service.base.IBaseFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 
@@ -19,14 +21,16 @@ import java.util.List;
  * @author wangyang
  * @date 2021/6/26
  */
-public interface ICancerStudyService extends IAbstractBaseFileService<CancerStudy> {
+public interface ICancerStudyService extends IBaseDataCategoryService<CancerStudy> {
 
-    CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam);
+    CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam, User user);
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
     CancerStudy delCancerStudy(int id);
     CancerStudy findCancerStudyById(int id);
-    CancerStudy findCancerStudyByAndThree(int cancerId,int studyId,int dataOriginId,String enName);
-    CancerStudy findCancerStudyByAndThree(FindCancer findCancer);
+    List<CancerStudyVo> findCancerStudyVoStudy(FindCancer findCancer);
+
+    List<CancerStudy> findCancerStudyStudy(FindCancer findCancer);
+
     List<CancerStudy> findAllById(Collection<Integer> id);
 
     Page<CancerStudy> pageCancerStudy(Pageable pageable);
