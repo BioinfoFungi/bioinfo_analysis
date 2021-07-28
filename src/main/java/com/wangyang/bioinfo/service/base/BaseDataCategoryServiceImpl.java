@@ -7,6 +7,9 @@ import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.repository.base.BaseDataCategoryRepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -46,8 +49,27 @@ public class BaseDataCategoryServiceImpl<CATEGORY extends BaseDataCategory>
             if(categoryId.getStudyId()!=null){
                 predicates.add(criteriaBuilder.equal(root.get("studyId"),categoryId.getStudyId()));
             }
+            if(categoryId.getFileName()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("fileName"),categoryId.getFileName()));
+            }
+            if(categoryId.getKeyword()!=null){
+                String likeCondition = String
+                        .format("%%%s%%", StringUtils.strip(categoryId.getKeyword()));
+                Predicate fileName = criteriaBuilder.like(root.get("fileName"), likeCondition);
+
+                predicates.add(criteriaBuilder.or(fileName));
+            }
+            if(categoryId.getUuid()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("uuid"),categoryId.getUuid()));
+            }
             return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
         };
+    }
+
+    @Override
+    public Page<CATEGORY> pageBy(DataCategoryIdDto dataCategoryId, Pageable pageable) {
+        Page<CATEGORY> categories = baseDataCategoryRepository.findAll(buildSpecByDataCategory(dataCategoryId), pageable);
+        return categories;
     }
 
     @Override

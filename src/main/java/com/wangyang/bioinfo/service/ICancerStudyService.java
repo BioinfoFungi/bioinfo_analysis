@@ -27,9 +27,9 @@ public interface ICancerStudyService extends IBaseDataCategoryService<CancerStud
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
     CancerStudy delCancerStudy(int id);
     CancerStudy findCancerStudyById(int id);
-    List<CancerStudyVo> findCancerStudyVoStudy(FindCancer findCancer);
+    Page<CancerStudyVo> findCancerStudyVoStudy(FindCancer findCancer,Pageable pageable);
 
-    List<CancerStudy> findCancerStudyStudy(FindCancer findCancer);
+    Page<CancerStudy>  findCancerStudyStudy(FindCancer findCancer,Pageable pageable);
 
     List<CancerStudy> findAllById(Collection<Integer> id);
 

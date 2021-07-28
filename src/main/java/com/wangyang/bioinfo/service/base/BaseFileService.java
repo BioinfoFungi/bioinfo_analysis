@@ -57,6 +57,15 @@ public class BaseFileService<FILE extends BaseFile>
         return uploadResult;
     }
 
+    @Override
+    public List<FILE> findByFileName(String fileName){
+        return baseFileRepository.findAll(new Specification<FILE>() {
+            @Override
+            public Predicate toPredicate(Root<FILE> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("fileName"),fileName)).getRestriction();
+            }
+        });
+    }
 
     @Override
     public FILE findByUUIDAndCheck(String uuid){

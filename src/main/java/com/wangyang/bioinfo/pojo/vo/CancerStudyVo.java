@@ -36,4 +36,5 @@ public class CancerStudyVo {
     private Integer processedId;
     private Boolean isProcessed;
     private String uuid;
+    private String gse;
 }

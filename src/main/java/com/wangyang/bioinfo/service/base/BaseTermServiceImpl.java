@@ -61,6 +61,9 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
 
     @Override
     public TERM findByEnName(String name) {
+        if(name==null){
+            return null;
+        }
         List<TERM> terms = baseTermRepository.findAll(new Specification<TERM>() {
             @Override
             public Predicate toPredicate(Root<TERM> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {

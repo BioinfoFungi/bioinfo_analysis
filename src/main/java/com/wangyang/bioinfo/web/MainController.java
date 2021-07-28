@@ -3,18 +3,27 @@ package com.wangyang.bioinfo.web;
 import com.github.rcaller.graphics.SkyTheme;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
+import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import lombok.extern.slf4j.Slf4j;
 
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REngineException;
+import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.RserveException;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.socket.TextMessage;
 
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +54,8 @@ public class MainController {
     @Autowired
     ThreadPoolTaskExecutor executor;
 
+    @Autowired
+    SpringWebSocketHandler webSocketHandler;
 
     @GetMapping("/testExecutor")
     @ResponseBody
@@ -92,6 +103,37 @@ public class MainController {
 //        os.write(base64.);
         os.flush();
         os.close();
+    }
+    //http://coolaf.com/tool/chattest
+    @RequestMapping("/Rimg")
+    @Async("taskExecutor")
+    @ResponseBody
+    public void testRImg(@RequestParam("file")String file) throws IOException, REngineException, REXPMismatchException {
+        System.out.printf(file);
+        RConnection c = new RConnection();
+        c.eval("library(httpgd)");
+//        c.eval("library(maftools)");
+//        c.eval("laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')");
+//        c.eval("laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools') ");
+//        c.eval("laml = read.maf(maf = laml.maf, clinicalData = laml.clin)");
+//        String string = c.eval("hgd_inline({plot.new();oncoplot(maf = laml)})").asString();
+
+        c.eval("library(ggplot2)");
+        c.eval("deg <- readr::read_tsv(\"/home/wangyang/workspace/www/data/TCGADOWNLOAD/data/TCGA_"+file+"_DESeq2.tsv\")");
+        c.eval("deg <- dplyr::mutate(deg,direction = factor(ifelse(padj < 0.01 & abs(log2FoldChange)>2,\n" +
+                "    ifelse(log2FoldChange>0,\"Up\",\"Down\"),\"NS\"),levels = c(\"Up\",\"Down\",\"NS\")))");
+
+        c.eval("p <- ggplot(deg,aes(x=log2FoldChange,y=-log10(padj),colour=direction))+geom_point(alpha=0.6)");
+        String string = c.eval("hgd_inline({plot.new();print(p)})").asString();
+        c.close();
+        webSocketHandler.sendMessageToUsers(new TextMessage(string));
+
+//        httpServletResponse.setContentType("image/svg+xml;charset=utf-8");
+//        OutputStream os = httpServletResponse.getOutputStream();
+//        os.write(string.getBytes());
+////        os.write(base64.);
+//        os.flush();
+//        os.close();
     }
 
 

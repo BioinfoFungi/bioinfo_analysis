@@ -70,13 +70,13 @@ public class CancerStudyController {
     }
 
     @GetMapping("/findByCategory")
-    public List<CancerStudy> findByCategory(@Valid FindCancer findCancer){
-        return cancerStudyService.findCancerStudyStudy(findCancer);
+    public Page<CancerStudy> findByCategory(@Valid FindCancer findCancer,@PageableDefault(sort = {"id"},direction = DESC,size = 3)Pageable pageable){
+        return cancerStudyService.findCancerStudyStudy(findCancer,pageable);
     }
 
     @GetMapping("/findVoByCategory")
-    public List<CancerStudyVo> findVoByCategory(@Valid FindCancer findCancer){
-        return cancerStudyService.findCancerStudyVoStudy(findCancer);
+    public Page<CancerStudyVo> findVoByCategory(@Valid FindCancer findCancer,Pageable pageable){
+        return cancerStudyService.findCancerStudyVoStudy(findCancer,pageable);
     }
 
     @GetMapping("/createTSVFile")

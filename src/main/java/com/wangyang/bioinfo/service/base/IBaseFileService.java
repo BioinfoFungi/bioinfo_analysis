@@ -10,6 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
  * @author wangyang
@@ -17,6 +18,8 @@ import javax.servlet.http.HttpServletResponse;
  */
 public interface IBaseFileService<FILE extends BaseFile> extends ICrudService<FILE,Integer>{
 
+
+    List<FILE> findByFileName(String fileName);
 
     FILE findByUUIDAndCheck(String uuid);
 
