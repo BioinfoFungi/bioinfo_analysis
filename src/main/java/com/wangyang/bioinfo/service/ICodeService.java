@@ -4,6 +4,9 @@ import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.service.base.IBaseFileService;
+import org.springframework.scheduling.annotation.Async;
+
+import java.util.Map;
 
 /**
  * @author wangyang
@@ -13,4 +16,9 @@ public interface ICodeService extends IBaseFileService<Code> {
 //    void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream);
 
     void processAsyncByCancerStudy(Task task,CancerStudy cancerStudy);
+
+    void rCodePlot(Integer id, Integer cancerStudyId);
+
+    @Async("taskExecutor")
+    void rCodePlot(Integer Id, Map<String,String> maps);
 }

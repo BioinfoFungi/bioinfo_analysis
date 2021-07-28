@@ -105,19 +105,20 @@ public class MainController {
         os.close();
     }
     //http://coolaf.com/tool/chattest
+    //ws://localhost:8080/websocket/socketServer.do
     @RequestMapping("/Rimg")
     @Async("taskExecutor")
     @ResponseBody
     public void testRImg(@RequestParam("file")String file) throws IOException, REngineException, REXPMismatchException {
         System.out.printf(file);
         RConnection c = new RConnection();
-        c.eval("library(httpgd)");
+
 //        c.eval("library(maftools)");
 //        c.eval("laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')");
 //        c.eval("laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools') ");
 //        c.eval("laml = read.maf(maf = laml.maf, clinicalData = laml.clin)");
 //        String string = c.eval("hgd_inline({plot.new();oncoplot(maf = laml)})").asString();
-
+        c.eval("library(httpgd)");
         c.eval("library(ggplot2)");
         c.eval("deg <- readr::read_tsv(\"/home/wangyang/workspace/www/data/TCGADOWNLOAD/data/TCGA_"+file+"_DESeq2.tsv\")");
         c.eval("deg <- dplyr::mutate(deg,direction = factor(ifelse(padj < 0.01 & abs(log2FoldChange)>2,\n" +

@@ -13,17 +13,27 @@ import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.ObjectToMap;
 import lombok.extern.slf4j.Slf4j;
+import org.rosuda.REngine.REXP;
+import org.rosuda.REngine.REXPMismatchException;
+import org.rosuda.REngine.REngineException;
+import org.rosuda.REngine.REngineStdOutput;
+import org.rosuda.REngine.Rserve.RConnection;
+import org.rosuda.REngine.Rserve.RFileInputStream;
+import org.rosuda.REngine.Rserve.RSession;
+import org.rosuda.REngine.Rserve.RserveException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.socket.TextMessage;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author wangyang
@@ -139,6 +149,48 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
         //设置task状态 FINISH
         task.setTaskStatus(TaskStatus.FINISH);
         taskRepository.save(task);
+    }
+
+
+    @Override
+    @Async("taskExecutor")
+    public void rCodePlot(Integer id, Integer cancerStudyId){
+        CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
+        Map<String, String> conditionMap = ObjectToMap.setConditionMap(cancerStudy);
+        rCodePlot(id,conditionMap);
+    }
+
+
+    @Override
+    public void rCodePlot(Integer id, Map<String,String> maps){
+        Code code = findById(id);
+        String absolutePath = code.getAbsolutePath();
+        RConnection connection=null;
+
+        try {
+            connection = new RConnection();
+            connection.eval("library(httpgd)");
+            connection.eval("library(ggplot2)");
+            for (String key: maps.keySet()){
+                connection.assign(key,maps.get(key));
+            }
+            REXP eval = connection.eval("hgd_inline({plot.new(); source(\"" +  absolutePath+ "\") })");
+            String s = eval.asString();
+            springWebSocketHandler.sendMessageToUsers(new TextMessage(s));
+        } catch (RserveException  e) {
+            e.printStackTrace();
+            throw new BioinfoException(e.getMessage());
+        } catch (REngineException e) {
+            e.printStackTrace();
+            throw new BioinfoException(e.getMessage());
+        } catch (REXPMismatchException e) {
+            e.printStackTrace();
+            throw new BioinfoException(e.getMessage());
+        } finally {
+            if(connection!=null){
+                connection.close();
+            }
+        }
     }
 }
 
