@@ -20,7 +20,7 @@ public interface IStudyService extends IBaseTermService<Study> {
     Study delStudy(int id);
     Study findStudyById(int id);
     Study findStudyByEnName(String name);
-    Study findAndCheckByEnName(String name);
+
 
     @Override
     List<Study> listAll();

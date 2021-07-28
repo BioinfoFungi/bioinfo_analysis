@@ -20,7 +20,6 @@ public interface IDataOriginService extends IBaseTermService<DataOrigin> {
     DataOrigin delDataOrigin(int id);
     DataOrigin findDataOriginById(int id);
     DataOrigin findDataOriginByEnName(String name);
-    DataOrigin findAndCheckByEnName(String name);
 
     @Override
     List<DataOrigin> listAll();

@@ -198,11 +198,11 @@ public class CancerStudyServiceImpl
 
     @Override
     public  Page<CancerStudy> findCancerStudyStudy(FindCancer findCancer,Pageable pageable) {
-        Cancer cancer = cancerService.findByEnName(findCancer.getCancer());
-        Study study = studyService.findByEnName(findCancer.getStudy());
-        DataOrigin dataOrigin = dataOriginService.findByEnName(findCancer.getDataOrigin());
-        AnalysisSoftware analysisSoftware = analysisSoftwareService.findByEnName(findCancer.getAnalysisSoftware());
-        ExperimentalStrategy experimentalStrategy=experimentalStrategyService.findByEnName(findCancer.getExperimentalStrategy());;
+        Cancer cancer = cancerService.findAndCheckByEnName(findCancer.getCancer());
+        Study study = studyService.findAndCheckByEnName(findCancer.getStudy());
+        DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(findCancer.getDataOrigin());
+        AnalysisSoftware analysisSoftware = analysisSoftwareService.findAndCheckByEnName(findCancer.getAnalysisSoftware());
+        ExperimentalStrategy experimentalStrategy=experimentalStrategyService.findAndCheckByEnName(findCancer.getExperimentalStrategy());;
 
         DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer == null ? null : cancer.getId(),
                 study == null ? null : study.getId(),

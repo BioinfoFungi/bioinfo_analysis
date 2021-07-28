@@ -78,6 +78,9 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
 
     @Override
     public TERM findAndCheckByEnName(String name) {
+        if(name==null){
+            return null;
+        }
         TERM term = findByEnName(name);
         if(term==null){
             throw new BioinfoException("要查找的对象不存在！");

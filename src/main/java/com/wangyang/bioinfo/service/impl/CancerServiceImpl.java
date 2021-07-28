@@ -72,14 +72,6 @@ public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements IC
         return cancerList.get(0);
     }
 
-    @Override
-    public Cancer findAndCheckByEnName(String name) {
-        Cancer cancer = findCancerByEnName(name);
-        if(cancer==null){
-            throw new BioinfoException("查找的Cancer对象不存在！");
-        }
-        return cancer;
-    }
 
     @Override
     public List<Cancer> findAllById(Collection<Integer> id) {

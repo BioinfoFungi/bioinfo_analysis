@@ -20,7 +20,6 @@ public interface ICancerService extends IBaseTermService<Cancer> {
     Cancer delCancer(int id);
     Cancer findCancerById(int id);
     Cancer findCancerByEnName(String name);
-    Cancer findAndCheckByEnName(String name);
     List<Cancer> findAllById(Collection<Integer> id);
     @Override
     List<Cancer> listAll();

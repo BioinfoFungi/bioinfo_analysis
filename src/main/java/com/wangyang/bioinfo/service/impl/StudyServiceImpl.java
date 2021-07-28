@@ -72,14 +72,7 @@ public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStu
         return studyList.get(0);
     }
 
-    @Override
-    public Study findAndCheckByEnName(String name) {
-        Study study = findStudyByEnName(name);
-        if(study==null){
-            throw new BioinfoException("查找的Study对象不存在！");
-        }
-        return study;
-    }
+
 
 
 

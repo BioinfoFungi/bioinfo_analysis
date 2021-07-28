@@ -67,14 +67,6 @@ public class DataOriginServiceImpl extends BaseTermServiceImpl<DataOrigin> imple
         return dataOrigins.get(0);
     }
 
-    @Override
-    public DataOrigin findAndCheckByEnName(String name) {
-        DataOrigin dataOrigin = findDataOriginByEnName(name);
-        if(dataOrigin==null){
-            throw new BioinfoException("要查找的对象DataOrigin不存在！");
-        }
-        return dataOrigin;
-    }
 
 
 
