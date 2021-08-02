@@ -167,13 +167,13 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
 
         try {
             connection = new RConnection();
-            OOBMessage oobMessage = new OOBMessage(springWebSocketHandler);
-            connection.setOOB(oobMessage);
-            REXP cap = connection.capabilities();
-            if (cap == null) {
-                System.err.println("ERROR: Rserve is not running in OCAP mode");
-                return;
-            }
+//            OOBMessage oobMessage = new OOBMessage(springWebSocketHandler);
+//            connection.setOOB(oobMessage);
+//            REXP cap = connection.capabilities();
+//            if (cap == null) {
+//                System.err.println("ERROR: Rserve is not running in OCAP mode");
+//                return;
+//            }
 //            connection.eval("library(httpgd)");
 //            connection.eval("library(ggplot2)");
 //            for (String key: maps.keySet()){
@@ -183,10 +183,10 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
 //            String s = eval.asString();
 
             String testCode = "{message('Hello!'); print(R.version.string) }";
-            RList occ = new RList(new REXP[] { cap, new REXPString(testCode) });
-            REXP res = connection.callOCAP(new REXPLanguage(occ));
+//            RList occ = new RList(new REXP[] { cap, new REXPString(testCode) });
+//            REXP res = connection.callOCAP(new REXPLanguage(occ));
 
-            final String s = res.asString();
+//            final String s = res.asString();
 //            springWebSocketHandler.sendMessageToUsers(new TextMessage(s));
         } catch (RserveException  e) {
             e.printStackTrace();
@@ -194,8 +194,6 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
         } catch (REngineException e) {
             e.printStackTrace();
             throw new BioinfoException(e.getMessage());
-        } catch (REXPMismatchException e) {
-            e.printStackTrace();
         } finally {
             if(connection!=null){
                 connection.close();

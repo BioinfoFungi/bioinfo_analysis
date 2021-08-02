@@ -5,12 +5,12 @@ import com.wangyang.bioinfo.util.ObjectToMap;
 import org.junit.Test;
 import org.rosuda.JRI.RConsoleOutputStream;
 import org.rosuda.REngine.*;
-import org.rosuda.REngine.Rserve.OOBInterface;
+//import org.rosuda.REngine.Rserve.OOBInterface;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RserveException;
 
 import java.util.Map;
-class TestOOB implements OOBInterface {
+class TestOOB {//implements OOBInterface {
     /* OOB API is list(source, [context,] output)
        where context is present if io.use.context is set */
     public void oobSend(int code, REXP message) {
@@ -46,33 +46,33 @@ public class TestR {
     @Test
     public void test() throws REngineException, REXPMismatchException {
 
-        RConnection c = new RConnection();
-        // add the OOB handler
-        c.setOOB(new TestOOB());
-        REXP cap = c.capabilities();
-        if (cap == null) {
-            System.err.println("ERROR: Rserve is not running in OCAP mode");
-            return;
-        }
-        // we assume the capability is a single function that we want to call
-        String testCode = "{ message('Hello!'); print(R.version.string) }";
-        RList occ = new RList(new REXP[] { cap, new REXPString(testCode) });
-        REXP res = c.callOCAP(new REXPLanguage(occ));
-//        c.eval("library(httpgd)");
-//        c.eval("library(ggplot2)");
-        System.out.println("result: " + res);
-//        c.eval("library(httpgd)");
-//        c.eval("library(maftools)");
-//
-//
-//        REngineStdOutput engineStdOutput =  new REngineStdOutput();
-//        engineStdOutput.RShowMessage(c,"456465465");
-////        c.eval("laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')");
-////        c.eval("laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools') ");
-//        c.parseAndEval("laml = read.maf(maf = '/home/wangyang/R/x86_64-pc-linux-gnu-library/4.1/maftools/extdata/tcga_laml.maf.gz')");
-//
-//        String string = c.eval("hgd_inline({plot.new();oncoplot(maf = laml)})").asString();
-        System.out.printf("");
+//        RConnection c = new RConnection();
+//        // add the OOB handler
+//        c.setOOB(new TestOOB());
+//        REXP cap = c.capabilities();
+//        if (cap == null) {
+//            System.err.println("ERROR: Rserve is not running in OCAP mode");
+//            return;
+//        }
+//        // we assume the capability is a single function that we want to call
+//        String testCode = "{ message('Hello!'); print(R.version.string) }";
+//        RList occ = new RList(new REXP[] { cap, new REXPString(testCode) });
+//        REXP res = c.callOCAP(new REXPLanguage(occ));
+////        c.eval("library(httpgd)");
+////        c.eval("library(ggplot2)");
+//        System.out.println("result: " + res);
+////        c.eval("library(httpgd)");
+////        c.eval("library(maftools)");
+////
+////
+////        REngineStdOutput engineStdOutput =  new REngineStdOutput();
+////        engineStdOutput.RShowMessage(c,"456465465");
+//////        c.eval("laml.maf = system.file('extdata', 'tcga_laml.maf.gz', package = 'maftools')");
+//////        c.eval("laml.clin = system.file('extdata', 'tcga_laml_annot.tsv', package = 'maftools') ");
+////        c.parseAndEval("laml = read.maf(maf = '/home/wangyang/R/x86_64-pc-linux-gnu-library/4.1/maftools/extdata/tcga_laml.maf.gz')");
+////
+////        String string = c.eval("hgd_inline({plot.new();oncoplot(maf = laml)})").asString();
+//        System.out.printf("");
     }
 
     @Test
