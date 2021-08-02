@@ -8,7 +8,13 @@ import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wangyang.bioinfo.interceptor.BioInterceptor;
 import com.wangyang.bioinfo.interceptor.SpringWebSocketHandlerInterceptor;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
+import org.apache.catalina.Context;
+import org.apache.catalina.connector.Connector;
+import org.apache.tomcat.util.descriptor.web.SecurityCollection;
+import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
+import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -155,5 +161,7 @@ public class MvcConfig   extends WebMvcConfigurationSupport implements WebSocket
     public TextWebSocketHandler webSocketHandler() {
         return new SpringWebSocketHandler();
     }
+
+
 
 }

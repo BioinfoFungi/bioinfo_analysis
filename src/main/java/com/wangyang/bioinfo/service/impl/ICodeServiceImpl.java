@@ -13,12 +13,10 @@ import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.OOBMessage;
 import com.wangyang.bioinfo.util.ObjectToMap;
 import lombok.extern.slf4j.Slf4j;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REngineException;
-import org.rosuda.REngine.REngineStdOutput;
+import org.rosuda.REngine.*;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.rosuda.REngine.Rserve.RFileInputStream;
 import org.rosuda.REngine.Rserve.RSession;
@@ -169,14 +167,27 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
 
         try {
             connection = new RConnection();
-            connection.eval("library(httpgd)");
-            connection.eval("library(ggplot2)");
-            for (String key: maps.keySet()){
-                connection.assign(key,maps.get(key));
+            OOBMessage oobMessage = new OOBMessage(springWebSocketHandler);
+            connection.setOOB(oobMessage);
+            REXP cap = connection.capabilities();
+            if (cap == null) {
+                System.err.println("ERROR: Rserve is not running in OCAP mode");
+                return;
             }
-            REXP eval = connection.eval("hgd_inline({plot.new(); source(\"" +  absolutePath+ "\") })");
-            String s = eval.asString();
-            springWebSocketHandler.sendMessageToUsers(new TextMessage(s));
+//            connection.eval("library(httpgd)");
+//            connection.eval("library(ggplot2)");
+//            for (String key: maps.keySet()){
+//                connection.assign(key,maps.get(key));
+//            }
+//            REXP eval = connection.eval("hgd_inline({plot.new(); source(\"" +  absolutePath+ "\") })");
+//            String s = eval.asString();
+
+            String testCode = "{message('Hello!'); print(R.version.string) }";
+            RList occ = new RList(new REXP[] { cap, new REXPString(testCode) });
+            REXP res = connection.callOCAP(new REXPLanguage(occ));
+
+            final String s = res.asString();
+//            springWebSocketHandler.sendMessageToUsers(new TextMessage(s));
         } catch (RserveException  e) {
             e.printStackTrace();
             throw new BioinfoException(e.getMessage());
@@ -185,7 +196,6 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
             throw new BioinfoException(e.getMessage());
         } catch (REXPMismatchException e) {
             e.printStackTrace();
-            throw new BioinfoException(e.getMessage());
         } finally {
             if(connection!=null){
                 connection.close();
