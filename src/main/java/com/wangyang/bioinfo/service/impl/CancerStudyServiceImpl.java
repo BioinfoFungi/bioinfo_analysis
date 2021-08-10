@@ -110,6 +110,22 @@ public class CancerStudyServiceImpl
     }
 
     @Override
+    public CancerStudy saveCancerStudy(CancerStudy cancerStudy, User user) {
+        List<CancerStudy> cancerStudies = findDataByCategoryId(new DataCategoryIdDto(cancerStudy.getCancerId(),
+                cancerStudy.getStudyId(),cancerStudy.getDataOriginId(),
+                cancerStudy.getExperimentalStrategyId()==null?null:cancerStudy.getExperimentalStrategyId(),
+                cancerStudy.getAnalysisSoftwareId()==null?null:cancerStudy.getAnalysisSoftwareId()));
+        if(cancerStudies.size()>1){
+            throw new BioinfoException("查找到文件数目大于1!");
+        }
+        if(cancerStudies.size()==1){
+            cancerStudy.setId(cancerStudies.get(0).getId());
+        }
+        cancerStudy.setUserId(user.getId());
+        return saveAndCheckFile(cancerStudy);
+    }
+
+    @Override
     public CancerStudy upload(MultipartFile file, CancerStudyParam cancerStudyParam) {
         CancerStudy cancerStudy = checkCancerStudy(cancerStudyParam);
         UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" ,FileLocation.LOCAL);

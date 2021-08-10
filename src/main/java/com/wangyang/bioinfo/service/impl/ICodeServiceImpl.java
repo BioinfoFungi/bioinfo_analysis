@@ -4,22 +4,23 @@ import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
 import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
+import com.wangyang.bioinfo.pojo.param.CancerParam;
+import com.wangyang.bioinfo.pojo.trem.Study;
 import com.wangyang.bioinfo.repository.RCodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
+import com.wangyang.bioinfo.service.IStudyService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.OOBMessage;
 import com.wangyang.bioinfo.util.ObjectToMap;
 import lombok.extern.slf4j.Slf4j;
-import org.rosuda.REngine.*;
+import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.Rserve.RFileInputStream;
-import org.rosuda.REngine.Rserve.RSession;
 import org.rosuda.REngine.Rserve.RserveException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
@@ -31,7 +32,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.*;
+import java.io.ByteArrayOutputStream;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangyang
@@ -50,6 +53,8 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
     SpringWebSocketHandler springWebSocketHandler;
     @Autowired
     TaskRepository taskRepository;
+    @Autowired
+    IStudyService studyService;
 
     private Code findOneBy(int dataOriginId,int studyId){
         List<Code> codes = rCodeRepository.findAll(new Specification<Code>() {
@@ -156,6 +161,49 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
         CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
         Map<String, String> conditionMap = ObjectToMap.setConditionMap(cancerStudy);
         rCodePlot(id,conditionMap);
+    }
+
+    @Override
+    @Async("taskExecutor")
+    public void runRCode(Integer id, Integer cancerStudyId){
+        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
+        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
+        CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
+        Map<String, String> maps = ObjectToMap.setConditionMap(cancerStudy);
+        Code code = findById(id);
+        RCaller rcaller = RCaller.create();
+
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        rcaller.redirectROutputToStream(byteArrayOutputStream);
+        RCode rcode = RCode.create();
+        rcaller.setRCode(rcode);
+        for (String key: maps.keySet()){
+               rcode.addString(key,maps.get(key));
+        }
+
+        rcode.R_source(code.getAbsolutePath());
+
+        rcode.addRCode("res <- main()");
+
+        rcaller.runAndReturnResultOnline("res");
+        String[] param = rcaller.getParser().getAsStringArray("res");
+        rcaller.stopRCallerOnline();
+
+        System.out.println(byteArrayOutputStream);
+        TextMessage textMessage = new TextMessage(byteArrayOutputStream.toByteArray());
+        springWebSocketHandler.sendMessageToUsers(textMessage);
+
+        CancerStudy processCancerStudy = new CancerStudy();
+        User user = new User();
+        user.setId(-1);
+        processCancerStudy.setCancerId(cancerStudy.getCancerId());
+        processCancerStudy.setDataOriginId(cancerStudy.getDataOriginId());
+        Study study = studyService.findByEnName(param[0]);
+        processCancerStudy.setStudyId(study.getId());
+        processCancerStudy.setAbsolutePath(param[1]);
+        cancerStudyService.saveCancerStudy(processCancerStudy,user);
+        log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": end! <<<<<<<<<<<<<<"));
     }
 
 

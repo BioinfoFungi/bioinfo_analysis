@@ -24,6 +24,9 @@ import java.util.List;
 public interface ICancerStudyService extends IBaseDataCategoryService<CancerStudy> {
 
     CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam, User user);
+
+    CancerStudy saveCancerStudy(CancerStudy cancerStudy, User user);
+
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
     CancerStudy delCancerStudy(int id);
     CancerStudy findCancerStudyById(int id);

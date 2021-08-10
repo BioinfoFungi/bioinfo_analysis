@@ -20,5 +20,8 @@ public interface ICodeService extends IBaseFileService<Code> {
     void rCodePlot(Integer id, Integer cancerStudyId);
 
     @Async("taskExecutor")
+    void runRCode(Integer id, Integer cancerStudyId);
+
+    @Async("taskExecutor")
     void rCodePlot(Integer Id, Map<String,String> maps);
 }
