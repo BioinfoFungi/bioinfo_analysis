@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.web;
 
 
 import com.wangyang.bioinfo.service.ICodeService;
+import com.wangyang.bioinfo.service.ITaskService;
 import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,10 +17,10 @@ public class CodeController {
     //ws://localhost:8080/websocket/socketServer.do
     //http://coolaf.com/tool/chattest
     @Autowired
-    ICodeService codeService;
+    ITaskService taskService;
     @GetMapping
     public BaseResponse runRById(@RequestParam("codeId") Integer codeId,@RequestParam("cancerStudyId")Integer cancerStudyId){
-        codeService.runRCode(codeId,cancerStudyId);
+        taskService.addTask(codeId,cancerStudyId);
         return BaseResponse.ok("任务提交成功");
     }
 }

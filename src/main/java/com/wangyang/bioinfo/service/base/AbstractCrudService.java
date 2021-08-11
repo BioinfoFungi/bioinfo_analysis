@@ -20,6 +20,7 @@ import java.io.*;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wangyang
@@ -39,6 +40,14 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         return ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[index];
     }
 
+
+    public DOMAIN findById(ID Id){
+        Optional<DOMAIN> fileOptional = repository.findById(Id);
+        if(!fileOptional.isPresent()){
+            throw new BioinfoException("查找的File对象不存在!");
+        }
+        return fileOptional.get();
+    }
     @Override
     public List<DOMAIN> listAll() {
 //        Assert.notNull(id, domainName + " id must not be null");

@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.service.base.IBaseFileService;
@@ -19,9 +20,9 @@ public interface ICodeService extends IBaseFileService<Code> {
 
     void rCodePlot(Integer id, Integer cancerStudyId);
 
-    @Async("taskExecutor")
-    void runRCode(Integer id, Integer cancerStudyId);
 
-    @Async("taskExecutor")
+    void runRCode(Task task, Code code, CancerStudy cancerStudy);
+
+
     void rCodePlot(Integer Id, Map<String,String> maps);
 }

@@ -2,14 +2,12 @@ package com.wangyang.bioinfo.pojo;
 
 import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 /**
  * @author wangyang
@@ -25,5 +23,13 @@ public class Task extends BaseEntity {
     private String name;
     private Integer objId;
     private  TaskStatus taskStatus;
+    private String[] param;
+    @Column(columnDefinition = "longtext")
+    private String runMsg;
+    @Column(columnDefinition = "longtext")
+    private String exception;
+    private String threadName;
+    private Boolean isSuccess;
+    private TaskType taskType;
 
 }
