@@ -16,7 +16,7 @@ public class FindCancer {
     private String study;
 //    @NotBlank(message = "dataOrigin不能为空!")
     private String dataOrigin;
-    private String experimentalStrategy;
+    private String workflow;
     private String analysisSoftware;
     private String fileName;
     private String keyword;
