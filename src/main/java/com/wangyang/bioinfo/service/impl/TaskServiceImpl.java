@@ -107,15 +107,17 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setObjId(cancerStudy.getId());
         task.setCodeId(code.getId());
         task.setTaskStatus(TaskStatus.PENDING);
-//        taskRepository.save(task);
+
         if(size==QUEUE_CAPACITY) {
             System.out.println("线程池队列已满" + size);
             task.setTaskStatus(TaskStatus.UNTRACKING);
+            task = taskRepository.save(task);
         }else {
+            task = taskRepository.save(task);
             // 将task传给线程， 由对应的线程执行更新操作
             codeService.runRCode(task, code, cancerStudy);
         }
-        return super.save(task);
+        return task;
     }
 
     @Override
