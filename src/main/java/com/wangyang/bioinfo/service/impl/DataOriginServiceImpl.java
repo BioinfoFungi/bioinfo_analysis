@@ -3,11 +3,9 @@ package com.wangyang.bioinfo.service.impl;
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
-import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
 import com.wangyang.bioinfo.repository.DataOriginRepository;
 import com.wangyang.bioinfo.service.IDataOriginService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
-import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -19,7 +17,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Collection;
 import java.util.List;
 
 /**

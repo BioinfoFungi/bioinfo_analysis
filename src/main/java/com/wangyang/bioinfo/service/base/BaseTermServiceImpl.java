@@ -2,7 +2,6 @@ package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.pojo.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
-import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
 import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.apache.commons.lang3.StringUtils;

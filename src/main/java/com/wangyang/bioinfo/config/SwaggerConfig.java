@@ -25,6 +25,8 @@ import java.util.List;
 /**
  * @author wangyang
  * @date 2021/7/15
+ * http://localhost:8080/doc.html
+ * http://localhost:8080/swagger-ui.html
  */
 @Configuration
 @EnableSwagger2//开启Swagger

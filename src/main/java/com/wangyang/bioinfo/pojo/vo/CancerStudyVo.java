@@ -17,7 +17,7 @@ public class CancerStudyVo {
     private Cancer cancer;
     private Study study;
     private AnalysisSoftware analysisSoftware;
-    private ExperimentalStrategy experimentalStrategy;
+    private Workflow workflow;
     private DataOrigin dataOrigin;
     private String fileName;
     private String fileType;

@@ -37,8 +37,8 @@ public class BaseDataCategoryServiceImpl<CATEGORY extends BaseDataCategory>
             if(categoryId.getAnalysisSoftwareId()!=null){
                 predicates.add(criteriaBuilder.equal(root.get("analysisSoftwareId"),categoryId.getAnalysisSoftwareId()));
             }
-            if(categoryId.getExperimentalStrategyId()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("experimentalStrategyId"),categoryId.getExperimentalStrategyId()));
+            if(categoryId.getWorkflowId()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("workflowId"),categoryId.getWorkflowId()));
             }
             if(categoryId.getCancerId()!=null){
                 predicates.add(criteriaBuilder.equal(root.get("cancerId"),categoryId.getCancerId()));

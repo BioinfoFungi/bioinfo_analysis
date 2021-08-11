@@ -1,6 +1,5 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
 import com.wangyang.bioinfo.pojo.trem.Study;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
@@ -19,7 +18,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 

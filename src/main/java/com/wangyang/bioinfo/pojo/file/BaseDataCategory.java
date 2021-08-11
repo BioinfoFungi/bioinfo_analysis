@@ -25,7 +25,7 @@ public class BaseDataCategory extends BaseFile {
     @Parsed
     private Integer dataOriginId;
     @Parsed
-    private Integer experimentalStrategyId;
+    private Integer workflowId;
     @Parsed
     private Integer analysisSoftwareId;
 }

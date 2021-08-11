@@ -10,11 +10,13 @@ import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.pojo.trem.Study;
+import com.wangyang.bioinfo.pojo.trem.Workflow;
 import com.wangyang.bioinfo.repository.RCodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
 import com.wangyang.bioinfo.service.IStudyService;
+import com.wangyang.bioinfo.service.IWorkflowService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToMap;
@@ -54,7 +56,7 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
     @Autowired
     TaskRepository taskRepository;
     @Autowired
-    IStudyService studyService;
+    IWorkflowService workflowService;
 
     private Code findOneBy(int dataOriginId,int studyId){
         List<Code> codes = rCodeRepository.findAll(new Specification<Code>() {
@@ -171,14 +173,32 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
         CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
         Map<String, String> maps = ObjectToMap.setConditionMap(cancerStudy);
         Code code = findById(id);
-        RCaller rcaller = RCaller.create();
 
+        // Call R
+        String[] call = rCall(code, maps);
+
+        CancerStudy processCancerStudy = new CancerStudy();
+        User user = new User();
+        user.setId(-1);
+        processCancerStudy.setCancerId(cancerStudy.getCancerId());
+        processCancerStudy.setDataOriginId(cancerStudy.getDataOriginId());
+        processCancerStudy.setStudyId(cancerStudy.getStudyId());
+        Workflow workflow = workflowService.findAndCheckByEnName(call[0]);
+        processCancerStudy.setWorkflowId(workflow.getId());
+        processCancerStudy.setAbsolutePath(call[1]);
+        cancerStudyService.saveCancerStudy(processCancerStudy,user);
+        log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": end! <<<<<<<<<<<<<<"));
+    }
+
+    private String[] rCall(Code code, Map<String,String> maps){
+        RCaller rcaller = RCaller.create();
         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
         rcaller.redirectROutputToStream(byteArrayOutputStream);
         RCode rcode = RCode.create();
         rcaller.setRCode(rcode);
         for (String key: maps.keySet()){
-               rcode.addString(key,maps.get(key));
+            rcode.addString(key,maps.get(key));
         }
 
         rcode.R_source(code.getAbsolutePath());
@@ -192,19 +212,13 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
         System.out.println(byteArrayOutputStream);
         TextMessage textMessage = new TextMessage(byteArrayOutputStream.toByteArray());
         springWebSocketHandler.sendMessageToUsers(textMessage);
-
-        CancerStudy processCancerStudy = new CancerStudy();
-        User user = new User();
-        user.setId(-1);
-        processCancerStudy.setCancerId(cancerStudy.getCancerId());
-        processCancerStudy.setDataOriginId(cancerStudy.getDataOriginId());
-        Study study = studyService.findByEnName(param[0]);
-        processCancerStudy.setStudyId(study.getId());
-        processCancerStudy.setAbsolutePath(param[1]);
-        cancerStudyService.saveCancerStudy(processCancerStudy,user);
-        log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": end! <<<<<<<<<<<<<<"));
+        /**
+         * c("DEG","/home/wangyang/Public/bioinfo/LiverCancerM6A/result/miRNA_deg.tsv")
+         * return workflow and absolute path
+         */
+        return param;
     }
+
 
 
     @Override

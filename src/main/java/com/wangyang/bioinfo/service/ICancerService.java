@@ -3,7 +3,6 @@ package com.wangyang.bioinfo.service;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
-import com.wangyang.bioinfo.pojo.trem.ExperimentalStrategy;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
