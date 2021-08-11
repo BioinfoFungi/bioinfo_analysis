@@ -66,8 +66,7 @@ public class FilenameUtils {
         Assert.hasText(relativePath, "relativePath must not be blank");
         String workDir = StringCacheStore.getValue("workDir");
         if(relativePath.contains(workDir)){
-            relativePath.replace(workDir+"/","");
-            return relativePath;
+            return relativePath.replace(workDir+"/","");
         }
         int separatorLastIndex = StringUtils.lastIndexOf(relativePath, File.separatorChar);
 
