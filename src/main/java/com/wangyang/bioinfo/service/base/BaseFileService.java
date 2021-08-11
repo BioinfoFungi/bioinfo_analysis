@@ -178,7 +178,8 @@ public class BaseFileService<FILE extends BaseFile>
             file.setFileName(basename);
         }
         if(file.getRelativePath()==null){
-            FilenameUtils.relativePath(file.getAbsolutePath());
+            String relativePath = FilenameUtils.relativePath(file.getAbsolutePath());
+            file.setRelativePath(relativePath);
         }
         String extension = FilenameUtils.getExtension(file.getAbsolutePath());
         file.setFileType(extension);
