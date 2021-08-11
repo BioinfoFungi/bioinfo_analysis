@@ -217,8 +217,8 @@ public class CancerStudyServiceImpl
         DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer == null ? null : cancer.getId(),
                 study == null ? null : study.getId(),
                 dataOrigin == null ? null : dataOrigin.getId(),
-                analysisSoftware == null ? null : analysisSoftware.getId(),
-                workflow == null ? null : workflow.getId());
+                workflow == null ? null : workflow.getId(),
+                analysisSoftware == null ? null : analysisSoftware.getId());
         BeanUtils.copyProperties(findCancer,dataCategoryIdDto);
         Page<CancerStudy> cancerStudyPage = pageBy(dataCategoryIdDto, pageable);
         return cancerStudyPage;
