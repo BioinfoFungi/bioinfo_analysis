@@ -149,7 +149,7 @@ public class CancerStudyServiceImpl
         Study study = studyService.findByEnName(findCancer.getStudy());
         DataOrigin dataOrigin = dataOriginService.findByEnName(findCancer.getDataOrigin());
         AnalysisSoftware analysisSoftware = analysisSoftwareService.findByEnName(findCancer.getAnalysisSoftware());
-        Workflow workflow =experimentalStrategyService.findByEnName(findCancer.getExperimentalStrategy());;
+        Workflow workflow =experimentalStrategyService.findByEnName(findCancer.getWorkflow());;
 
 
         Page<CancerStudy> cancerStudyPage = pageBy(new DataCategoryIdDto(cancer==null?null:cancer.getId(),
@@ -212,7 +212,7 @@ public class CancerStudyServiceImpl
         Study study = studyService.findAndCheckByEnName(findCancer.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(findCancer.getDataOrigin());
         AnalysisSoftware analysisSoftware = analysisSoftwareService.findAndCheckByEnName(findCancer.getAnalysisSoftware());
-        Workflow workflow =experimentalStrategyService.findAndCheckByEnName(findCancer.getExperimentalStrategy());;
+        Workflow workflow =experimentalStrategyService.findAndCheckByEnName(findCancer.getWorkflow());;
 
         DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer == null ? null : cancer.getId(),
                 study == null ? null : study.getId(),
