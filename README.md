@@ -7,6 +7,10 @@
 + 项目报告管理
 + 癌症数据资源管理
 
+#### 设计
+![](vignettes/cancer.png)
+
+
 #### 联系
 + Email: 1749748955@qq.com
 + Email: 3300297450@qq.com

@@ -18,3 +18,11 @@ https://blog.csdn.net/csflvcxx/article/details/81612336
 上面两个命令也可以合成为一个命令：
 git checkout -b branchName
 
+
++ data matrix
+    + cancer (癌症)[ESCA、BRAC...]
+    + study(研究)[mRNA、miRNA、lncRNA...]
+    + database(数据来源)[TCGA、GEO...]
+    + dataCategory(数据分类)[FPKM、Counts、clinical...]
+    + analysisSoftware(分析软件)[limma、DESeq2...]
+    + dataId[数据Id](GSEXXX...)
