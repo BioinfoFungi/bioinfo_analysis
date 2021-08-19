@@ -5,12 +5,6 @@ spring:
   http:
     encoding:
       charset=UTF-8:
-  datasource:
-    driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://127.0.0.1:3306/bioinfo?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-    username: root
-    password: 123456
-
   jpa:
     hibernate.ddl-auto: update
     show-sql: true
@@ -31,6 +25,30 @@ spring:
     protocol: smtp
     default-encoding: UTF-8
     jndi-name: email
+############################## mysql start##################################
+#  datasource:
+#    driver-class-name: com.mysql.cj.jdbc.Driver
+#    url: jdbc:mysql://localhost:3306/bioinfo?characterEncoding=utf8&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+#    username: root
+#    password: 123456
+############################## mysql end##################################
+
+############################## h2 start ##################################
+# 使用H2数据库
+  datasource:
+    platform: h2
+    driverClassName: org.h2.Driver
+    url: jdbc:h2:file:~/Downloads/h2/dbc2m
+    username: root
+    password: 123456
+#    schema: classpath:db/user.sql# 数据项配置，项目启动时需要执行的sql脚本
+  h2:
+    console:
+      settings:
+        web-allow-others: true # 配置h2的远程访问
+      enabled: true # 配置程序开启时就会启动h2 web consloe
+      path: /h2-console #，进行该配置，你就可以通过YOUR_URL/h2-console访问h2 web consloe。YOUR_URL是你程序的访问URl
+############################## h2 end ##################################
 
 jwt:
   base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
