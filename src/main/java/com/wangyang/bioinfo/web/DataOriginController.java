@@ -1,10 +1,13 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.service.IDataOriginService;
+import com.wangyang.bioinfo.service.IOrganizeFileService;
+import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,6 +31,8 @@ public class DataOriginController {
     @Autowired
     IDataOriginService dataOriginService;
 
+    @Autowired
+    IOrganizeFileService organizeFileService;
 
 
     @GetMapping
@@ -47,5 +52,12 @@ public class DataOriginController {
     @GetMapping("/listAll")
     public List<DataOrigin> listAll(){
         return dataOriginService.listAll();
+    }
+
+    @GetMapping("/init/{name}")
+    public BaseResponse initData(@PathVariable("name") String name){
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
+        dataOriginService.initData(organizeFile.getAbsolutePath());
+        return BaseResponse.ok("初始化完成!");
     }
 }

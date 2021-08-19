@@ -46,5 +46,4 @@ public class LncRNAController {
         lncRNAService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("lncRNA初始化完成!");
     }
-
 }

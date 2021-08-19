@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo.param;
 
+import com.univocity.parsers.annotations.Parsed;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -10,6 +11,8 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class BaseFileParam {
+    @Parsed
     private String absolutePath;
+    @Parsed
     private String relativePath;
 }

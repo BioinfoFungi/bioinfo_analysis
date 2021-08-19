@@ -12,15 +12,24 @@ import javax.validation.constraints.NotBlank;
 @Data
 public class CancerStudyParam  extends BaseFileParam{
     @NotBlank(message = "cancer不能为空!")
+    @Parsed
     private String cancer;
     @NotBlank(message = "study不能为空!")
+    @Parsed
     private String study;
     @NotBlank(message = "dataOrigin不能为空!")
+    @Parsed
     private String dataOrigin;
+    @Parsed
     private String dataCategory;
+    @Parsed
     private String gse;
+    @Parsed
     private String analysisSoftware;
+    @Parsed
     private String processedAbsolutePath;
+    @Parsed
     private String processedRelativePath;
+    @Parsed
     private Integer processedId;
 }

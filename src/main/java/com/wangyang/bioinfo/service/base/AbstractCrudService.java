@@ -9,6 +9,7 @@ import com.univocity.parsers.tsv.TsvWriterSettings;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -152,24 +153,25 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
 
     @Override
     public List<DOMAIN> tsvToBean(String filePath){
-        try {
-            try(FileInputStream inputStream = new FileInputStream(filePath)){
-                DOMAIN instance = getInstance();
-                BeanListProcessor<DOMAIN> beanListProcessor = new BeanListProcessor<>((Class<DOMAIN>) getInstance().getClass());
-                TsvParserSettings settings = new TsvParserSettings();
-                settings.setProcessor(beanListProcessor);
-                settings.setHeaderExtractionEnabled(true);
-                TsvParser parser = new TsvParser(settings);
-                parser.parse(inputStream);
-                List<DOMAIN> beans = beanListProcessor.getBeans();
-                inputStream.close();
-                return beans;
-            }
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
+        return File2Tsv.tsvToBean((Class<DOMAIN>) getInstance().getClass(),filePath);
+//        try {
+//            try(FileInputStream inputStream = new FileInputStream(filePath)){
+//                DOMAIN instance = getInstance();
+//                BeanListProcessor<DOMAIN> beanListProcessor = new BeanListProcessor<>((Class<DOMAIN>) getInstance().getClass());
+//                TsvParserSettings settings = new TsvParserSettings();
+//                settings.setProcessor(beanListProcessor);
+//                settings.setHeaderExtractionEnabled(true);
+//                TsvParser parser = new TsvParser(settings);
+//                parser.parse(inputStream);
+//                List<DOMAIN> beans = beanListProcessor.getBeans();
+//                inputStream.close();
+//                return beans;
+//            }
+//
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//        return null;
     }
 
 
@@ -177,6 +179,9 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
     public List<DOMAIN> initData(String filePath){
         repository.deleteAll();
         List<DOMAIN> beans = tsvToBean(filePath);
+        if(beans==null){
+            throw new BioinfoException(filePath+" 不存在！");
+        }
         if(beans.size()!=0){
             beans = repository.saveAll(beans);
         }

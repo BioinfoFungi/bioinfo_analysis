@@ -1,10 +1,13 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.service.ICancerService;
+import com.wangyang.bioinfo.service.IOrganizeFileService;
+import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -27,6 +30,8 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class CancerController {
     @Autowired
     ICancerService cancerService;
+    @Autowired
+    IOrganizeFileService organizeFileService;
 
     @GetMapping
     public Page<Cancer> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
@@ -47,5 +52,14 @@ public class CancerController {
     @GetMapping("/listAll")
     public List<Cancer> listAll(){
         return cancerService.listAll();
+    }
+
+
+
+    @GetMapping("/init/{name}")
+    public BaseResponse initData(@PathVariable("name") String name){
+        OrganizeFile organizeFile = organizeFileService.findByEnName(name);
+        cancerService.initData(organizeFile.getAbsolutePath());
+        return BaseResponse.ok("初始化完成!");
     }
 }

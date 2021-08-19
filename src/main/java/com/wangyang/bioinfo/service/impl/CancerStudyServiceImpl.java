@@ -1,6 +1,9 @@
 package com.wangyang.bioinfo.service.impl;
 
 
+import com.univocity.parsers.common.processor.BeanListProcessor;
+import com.univocity.parsers.tsv.TsvParser;
+import com.univocity.parsers.tsv.TsvParserSettings;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.dto.DataCategoryIdDto;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
@@ -15,6 +18,7 @@ import com.wangyang.bioinfo.repository.CancerStudyRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -361,5 +365,17 @@ public class CancerStudyServiceImpl
             return cancerStudyVo;
         });
         return cancerStudyVos;
+    }
+
+    /**
+     * 导入cancer study
+     * @param filePath
+     * @return
+     */
+    @Override
+    public List<CancerStudy> initData(String filePath) {
+        List<CancerStudyParam> cancerStudyParams = File2Tsv.tsvToBean(CancerStudyParam.class, filePath);
+        System.out.println();
+        return null;
     }
 }
