@@ -1,6 +1,5 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.github.rcaller.exception.ExecutionException;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
@@ -10,15 +9,12 @@ import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
-import com.wangyang.bioinfo.pojo.param.CancerParam;
-import com.wangyang.bioinfo.pojo.trem.Study;
-import com.wangyang.bioinfo.pojo.trem.Workflow;
+import com.wangyang.bioinfo.pojo.trem.DataCategory;
 import com.wangyang.bioinfo.repository.RCodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
-import com.wangyang.bioinfo.service.IStudyService;
-import com.wangyang.bioinfo.service.IWorkflowService;
+import com.wangyang.bioinfo.service.IDataCategoryService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToMap;
@@ -59,7 +55,7 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
     @Autowired
     TaskRepository taskRepository;
     @Autowired
-    IWorkflowService workflowService;
+    IDataCategoryService workflowService;
 
     private Code findOneBy(int dataOriginId,int studyId){
         List<Code> codes = rCodeRepository.findAll(new Specification<Code>() {
@@ -194,8 +190,8 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
             processCancerStudy.setCancerId(cancerStudy.getCancerId());
             processCancerStudy.setDataOriginId(cancerStudy.getDataOriginId());
             processCancerStudy.setStudyId(cancerStudy.getStudyId());
-            Workflow workflow = workflowService.findAndCheckByEnName(codeMsg.getParam()[0]);
-            processCancerStudy.setWorkflowId(workflow.getId());
+            DataCategory dataCategory = workflowService.findAndCheckByEnName(codeMsg.getParam()[0]);
+            processCancerStudy.setDataCategoryId(dataCategory.getId());
             processCancerStudy.setAbsolutePath(codeMsg.getParam()[1]);
             cancerStudyService.saveCancerStudy(processCancerStudy,user);
             task.setIsSuccess(true);

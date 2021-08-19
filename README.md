@@ -8,6 +8,14 @@
 + 癌症数据资源管理
 
 #### 设计
++ data matrix
+    + cancer (癌症)[ESCA、BRAC...]
+    + study(研究)[mRNA、miRNA、lncRNA...]
+    + dataOrigin(数据来源)[TCGA、GEO...]
+    + dataCategory(数据分类)[FPKM、Counts、clinical...]
+    + analysisSoftware(分析软件)[limma、DESeq2...]
+    + dataId[数据Id](GSEXXX...)
+    
 ![](vignettes/cancer.png)
 
 

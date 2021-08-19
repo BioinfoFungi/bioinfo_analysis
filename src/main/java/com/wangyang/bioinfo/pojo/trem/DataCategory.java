@@ -13,5 +13,5 @@ import javax.persistence.Entity;
 @Entity
 @DiscriminatorValue(value = "3")
 @Data
-public class Workflow extends BaseTerm {
+public class DataCategory extends BaseTerm {
 }

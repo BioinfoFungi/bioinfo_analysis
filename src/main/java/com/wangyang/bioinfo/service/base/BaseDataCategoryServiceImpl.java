@@ -37,8 +37,8 @@ public class BaseDataCategoryServiceImpl<CATEGORY extends BaseDataCategory>
             if(categoryId.getAnalysisSoftwareId()!=null){
                 predicates.add(criteriaBuilder.equal(root.get("analysisSoftwareId"),categoryId.getAnalysisSoftwareId()));
             }
-            if(categoryId.getWorkflowId()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("workflowId"),categoryId.getWorkflowId()));
+            if(categoryId.getDataCategoryId()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("workflowId"),categoryId.getDataCategoryId()));
             }
             if(categoryId.getCancerId()!=null){
                 predicates.add(criteriaBuilder.equal(root.get("cancerId"),categoryId.getCancerId()));
@@ -61,6 +61,9 @@ public class BaseDataCategoryServiceImpl<CATEGORY extends BaseDataCategory>
             }
             if(categoryId.getUuid()!=null){
                 predicates.add(criteriaBuilder.equal(root.get("uuid"),categoryId.getUuid()));
+            }
+            if(categoryId.getGes()!=null){
+                predicates.add(criteriaBuilder.equal(root.get("gse"),categoryId.getGes()));
             }
             return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
         };

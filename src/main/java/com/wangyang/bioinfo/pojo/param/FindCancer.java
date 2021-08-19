@@ -16,10 +16,10 @@ public class FindCancer {
     private String study;
 //    @NotBlank(message = "dataOrigin不能为空!")
     private String dataOrigin;
-    private String workflow;
+    private String dataCategory;
+    private String GSE;
     private String analysisSoftware;
     private String fileName;
     private String keyword;
     private String uuid;
-
 }

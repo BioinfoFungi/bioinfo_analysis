@@ -1,8 +1,8 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
-import com.wangyang.bioinfo.pojo.trem.Workflow;
-import com.wangyang.bioinfo.service.IWorkflowService;
+import com.wangyang.bioinfo.pojo.trem.DataCategory;
+import com.wangyang.bioinfo.service.IDataCategoryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -18,10 +18,10 @@ import org.springframework.web.bind.annotation.RestController;
 public class WorkflowController {
 
     @Autowired
-    IWorkflowService experimentalStrategyService;
+    IDataCategoryService experimentalStrategyService;
 
     @PostMapping
-    public Workflow add(@RequestBody BaseTermParam baseTermParam){
+    public DataCategory add(@RequestBody BaseTermParam baseTermParam){
         return  experimentalStrategyService.save(baseTermParam);
     }
 }

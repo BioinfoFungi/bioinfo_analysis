@@ -25,6 +25,6 @@ public class CancerStudy extends BaseDataCategory {
     private String processedRelativePath;
     private Integer processedId;
     private Boolean isProcessed;
-    private String gse;
+
 
 }
