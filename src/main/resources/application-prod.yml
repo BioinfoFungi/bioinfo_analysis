@@ -62,11 +62,10 @@ server:
   tomcat:
     max-threads: 200
     max-connections: 300
-  port: 8080
-https:
   ssl:
     key-store: classpath:sample.pfx #配置证书路径
     key-store-password: 3bWBoh69 #证书密码
   port: 8081
 
-
+http:
+  port: 8080
