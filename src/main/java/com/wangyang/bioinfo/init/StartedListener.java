@@ -2,11 +2,9 @@ package com.wangyang.bioinfo.init;
 
 import com.wangyang.bioinfo.pojo.Option;
 import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.service.ICancerStudyService;
-import com.wangyang.bioinfo.service.ICodeService;
-import com.wangyang.bioinfo.service.IOptionService;
-import com.wangyang.bioinfo.service.ITaskService;
+import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,6 +36,9 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     @Autowired
     ICancerStudyService cancerStudyService;
 
+    @Autowired
+    IUserService userService;
+
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         System.out.println("################init########################");
@@ -46,6 +47,14 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             StringCacheStore.setValue(option.getKey_(),option.getValue_());
         });
         StringCacheStore.setValue("workDir",workDir);
+        User user = userService.findUserByUsername("admin");
+        if(user==null){
+            user = new User();
+            user.setUsername("admin");
+            user.setGender(0);
+            user.setPassword("123456");
+            userService.addUser(user);
+        }
         addQueue();
     }
 

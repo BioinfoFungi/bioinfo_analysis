@@ -41,7 +41,9 @@ spring:
     url: jdbc:h2:file:~/Downloads/h2/dbc2m
     username: root
     password: 123456
-#    schema: classpath:db/user.sql# 数据项配置，项目启动时需要执行的sql脚本
+#    schema: classpath:db/user.sql #启动时需要初始化的建表语句
+#    data: classpath:init_data.sql #初始化的数据
+    initialization-mode: always
   h2:
     console:
       settings:

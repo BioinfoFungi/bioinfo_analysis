@@ -1,33 +1,3 @@
-## 未使用 git add 缓存代码时
-git checkout -- <filename>
-git rm --cached “文件路径”不删除物理文件，仅将该文件从缓存中删除；
-git rm --f “文件路径”，不仅将该文件从缓存中删除，还会将物理文件删除
-## 撤回暂存区所有文件
-git reset HEAD .
-撤回暂存区指定的文件
-git reset HEAD filename
-## 撤销commit
-git reset --soft HEAD^ 
-git reset --hard HEAD^ 
-git reset --hard commit_id
-
-## 分支
-https://blog.csdn.net/csflvcxx/article/details/81612336
-创建新分支：git branch branchName
-切换到新分支：git checkout branchName
-上面两个命令也可以合成为一个命令：
-git checkout -b branchName
-
-
-+ data matrix
-    + cancer (癌症)[ESCA、BRAC...]
-    + study(研究)[mRNA、miRNA、lncRNA...]
-    + database(数据来源)[TCGA、GEO...]
-    + dataCategory(数据分类)[FPKM、Counts、clinical...]
-    + analysisSoftware(分析软件)[limma、DESeq2...]
-    + dataId[数据Id](GSEXXX...)
-
-```
 spring:
 #  data:
 #    mongodb:
@@ -92,10 +62,11 @@ server:
   tomcat:
     max-threads: 200
     max-connections: 300
-  port: 8080
+  port: 8082
 https:
   ssl:
     key-store: classpath:sample.pfx #配置证书路径
     key-store-password: 3bWBoh69 #证书密码
   port: 8081
-```
+
+

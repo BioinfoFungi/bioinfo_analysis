@@ -24,7 +24,7 @@ public class User {
     private String password;
     private String avatar;
     private String email;
-    private int gender;
+    private Integer gender;
 
 
     //    @ManyToMany(cascade = {CascadeType.MERGE},fetch = FetchType.LAZY)

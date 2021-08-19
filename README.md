@@ -18,6 +18,14 @@
     
 ![](vignettes/cancer.png)
 
+#### 测试
++ <https://bioinfofungi.gitee.io/bioinfo_web_ui/>
++ <http://git.bioinfofungi.com/>
+
+前台配置Local Storage
+```
+url_port:{"url":"localhost","port":"8080"}
+```
 
 #### 联系
 + Email: 1749748955@qq.com
