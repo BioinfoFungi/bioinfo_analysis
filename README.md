@@ -37,6 +37,10 @@ http://localhost:8080/api/analysis_software/init?authorize=XXXXXX&path=/home/wan
 http://localhost:8080/api/cancer_study/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/CancerStudy.tsv
 ```
 
+```
+http://localhost:8080/api/data_import/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD
+```
+
 #### 联系
 + Email: 1749748955@qq.com
 + Email: 3300297450@qq.com
