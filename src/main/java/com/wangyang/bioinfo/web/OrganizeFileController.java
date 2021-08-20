@@ -2,10 +2,7 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.Attachment;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
-import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
@@ -33,7 +30,7 @@ public class OrganizeFileController {
     @Autowired
     IOrganizeFileService organizeService;
     @PostMapping
-    public OrganizeFile add(@RequestBody OrganizeFileParam organizeFileParam,HttpServletRequest request){
+    public OrganizeFile add(@RequestBody OrganizeFileParam organizeFileParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return organizeService.save(organizeFileParam);
     }

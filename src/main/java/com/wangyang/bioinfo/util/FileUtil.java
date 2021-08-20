@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.util;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
-import com.wangyang.bioinfo.pojo.param.BaseFileParam;
+import com.wangyang.bioinfo.pojo.dto.BaseFileDTO;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -71,7 +71,7 @@ public class FileUtil {
         }
     }
 
-    public static  <FILE extends BaseFile> FILE checkPath(BaseFileParam baseFileParam,FILE file){
+    public static  <FILE extends BaseFile> FILE checkPath(BaseFileDTO baseFileDTO, FILE file){
 
 //        if(baseFileParam.getFileType()==null){
 //            String extension = FilenameUtils.getExtension(baseFileParam.getAbsolutePath());
@@ -85,8 +85,8 @@ public class FileUtil {
 //            String basename = FilenameUtils.getBasename(baseFileParam.getAbsolutePath());
 //            file.setFileName(basename);
 //        }
-        if(baseFileParam.getRelativePath()==null){
-            String relativePath = FilenameUtils.relativePath(baseFileParam.getAbsolutePath());
+        if(baseFileDTO.getRelativePath()==null){
+            String relativePath = FilenameUtils.relativePath(baseFileDTO.getAbsolutePath());
             file.setRelativePath(relativePath);
         }
         return file;

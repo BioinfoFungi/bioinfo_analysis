@@ -13,6 +13,8 @@ import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.util.Assert;
 
 import javax.servlet.ServletOutputStream;
@@ -31,7 +33,8 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
     private final String domainName;
     @Autowired
     BaseRepository<DOMAIN, ID> repository;
-
+    @Autowired
+    ConcurrentMapCacheManager concurrentMapCacheManager;
     public AbstractCrudService(){
         Class<DOMAIN> domainClass = (Class<DOMAIN>) fetchType(0);
         domainName = domainClass.getSimpleName();
@@ -177,6 +180,8 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
 
     @Override
     public List<DOMAIN> initData(String filePath){
+        Cache cache = concurrentMapCacheManager.getCache("TERM");
+        cache.clear();
         repository.deleteAll();
         List<DOMAIN> beans = tsvToBean(filePath);
         if(beans==null){

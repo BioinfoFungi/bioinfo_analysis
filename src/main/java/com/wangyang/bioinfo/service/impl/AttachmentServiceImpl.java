@@ -24,8 +24,6 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +63,7 @@ public class AttachmentServiceImpl extends BaseFileService<Attachment> implement
         return saveAndCheckFile(attachment);
     }
     @Override
-    public Attachment upload(MultipartFile file,AttachmentParam attachmentParam) {
+    public Attachment upload(MultipartFile file, AttachmentParam attachmentParam) {
         UploadResult uploadResult = fileHandlers.uploadFixed(file, "attachment",FileLocation.LOCAL);
         if(attachmentParam.getEnName()==null){
             String basename = FilenameUtils.getBasename(uploadResult.getAbsolutePath());

@@ -1,16 +1,11 @@
 package com.wangyang.bioinfo.service.impl;
 
 
-import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.univocity.parsers.tsv.TsvParser;
-import com.univocity.parsers.tsv.TsvParserSettings;
 import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.dto.DataCategoryIdDto;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
@@ -22,8 +17,6 @@ import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -73,12 +66,15 @@ public class CancerStudyServiceImpl
         DataCategory dataCategory =dataCategoryService.findAndCheckByEnName(cancerStudyParam.getDataCategory());
         AnalysisSoftware analysisSoftware=analysisSoftwareService.findAndCheckByEnName(cancerStudyParam.getAnalysisSoftware());
 
-        DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer.getId(),
-                study.getId(), dataOrigin.getId(),
-                dataCategory == null ? null : dataCategory.getId(),
-                analysisSoftware == null ? null : analysisSoftware.getId());
-        dataCategoryIdDto.setGes(cancerStudyParam.getGse());
-        List<CancerStudy> cancerStudies = findDataByCategoryId(dataCategoryIdDto);
+        CancerStudy cancerStudyDto = new CancerStudy();
+        BeanUtils.copyProperties(cancerStudyParam,cancerStudyDto);
+        cancerStudyDto.setCancerId(cancer == null ? null : cancer.getId());
+        cancerStudyDto.setStudyId(study == null ? null : study.getId());
+        cancerStudyDto.setDataOriginId(dataOrigin == null ? null : dataOrigin.getId());
+        cancerStudyDto.setAnalysisSoftwareId(analysisSoftware == null ? null : analysisSoftware.getId());
+        cancerStudyDto.setDataCategoryId(dataCategory == null ? null : dataCategory.getId());
+
+        List<CancerStudy> cancerStudies = findDataByCategoryId(cancerStudyDto,null);
         if(cancerStudies.size()>1){
             throw new BioinfoException("查找到文件数目大于1!");
         }
@@ -94,7 +90,7 @@ public class CancerStudyServiceImpl
                 cancerStudy.setAnalysisSoftwareId(analysisSoftware.getId());
             }
             if(dataCategory !=null){
-                cancerStudy.setDataOriginId(dataCategory.getId());
+                cancerStudy.setDataCategoryId(dataCategory.getId());
             }
         }
         String filename=dataOrigin.getEnName()+"_"+cancer.getEnName()+"_"+study.getEnName();
@@ -119,10 +115,7 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy saveCancerStudy(CancerStudy cancerStudy, User user) {
-        List<CancerStudy> cancerStudies = findDataByCategoryId(new DataCategoryIdDto(cancerStudy.getCancerId(),
-                cancerStudy.getStudyId(),cancerStudy.getDataOriginId(),
-                cancerStudy.getDataCategoryId()==null?null:cancerStudy.getDataCategoryId(),
-                cancerStudy.getAnalysisSoftwareId()==null?null:cancerStudy.getAnalysisSoftwareId()));
+        List<CancerStudy> cancerStudies = findDataByCategoryId(cancerStudy,null);
         if(cancerStudies.size()>1){
             throw new BioinfoException("查找到文件数目大于1!");
         }
@@ -157,86 +150,73 @@ public class CancerStudyServiceImpl
 
 
 
-    @Override
-    public  Page<CancerStudyVo> findCancerStudyVoStudy(FindCancer findCancer,Pageable pageable) {
-        Cancer cancer = cancerService.findByEnName(findCancer.getCancer());
-        Study study = studyService.findByEnName(findCancer.getStudy());
-        DataOrigin dataOrigin = dataOriginService.findByEnName(findCancer.getDataOrigin());
-        AnalysisSoftware analysisSoftware = analysisSoftwareService.findByEnName(findCancer.getAnalysisSoftware());
-        DataCategory dataCategory =dataCategoryService.findByEnName(findCancer.getDataCategory());;
+//    @Override
+//    public  Page<CancerStudyVo> pageCancerStudyVo(CancerStudyQuery findCancer, Pageable pageable) {
+//        Cancer cancer = cancerService.findByEnName(findCancer.getCancer());
+//        Study study = studyService.findByEnName(findCancer.getStudy());
+//        DataOrigin dataOrigin = dataOriginService.findByEnName(findCancer.getDataOrigin());
+//        AnalysisSoftware analysisSoftware = analysisSoftwareService.findByEnName(findCancer.getAnalysisSoftware());
+//        DataCategory dataCategory =dataCategoryService.findByEnName(findCancer.getDataCategory());;
+//
+//
+////        Page<CancerStudy> cancerStudyPage = pageBy(new DataCategoryIdDto(cancer==null?null:cancer.getId(),
+////                study==null?null:study.getId(),
+////                dataOrigin==null?null:dataOrigin.getId(),
+////                analysisSoftware==null?null:analysisSoftware.getId(),
+////                dataCategory ==null?null: dataCategory.getId(),
+////                findCancer.getFileName()==null?null:findCancer.getFileName()), pageable);
+//        CancerStudy cancerStudyParam = new CancerStudy();
+//        BeanUtils.copyProperties(findCancer,cancerStudyParam);
+//        cancerStudyParam.setCancerId(cancer == null ? null : cancer.getId());
+//        cancerStudyParam.setStudyId(study == null ? null : study.getId());
+//        cancerStudyParam.setDataOriginId(dataOrigin == null ? null : dataOrigin.getId());
+//        cancerStudyParam.setAnalysisSoftwareId(analysisSoftware == null ? null : analysisSoftware.getId());
+//        cancerStudyParam.setDataCategoryId(dataCategory == null ? null : dataCategory.getId());
+//        Page<CancerStudy> cancerStudyPage = pageBy(cancerStudyParam, findCancer.getKeyword(),pageable);
+//
+//        Page<CancerStudyVo> cancerStudyVos = convertVo(cancerStudyPage,cancer,study,dataOrigin,analysisSoftware, dataCategory);
+//        return cancerStudyVos;
+//    }
 
 
-        Page<CancerStudy> cancerStudyPage = pageBy(new DataCategoryIdDto(cancer==null?null:cancer.getId(),
-                study==null?null:study.getId(),
-                dataOrigin==null?null:dataOrigin.getId(),
-                analysisSoftware==null?null:analysisSoftware.getId(),
-                dataCategory ==null?null: dataCategory.getId(),
-                findCancer.getFileName()==null?null:findCancer.getFileName()), pageable);
-        Page<CancerStudyVo> cancerStudyVos = convertVo(cancerStudyPage,cancer,study,dataOrigin,analysisSoftware, dataCategory);
-        return cancerStudyVos;
-    }
-
-    private Page<CancerStudyVo> convertVo(Page<CancerStudy> cancerStudyPage, Cancer cancer, Study study, DataOrigin dataOrigin, AnalysisSoftware analysisSoftware, DataCategory dataCategory) {
-        List<CancerStudy> cancerStudies = cancerStudyPage.getContent();
-
-        Map<Integer, DataCategory> strategyMap = null;
-        if(dataCategory ==null) {
-            Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getDataCategoryId);
-            List<DataCategory> experimentalStrategies = dataCategoryService.findAllById(experimentalStrategyIds);
-            strategyMap= ServiceUtil.convertToMap(experimentalStrategies, DataCategory::getId);
-        }
-
-        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= null;
-        if(analysisSoftware==null){
-            Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getAnalysisSoftwareId);
-            List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
-            analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
-        }
-
-
-        AnalysisSoftware finalAnalysisSoftware = analysisSoftware;
-        DataCategory finalDataCategory = dataCategory;
-        Map<Integer, DataCategory> finalStrategyMap = strategyMap;
-        Map<Integer, AnalysisSoftware> finalAnalysisSoftwareMap = analysisSoftwareMap;
-
-        return cancerStudyPage.map(cancerStudy -> {
-            CancerStudyVo cancerStudyVo = new CancerStudyVo();
-            cancerStudyVo.setCancer(cancer);
-            cancerStudyVo.setDataOrigin(dataOrigin);
-            cancerStudyVo.setStudy(study);
-            if (finalAnalysisSoftware != null) {
-                cancerStudyVo.setAnalysisSoftware(finalAnalysisSoftware);
-            } else {
-
-                cancerStudyVo.setAnalysisSoftware(finalAnalysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
-            }
-            if (finalDataCategory != null) {
-                cancerStudyVo.setDataCategory(finalDataCategory);
-            } else {
-                cancerStudyVo.setDataCategory(finalStrategyMap.get(cancerStudy.getDataCategoryId()));
-            }
-            BeanUtils.copyProperties(cancerStudy, cancerStudyVo);
-            return cancerStudyVo;
-        });
-    }
 
     @Override
-    public  Page<CancerStudy> findCancerStudyStudy(FindCancer findCancer,Pageable pageable) {
-        Cancer cancer = cancerService.findAndCheckByEnName(findCancer.getCancer());
-        Study study = studyService.findAndCheckByEnName(findCancer.getStudy());
-        DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(findCancer.getDataOrigin());
-        AnalysisSoftware analysisSoftware = analysisSoftwareService.findAndCheckByEnName(findCancer.getAnalysisSoftware());
-        DataCategory dataCategory =dataCategoryService.findAndCheckByEnName(findCancer.getDataCategory());;
+    public  Page<CancerStudy> pageCancerStudy(CancerStudyQuery cancerStudyQuery, Pageable pageable) {
+        Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyQuery.getCancer());
+        Study study = studyService.findAndCheckByEnName(cancerStudyQuery.getStudy());
+        DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyQuery.getDataOrigin());
+        AnalysisSoftware analysisSoftware = analysisSoftwareService.findAndCheckByEnName(cancerStudyQuery.getAnalysisSoftware());
+        DataCategory dataCategory =dataCategoryService.findAndCheckByEnName(cancerStudyQuery.getDataCategory());;
 
-        DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer == null ? null : cancer.getId(),
-                study == null ? null : study.getId(),
-                dataOrigin == null ? null : dataOrigin.getId(),
-                dataCategory == null ? null : dataCategory.getId(),
-                analysisSoftware == null ? null : analysisSoftware.getId());
-        BeanUtils.copyProperties(findCancer,dataCategoryIdDto);
-        Page<CancerStudy> cancerStudyPage = pageBy(dataCategoryIdDto, pageable);
+//        DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer == null ? null : cancer.getId(),
+//                study == null ? null : study.getId(),
+//                dataOrigin == null ? null : dataOrigin.getId(),
+//                dataCategory == null ? null : dataCategory.getId(),
+//                analysisSoftware == null ? null : analysisSoftware.getId());
+//        BeanUtils.copyProperties(findCancer,dataCategoryIdDto);
+
+        CancerStudy cancerStudyParam = new CancerStudy();
+        BeanUtils.copyProperties(cancerStudyQuery,cancerStudyParam);
+        if(cancer != null ){
+            cancerStudyParam.setCancerId(cancer.getId());
+        }
+        if(study != null ){
+            cancerStudyParam.setStudyId(study.getId());
+        }
+        if(dataOrigin != null ){
+            cancerStudyParam.setDataOriginId(dataOrigin.getId());
+        }
+        if(analysisSoftware != null ){
+            cancerStudyParam.setAnalysisSoftwareId( analysisSoftware.getId());
+        }
+        if(dataCategory != null ){
+            cancerStudyParam.setDataCategoryId(dataCategory.getId());
+        }
+        Page<CancerStudy> cancerStudyPage = pageBy(cancerStudyParam, cancerStudyQuery.getKeyword(),pageable);
         return cancerStudyPage;
     }
+
+
 
     @Override
     public List<CancerStudy> findAllById(Collection<Integer> id) {
@@ -250,34 +230,6 @@ public class CancerStudyServiceImpl
 
         return null;
     }
-    private  Specification<CancerStudy> buildSpecByQuery(CancerStudyQuery cancerStudyQuery){
-        return (Specification<CancerStudy>) (root, query, criteriaBuilder) ->{
-            List<Predicate> predicates = new LinkedList<>();
-            if(cancerStudyQuery.getCancerId()!=null){
-                Predicate predicate = criteriaBuilder.equal(root.get("cancerId"), cancerStudyQuery.getCancerId());
-                predicates.add(predicate);
-            }
-            if(cancerStudyQuery.getDataOriginId()!=null){
-                Predicate predicate = criteriaBuilder.equal(root.get("dataOriginId"), cancerStudyQuery.getDataOriginId());
-                predicates.add(predicate);
-            }
-            if(cancerStudyQuery.getStudyId()!=null){
-                Predicate predicate = criteriaBuilder.equal(root.get("studyId"), cancerStudyQuery.getStudyId());
-                predicates.add(predicate);
-            }
-
-
-            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
-        };
-    }
-
-    @Override
-    public Page<CancerStudy> pageCancerStudy(CancerStudyQuery cancerStudyQuery, Pageable pageable) {
-        Page<CancerStudy> cancerStudies = cancerStudyRepository.findAll(buildSpecByQuery(cancerStudyQuery), pageable);
-        return cancerStudies;
-
-    }
-
     @Override
     public List<CancerStudy> listByCancerId(Integer cancerId){
         return cancerStudyRepository.findAll(new Specification<CancerStudy>() {
@@ -329,7 +281,49 @@ public class CancerStudyServiceImpl
         return cancerStudyVos;
     }
 
-
+//    private Page<CancerStudyVo> convertVo(Page<CancerStudy> cancerStudyPage, Cancer cancer, Study study, DataOrigin dataOrigin, AnalysisSoftware analysisSoftware, DataCategory dataCategory) {
+//        List<CancerStudy> cancerStudies = cancerStudyPage.getContent();
+//
+//        Map<Integer, DataCategory> strategyMap = null;
+//        if(dataCategory ==null) {
+//            Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getDataCategoryId);
+//            List<DataCategory> experimentalStrategies = dataCategoryService.findAllById(experimentalStrategyIds);
+//            strategyMap= ServiceUtil.convertToMap(experimentalStrategies, DataCategory::getId);
+//        }
+//
+//        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= null;
+//        if(analysisSoftware==null){
+//            Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getAnalysisSoftwareId);
+//            List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
+//            analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
+//        }
+//
+//
+//        AnalysisSoftware finalAnalysisSoftware = analysisSoftware;
+//        DataCategory finalDataCategory = dataCategory;
+//        Map<Integer, DataCategory> finalStrategyMap = strategyMap;
+//        Map<Integer, AnalysisSoftware> finalAnalysisSoftwareMap = analysisSoftwareMap;
+//
+//        return cancerStudyPage.map(cancerStudy -> {
+//            CancerStudyVo cancerStudyVo = new CancerStudyVo();
+//            cancerStudyVo.setCancer(cancer);
+//            cancerStudyVo.setDataOrigin(dataOrigin);
+//            cancerStudyVo.setStudy(study);
+//            if (finalAnalysisSoftware != null) {
+//                cancerStudyVo.setAnalysisSoftware(finalAnalysisSoftware);
+//            } else {
+//
+//                cancerStudyVo.setAnalysisSoftware(finalAnalysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
+//            }
+//            if (finalDataCategory != null) {
+//                cancerStudyVo.setDataCategory(finalDataCategory);
+//            } else {
+//                cancerStudyVo.setDataCategory(finalStrategyMap.get(cancerStudy.getDataCategoryId()));
+//            }
+//            BeanUtils.copyProperties(cancerStudy, cancerStudyVo);
+//            return cancerStudyVo;
+//        });
+//    }
     @Override
     public Page<CancerStudyVo> convertVo(Page<CancerStudy> fromCancerStudies) {
 
@@ -381,11 +375,11 @@ public class CancerStudyServiceImpl
      */
     @Override
     public List<CancerStudy> initData(String filePath) {
+        cancerStudyRepository.deleteAll();
         List<CancerStudyParam> cancerStudyParams = File2Tsv.tsvToBean(CancerStudyParam.class, filePath);
         List<CancerStudy> cancerStudies = cancerStudyParams.stream().map(cancerStudyParam -> {
             CancerStudy cancerStudy = checkCancerStudy(cancerStudyParam);
-            saveAndCheckFile(cancerStudy);
-            return cancerStudy;
+            return saveAndCheckFile(cancerStudy);
         }).collect(Collectors.toList());
         return cancerStudies;
     }

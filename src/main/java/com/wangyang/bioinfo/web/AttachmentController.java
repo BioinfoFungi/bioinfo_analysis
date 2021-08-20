@@ -1,10 +1,8 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.service.IAttachmentService;
@@ -34,12 +32,12 @@ public class AttachmentController {
     IAttachmentService attachmentService;
 
     @PostMapping
-    public Attachment add(@RequestBody AttachmentParam attachmentParam,HttpServletRequest request){
+    public Attachment add(@RequestBody AttachmentParam attachmentParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return attachmentService.saveAttachment(attachmentParam);
     }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Attachment upload(@RequestParam("file") MultipartFile file,AttachmentParam attachmentParam,HttpServletRequest request){
+    public Attachment upload(@RequestParam("file") MultipartFile file, AttachmentParam attachmentParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return  attachmentService.upload(file,attachmentParam);
     }

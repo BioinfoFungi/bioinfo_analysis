@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.pojo.param;
+package com.wangyang.bioinfo.pojo.dto;
 
 import com.univocity.parsers.annotations.Parsed;
 import lombok.Data;
@@ -10,7 +10,7 @@ import javax.validation.constraints.NotBlank;
  * @date 2021/7/17
  */
 @Data
-public class BaseFileParam {
+public class BaseFileDTO {
     @Parsed
     private String absolutePath;
     @Parsed

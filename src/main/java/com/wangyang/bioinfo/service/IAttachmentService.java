@@ -9,8 +9,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.List;
 
@@ -38,7 +36,7 @@ public interface IAttachmentService extends IBaseFileService<Attachment> {
     Page<Attachment> pageAttachment(Pageable pageable);
     Attachment updateAttachment(Attachment attachment);
     //----------------------------------------
-    Attachment upload(@NonNull MultipartFile file,AttachmentParam attachmentParam);
+    Attachment upload(@NonNull MultipartFile file, AttachmentParam attachmentParam);
     Attachment upload(int id,@NonNull MultipartFile file);
 
     // 带page条件查询

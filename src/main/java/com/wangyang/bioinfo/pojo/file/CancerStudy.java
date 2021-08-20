@@ -21,10 +21,9 @@ public class CancerStudy extends BaseDataCategory {
 
     @Column(columnDefinition = "longtext")
     private String description;
-    private String processedAbsolutePath;
-    private String processedRelativePath;
-    private Integer processedId;
-    private Boolean isProcessed;
-
+//    private String processedAbsolutePath;
+//    private String processedRelativePath;
+    private Integer parentId;
+//    private Boolean isProcessed;
 
 }

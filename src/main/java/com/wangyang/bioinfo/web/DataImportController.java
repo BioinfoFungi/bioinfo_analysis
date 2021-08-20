@@ -48,23 +48,23 @@ public class DataImportController {
             String absolutePath=null;
             if(exists){
                 absolutePath = path.toAbsolutePath().toString();
-                if(filename.endsWith("Cancer")){
+                if(filename.equals("Cancer")){
                     cancerService.initData(absolutePath);
                 }
-                if(filename.endsWith("Study")){
+                if(filename.equals("Study")){
                     studyService.initData(absolutePath);
                 }
-                if(filename.endsWith("DataOrigin")){
+                if(filename.equals("DataOrigin")){
                     dataOriginService.initData(absolutePath);
                 }
-                if(filename.endsWith("DataCategory")){
+                if(filename.equals("DataCategory")){
                     dataCategoryService.initData(absolutePath);
                 }
-                if(filename.endsWith("AnalysisSoftware")){
+                if(filename.equals("AnalysisSoftware")){
                     analysisSoftwareService.initData(absolutePath);
                 }
 
-                if(filename.endsWith("CancerStudy")){
+                if(filename.equals("CancerStudy")){
                     cancerStudyService.initData(absolutePath);
                 }
 

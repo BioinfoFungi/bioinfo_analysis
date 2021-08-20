@@ -41,6 +41,8 @@ http://localhost:8080/api/cancer_study/init?authorize=XXXXXX&path=/home/wangyang
 http://localhost:8080/api/data_import/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD
 ```
 
++ <http://localhost:8080/h2-console>
+
 #### 联系
 + Email: 1749748955@qq.com
 + Email: 3300297450@qq.com

@@ -146,8 +146,8 @@ public class ICodeServiceImpl  extends BaseFileService<Code>
         rcaller.setRCode(rcode);
         rcaller.runAndReturnResultOnline("res");
 
-        cancerStudy.setProcessedAbsolutePath(processedAbsolutePath);
-        cancerStudy.setProcessedRelativePath(processedRelativePath);
+//        cancerStudy.setProcessedAbsolutePath(processedAbsolutePath);
+//        cancerStudy.setProcessedRelativePath(processedRelativePath);
         cancerStudyService.save(cancerStudy);
 
         //设置task状态 FINISH

@@ -2,12 +2,10 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.*;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.param.FindCancer;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
@@ -17,7 +15,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
-import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -43,9 +40,14 @@ public class CancerStudyController {
     IOrganizeFileService organizeFileService;
 
     @GetMapping
-    public Page<CancerStudyVo> page(CancerStudyQuery cancerStudyQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+    public Page<? extends CancerStudy> page(CancerStudyQuery cancerStudyQuery,
+                                    @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
+                                    @RequestParam(value = "more", defaultValue = "false") Boolean more){
         Page<CancerStudy> cancerStudies = cancerStudyService.pageCancerStudy(cancerStudyQuery,pageable);
-        return cancerStudyService.convertVo(cancerStudies);
+        if(more){
+            return cancerStudyService.convertVo(cancerStudies);
+        }
+        return cancerStudies;
     }
 
 
@@ -57,7 +59,7 @@ public class CancerStudyController {
 
 
     @PostMapping
-    public CancerStudy add(@RequestBody @Valid  CancerStudyParam cancerStudyParam, HttpServletRequest request){
+    public CancerStudy add(@RequestBody @Valid CancerStudyParam cancerStudyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         CancerStudy cancerStudy = cancerStudyService.saveCancerStudy(cancerStudyParam,user);
         return cancerStudy;
@@ -69,15 +71,15 @@ public class CancerStudyController {
         return  cancerStudyService.upload(file,cancerStudyParam);
     }
 
-    @GetMapping("/findByCategory")
-    public Page<CancerStudy> findByCategory(@Valid FindCancer findCancer,@PageableDefault(sort = {"id"},direction = DESC,size = 3)Pageable pageable){
-        return cancerStudyService.findCancerStudyStudy(findCancer,pageable);
-    }
-
-    @GetMapping("/findVoByCategory")
-    public Page<CancerStudyVo> findVoByCategory(@Valid FindCancer findCancer,Pageable pageable){
-        return cancerStudyService.findCancerStudyVoStudy(findCancer,pageable);
-    }
+//    @GetMapping("/findByCategory")
+//    public Page<CancerStudy> findByCategory(@Valid CancerStudyQuery findCancer, @PageableDefault(sort = {"id"},direction = DESC,size = 3)Pageable pageable){
+//        return cancerStudyService.pageCancerStudy(findCancer,pageable);
+//    }
+//
+//    @GetMapping("/findVoByCategory")
+//    public Page<CancerStudyVo> findVoByCategory(@Valid CancerStudyQuery findCancer, Pageable pageable){
+//        return cancerStudyService.pageCancerStudyVo(findCancer,pageable);
+//    }
 
     @GetMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
