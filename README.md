@@ -26,6 +26,16 @@
 ```
 url_port:{"url":"localhost","port":"8080"}
 ```
+### 数据初始化
+```
+http://localhost:8080/api/cancer/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/Cancer.tsv
+http://localhost:8080/api/study/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/Study.tsv
+http://localhost:8080/api/data_origin/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/DataOrigin.tsv
+http://localhost:8080/api/data_category/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/DataCategory.tsv
+http://localhost:8080/api/analysis_software/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/AnalysisSoftware.tsv
+
+http://localhost:8080/api/cancer_study/init?authorize=XXXXXX&path=/home/wangyang/Downloads/TCGADOWNLOAD/CancerStudy.tsv
+```
 
 #### 联系
 + Email: 1749748955@qq.com
@@ -55,3 +65,4 @@ git push origin_1 master
 + <https://jtablesaw.github.io/tablesaw/>
 + <https://blog.csdn.net/weixin_37595711/article/details/85137760>
 + <https://jtablesaw.github.io/tablesaw/userguide/toc>
++ [Spring boot缓存](https://blog.csdn.net/rubulai/article/details/85015074/)

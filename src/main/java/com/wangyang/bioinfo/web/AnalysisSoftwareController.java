@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletRequest;
  * @date 2021/7/25
  */
 @RestController
-@RequestMapping("/api/AnalysisSoftware")
+@RequestMapping("/api/analysis_software")
 public class AnalysisSoftwareController {
     @Autowired
     IAnalysisSoftwareService analysisSoftwareService;
@@ -35,6 +35,12 @@ public class AnalysisSoftwareController {
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         analysisSoftwareService.initData(organizeFile.getAbsolutePath());
+        return BaseResponse.ok("初始化完成!");
+    }
+
+    @GetMapping("/init")
+    public BaseResponse initDataBy(@RequestParam("path") String path){
+        analysisSoftwareService.initData(path);
         return BaseResponse.ok("初始化完成!");
     }
 }

@@ -116,4 +116,10 @@ public class CancerStudyController {
         cancerStudyService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("CancerStudy初始化完成!");
     }
+
+    @GetMapping("/init")
+    public BaseResponse initDataBy(@RequestParam("path") String path){
+        cancerStudyService.initData(path);
+        return BaseResponse.ok("初始化完成!");
+    }
 }

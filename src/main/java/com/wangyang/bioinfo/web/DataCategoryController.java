@@ -18,7 +18,7 @@ import java.util.List;
  * @date 2021/7/25
  */
 @RestController
-@RequestMapping("/api/dataCategory")
+@RequestMapping("/api/data_category")
 public class DataCategoryController {
 
     @Autowired
@@ -45,6 +45,10 @@ public class DataCategoryController {
     public List<DataCategory> listAll(){
         return dataCategoryService.listAll();
     }
-
+    @GetMapping("/init")
+    public BaseResponse initDataBy(@RequestParam("path") String path){
+        dataCategoryService.initData(path);
+        return BaseResponse.ok("初始化完成!");
+    }
 
 }

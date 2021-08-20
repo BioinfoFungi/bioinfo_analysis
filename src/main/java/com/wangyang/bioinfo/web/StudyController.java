@@ -60,4 +60,10 @@ public class StudyController {
         studyService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("初始化完成!");
     }
+
+    @GetMapping("/init")
+    public BaseResponse initDataBy(@RequestParam("path") String path){
+        studyService.initData(path);
+        return BaseResponse.ok("初始化完成!");
+    }
 }

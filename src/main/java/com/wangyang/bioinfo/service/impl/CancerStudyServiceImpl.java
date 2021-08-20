@@ -22,6 +22,8 @@ import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.Cache;
+import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -62,11 +64,15 @@ public class CancerStudyServiceImpl
 
 
     private  CancerStudy checkCancerStudy(CancerStudyParam cancerStudyParam){
+        /**
+         * Term进行了缓存
+         */
         Cancer cancer = cancerService.findAndCheckByEnName(cancerStudyParam.getCancer());
         Study study = studyService.findAndCheckByEnName(cancerStudyParam.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(cancerStudyParam.getDataOrigin());
-        DataCategory dataCategory =dataCategoryService.findByEnName(cancerStudyParam.getDataCategory());
-        AnalysisSoftware analysisSoftware=analysisSoftwareService.findByEnName(cancerStudyParam.getAnalysisSoftware());
+        DataCategory dataCategory =dataCategoryService.findAndCheckByEnName(cancerStudyParam.getDataCategory());
+        AnalysisSoftware analysisSoftware=analysisSoftwareService.findAndCheckByEnName(cancerStudyParam.getAnalysisSoftware());
+
         DataCategoryIdDto dataCategoryIdDto = new DataCategoryIdDto(cancer.getId(),
                 study.getId(), dataOrigin.getId(),
                 dataCategory == null ? null : dataCategory.getId(),
@@ -367,6 +373,7 @@ public class CancerStudyServiceImpl
         return cancerStudyVos;
     }
 
+
     /**
      * 导入cancer study
      * @param filePath
@@ -375,7 +382,11 @@ public class CancerStudyServiceImpl
     @Override
     public List<CancerStudy> initData(String filePath) {
         List<CancerStudyParam> cancerStudyParams = File2Tsv.tsvToBean(CancerStudyParam.class, filePath);
-        System.out.println();
-        return null;
+        List<CancerStudy> cancerStudies = cancerStudyParams.stream().map(cancerStudyParam -> {
+            CancerStudy cancerStudy = checkCancerStudy(cancerStudyParam);
+            saveAndCheckFile(cancerStudy);
+            return cancerStudy;
+        }).collect(Collectors.toList());
+        return cancerStudies;
     }
 }

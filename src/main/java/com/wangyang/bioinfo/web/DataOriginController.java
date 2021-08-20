@@ -60,4 +60,10 @@ public class DataOriginController {
         dataOriginService.initData(organizeFile.getAbsolutePath());
         return BaseResponse.ok("初始化完成!");
     }
+
+    @GetMapping("/init")
+    public BaseResponse initDataBy(@RequestParam("path") String path){
+        dataOriginService.initData(path);
+        return BaseResponse.ok("初始化完成!");
+    }
 }

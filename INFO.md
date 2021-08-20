@@ -99,3 +99,9 @@ https:
     key-store-password: 3bWBoh69 #证书密码
   port: 8081
 ```
+
+```
+  @Autowired
+    ConcurrentMapCacheManager concurrentMapCacheManager;
+    Cache cache = concurrentMapCacheManager.getCache("TERM");
+```

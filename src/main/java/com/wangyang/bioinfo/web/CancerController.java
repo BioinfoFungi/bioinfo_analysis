@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.User;
@@ -60,6 +61,12 @@ public class CancerController {
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         cancerService.initData(organizeFile.getAbsolutePath());
+        return BaseResponse.ok("初始化完成!");
+    }
+
+    @GetMapping("/init")
+    public BaseResponse initDataBy(@RequestParam("path") String path){
+        cancerService.initData(path);
         return BaseResponse.ok("初始化完成!");
     }
 }

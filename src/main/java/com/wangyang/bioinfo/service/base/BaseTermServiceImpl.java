@@ -7,6 +7,7 @@ import com.wangyang.bioinfo.util.BioinfoException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -59,6 +60,7 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
     }
 
     @Override
+    @Cacheable(cacheNames = {"TERM"})
     public TERM findByEnName(String name) {
         if(name==null){
             return null;
@@ -76,6 +78,7 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
     }
 
     @Override
+    @Cacheable(cacheNames = {"TERM"})
     public TERM findAndCheckByEnName(String name) {
         if(name==null){
             return null;
