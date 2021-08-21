@@ -1,0 +1,2 @@
+cancer	study	dataOrigin	dataCategory	analysisSoftware	absolutePath
+UCEC	mRNA_lncRNA	TCGA	FPKM	DESeq2	/home/wangyang/workspace/TCGADOWNLOAD/data/AnalysisSoftware.tsv
