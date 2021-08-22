@@ -29,6 +29,5 @@ public class BaseDataCategory extends BaseFile {
     private Integer analysisSoftwareId;
     @Parsed
     private Integer dataCategoryId;
-    @Parsed
-    private String gse;
+
 }

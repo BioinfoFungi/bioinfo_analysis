@@ -11,7 +11,7 @@ import java.util.Date;
  * @date 2021/6/26
  */
 @Data
-public class CancerStudyVo extends CancerStudy {
+public class TermMappingVo extends CancerStudy {
     private Cancer cancer;
     private Study study;
     private AnalysisSoftware analysisSoftware;
