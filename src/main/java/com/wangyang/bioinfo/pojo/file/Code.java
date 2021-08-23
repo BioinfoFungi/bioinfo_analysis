@@ -20,10 +20,10 @@ public class Code extends TermMapping {
     @Column(columnDefinition = "longtext")
     private String code;
     private String name;
-    private CodeType codeType;
-    private Integer changeCancerId;
-    private Integer changeStudyId;
-    private Integer changeDataOriginId;
-    private Integer changeAnalysisSoftwareId;
-    private Integer changeDataCategoryId;
+    private CodeType codeType= CodeType.DEFAULT;
+//    private Integer changeCancerId;
+//    private Integer changeStudyId;
+//    private Integer changeDataOriginId;
+//    private Integer changeAnalysisSoftwareId;
+//    private Integer changeDataCategoryId;
 }

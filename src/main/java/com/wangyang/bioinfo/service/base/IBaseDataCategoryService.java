@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.base;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.dto.term.TermMappingDTO;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,8 @@ public interface IBaseDataCategoryService<TERMMAPPING extends TermMapping> exten
 
     //    @Override
     TermMappingVo  convertVo(TERMMAPPING termmapping);
+
+    <PARAM extends TermMappingParam> TERMMAPPING convert(PARAM param);
 
     <VO extends TermMappingVo> VO convertVo(TERMMAPPING termmapping, Class<VO> clz);
 

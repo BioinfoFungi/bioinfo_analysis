@@ -12,5 +12,5 @@ import java.util.Map;
 
 public interface IAsyncService  {
     @Async("taskExecutor")
-    void processCancerStudy(Task task, Code code, Map<String, Object> map);
+    void processCancerStudy(Task task, Code code, CancerStudy cancerStudyProcess ,Map<String, Object> map);
 }

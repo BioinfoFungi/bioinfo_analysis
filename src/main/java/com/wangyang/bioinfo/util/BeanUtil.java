@@ -5,10 +5,11 @@ import com.google.common.collect.Lists;
 import com.wangyang.bioinfo.pojo.base.BaseRNA;
 import com.wangyang.bioinfo.pojo.txt.Annotation;
 import org.springframework.beans.BeanUtils;
+import org.springframework.beans.BeanWrapper;
+import org.springframework.beans.BeanWrapperImpl;
+import org.springframework.beans.BeansException;
 
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -64,6 +65,30 @@ public class BeanUtil {
                 .orElse(Lists.newArrayList())
                 .stream().map(m -> copyProperties(m, clazz))
                 .collect(Collectors.toList());
+    }
+
+    public static void copyProperties(Object source, Object target) {
+        BeanUtils.copyProperties(source,target,getNullPropertyNames(source));
+    }
+
+
+    /**
+     * 获取所有字段为null的属性名
+     * 用于BeanUtils.copyProperties()拷贝属性时，忽略空值
+     * @param source
+     * @return
+     */
+    public static String[] getNullPropertyNames (Object source) {
+        final BeanWrapper src = new BeanWrapperImpl(source);
+        java.beans.PropertyDescriptor[] pds = src.getPropertyDescriptors();
+
+        Set<String> emptyNames = new HashSet<String>();
+        for(java.beans.PropertyDescriptor pd : pds) {
+            Object srcValue = src.getPropertyValue(pd.getName());
+            if (srcValue == null) emptyNames.add(pd.getName());
+        }
+        String[] result = new String[emptyNames.size()];
+        return emptyNames.toArray(result);
     }
 
 }

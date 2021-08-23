@@ -18,6 +18,7 @@ import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -146,32 +147,27 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setTaskStatus(TaskStatus.UNTRACKING);
         task.setName(code.getName()+"-"+mappingVo.getCancer().getName());
         task.setUserId(user.getId());
-
-        Map<String, Object> map = new HashMap<>();
-        if(code.getCodeType().equals(CodeType.DEFINITION_MATRIX)){
-            CancerStudy cancerStudyProcess = cancerStudyService.findByParACodeId(cancerStudy.getId(), cancerStudy.getCodeId());
-            if(cancerStudyProcess==null){
-                cancerStudyProcess = new CancerStudy();
-            }
-            cancerStudyProcess.setCancerId(code.getChangeCancerId());
-            cancerStudyProcess.setStudyId(code.getChangeStudyId());
-            cancerStudyProcess.setDataOriginId(code.getDataOriginId());
-            cancerStudyProcess.setDataCategoryId(code.getDataCategoryId());
-            cancerStudyProcess.setAnalysisSoftwareId(code.getChangeAnalysisSoftwareId());
-            String absolutePath = FilenameUtils.randomName() + ".tsv";
-            cancerStudyProcess.setAbsolutePath(absolutePath);
-            map.put("result",absolutePath);
-            cancerStudyService.saveCancerStudy(cancerStudyProcess,user);
-        }else if (code.getCodeType().equals(CodeType.DEFINITION_FIGURE)){
-
-        }
         task= super.save(task);
 
+        Map<String, Object> map = new HashMap<>();
         map.putAll(ObjectToCollection.setConditionObjMap(mappingVo));
         map.putAll(organizeFiles.stream().collect(Collectors.toMap(OrganizeFile::getEnName, OrganizeFile::getAbsolutePath)));
 
+        CancerStudy  cancerStudyProcess = cancerStudyService.findByParACodeId(cancerStudy.getId(), code.getId());
+        if(cancerStudyProcess==null){
+            cancerStudyProcess = new CancerStudy();
+        }
+        cancerStudyProcess.setCancerId(cancerStudy.getCancerId());
+        cancerStudyProcess.setStudyId(cancerStudy.getStudyId());
+        cancerStudyProcess.setDataOriginId(cancerStudy.getDataOriginId());
+        cancerStudyProcess.setDataCategoryId(cancerStudy.getDataCategoryId());
+        cancerStudyProcess.setAnalysisSoftwareId(cancerStudy.getAnalysisSoftwareId());
+        cancerStudyProcess.setUserId(user.getId());
+        cancerStudyProcess.setCodeId(code.getId());
+        cancerStudyProcess.setParentId(cancerStudy.getId());
+
         //交给thread
-        asyncService.processCancerStudy(task,code,map);
+        asyncService.processCancerStudy(task,code,cancerStudyProcess,map);
         return task;
     }
 

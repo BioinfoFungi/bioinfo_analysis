@@ -333,6 +333,7 @@ public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
      * obj -> id
      * @return
      */
+    @Override
     public <PARAM extends TermMappingParam> TERMMAPPING convert(PARAM param){
         TERMMAPPING termmapping = getInstance();
         BeanUtils.copyProperties(param,termmapping);

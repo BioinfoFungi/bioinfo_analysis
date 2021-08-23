@@ -108,7 +108,18 @@
 			<version>3.0.2</version>
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>
-<!--######################java call R#########################-->
+<!--		<dependency>-->
+<!--			<groupId>org.renjin</groupId>-->
+<!--			<artifactId>renjin-script-engine</artifactId>-->
+<!--			<version>RELEASE</version>-->
+<!--		</dependency>-->
+<!--		<dependency>-->
+<!--			<groupId>com.github.jbytecode</groupId>-->
+<!--			<artifactId>RCaller</artifactId>-->
+<!--			<version>4.0.0</version>-->
+<!--		</dependency>-->
+
+		<!--######################java call R#########################-->
 
 
 <!--#########################jwt#########################-->
@@ -309,5 +320,20 @@
 			</plugin>
 		</plugins>
 	</build>
+	<repositories>
+<!--		<repository>-->
+<!--			<id>spring-milestones</id>-->
+<!--			<name>Spring Milestones</name>-->
+<!--			<url>https://repo1.maven.org/maven2/</url>-->
+<!--			<snapshots>-->
+<!--				<enabled>false</enabled>-->
+<!--			</snapshots>-->
+<!--		</repository>-->
 
+<!--		<repository>-->
+<!--			<id>bedatadriven</id>-->
+<!--			<name>bedatadriven public repo</name>-->
+<!--			<url>https://nexus.bedatadriven.com/content/groups/public/</url>-->
+<!--		</repository>-->
+	</repositories>
 </project>

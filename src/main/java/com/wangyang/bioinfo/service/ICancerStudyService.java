@@ -27,6 +27,8 @@ public interface ICancerStudyService extends IBaseDataCategoryService<CancerStud
 
 //    CancerStudy updateCancerStudy(Integer id, CancerStudy cancerStudyParam, User user);
 
+    CancerStudy saveCancerStudy(CancerStudy cancerStudy);
+
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
 
     CancerStudy findCancerStudyById(int id);

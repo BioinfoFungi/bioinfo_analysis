@@ -21,7 +21,7 @@ public class CancerStudy extends TermMapping {
     private String description;
 //    private String processedAbsolutePath;
 //    private String processedRelativePath;
-    private Integer parentId;
+    private Integer parentId=-1;
     private Integer codeId;
 //    private Boolean isProcessed;
 
