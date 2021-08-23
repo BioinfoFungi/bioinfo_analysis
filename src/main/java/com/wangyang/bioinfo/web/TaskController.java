@@ -44,6 +44,13 @@ public class TaskController {
         return task;
     }
 
+    @GetMapping("/run/{id}")
+    public Task addTask(@PathVariable("id") Integer id, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        Task task = taskService.runTask(id,user);
+        return task;
+    }
+
     @GetMapping
     public Page<Task> page(TaskQuery taskQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
         return taskService.page(taskQuery,pageable);

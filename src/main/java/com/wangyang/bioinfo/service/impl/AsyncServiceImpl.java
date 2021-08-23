@@ -1,5 +1,8 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.alibaba.fastjson.JSONObject;
+import com.github.rcaller.FunctionCall;
+import com.github.rcaller.FunctionParameter;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
@@ -51,7 +54,7 @@ public class AsyncServiceImpl implements IAsyncService {
     public void processCancerStudy(Task task, Code code,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
         /***************************************************************/
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
-        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
+//        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
         task.setThreadName(Thread.currentThread().getName());
         task.setTaskStatus(TaskStatus.RUNNING);
         taskService.save(task);
@@ -61,15 +64,19 @@ public class AsyncServiceImpl implements IAsyncService {
         if(codeMsg.getCancerStudyParam()!=null){
             CancerStudy cancerStudy = cancerStudyService.convert(codeMsg.getCancerStudyParam());
             BeanUtil.copyProperties(cancerStudy,cancerStudyProcess);
-            cancerStudyService.saveCancerStudy(cancerStudy);
+            cancerStudyService.saveCancerStudy(cancerStudyProcess);
         }
 
         /*****************************************************************/
+        task.setResult(codeMsg.getResult());
         task.setRunMsg(codeMsg.getRunMsg());
         task.setTaskStatus(TaskStatus.FINISH);
+        if(codeMsg.getStatus()){
+            task.setIsSuccess(true);
+        }
         taskService.save(task);
         log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": end! <<<<<<<<<<<<<<"));
+        springWebSocketHandler.sendMessageToUsers(new TextMessage(JSONObject.toJSON(task).toString()));
         /*****************************************************************/
     }
 
@@ -86,8 +93,15 @@ public class AsyncServiceImpl implements IAsyncService {
             }
         }
         rcode.R_source(code.getAbsolutePath());
-        rcode.addRCode("res <- main()");
-        rcaller.runAndReturnResultOnline("res");
+        FunctionCall fc = new FunctionCall();
+        fc.setFunctionName("main");
+//        fc.addParameter(new FunctionParameter("formula", "y~x", FunctionParameter.PARAM_OBJECT));
+//        fc.addParameter(new FunctionParameter("data", "mydata", FunctionParameter.PARAM_OBJECT));
+
+        rcode.addFunctionCall("RegressResult", fc);
+        rcaller.setRCode(rcode);
+        rcaller.runAndReturnResultOnline("RegressResult");
+//        double[] coefs = rcaller.getParser().getAsDoubleArray("coefficients");
         ArrayList<String> varNames = rcaller.getParser().getNames();
 
         try {
@@ -109,12 +123,24 @@ public class AsyncServiceImpl implements IAsyncService {
                     }
                 }
             }
+            JSONObject jsonObject = new JSONObject();
+            varNames.forEach(var->{
+                String[] array = rcaller.getParser().getAsStringArray(var);
+                if(array.length==1){
+                    jsonObject.put(var,array[0]);
+                }else {
+                    jsonObject.put(var,array);
+                }
 
+            });
+            codeMsg.setResult(jsonObject.toString());
             codeMsg.setCancerStudyParam(cancerStudyParam);
             codeMsg.setRunMsg(byteArrayOutputStream.toString());
             codeMsg.setStatus(true);
+
+
 //            springWebSocketHandler.sendMessageToUsers(new TextMessage(byteArrayOutputStream.toByteArray()));
-//            System.out.println(byteArrayOutputStream);
+            System.out.println(byteArrayOutputStream);
             return codeMsg;
         } catch (Exception e) {
             codeMsg.setRunMsg(byteArrayOutputStream.toString());
@@ -124,7 +150,8 @@ public class AsyncServiceImpl implements IAsyncService {
             e.printStackTrace();
             codeMsg.setStatus(false);
             return codeMsg;
-        }finally {
+        }
+        finally {
             rcaller.stopRCallerOnline();
         }
     }

@@ -28,6 +28,8 @@ public class Task extends BaseEntity {
     private String runMsg;
     @Column(columnDefinition = "longtext")
     private String exception;
+    @Column(columnDefinition = "longtext")
+    private String result;
     private String threadName;
     private Boolean isSuccess=false;
     private TaskType taskType;

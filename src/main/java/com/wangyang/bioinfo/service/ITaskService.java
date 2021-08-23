@@ -27,6 +27,7 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
     List<Task> delByCanSId(Integer canSId);
 
     Task addTask(TaskParam taskParam, User user);
+    Task runTask(Integer id, User user);
 //    Task addTaskByCancerStudyId(Integer cancerStudyId);
 //
 //    Task findByCodeAndObj(int codeId, int objId, TaskType taskType);
@@ -38,4 +39,6 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
     List<Task> listPending();
 
     List<Task> addTas2Queue();
+
+
 }

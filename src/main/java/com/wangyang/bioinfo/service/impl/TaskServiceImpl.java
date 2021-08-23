@@ -171,7 +171,40 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return task;
     }
 
-//    @Override
+    @Override
+    public Task runTask(Integer id, User user) {
+        Task task = findById(id);
+        task.setTaskStatus(TaskStatus.UNTRACKING);
+        task= super.save(task);
+
+        CancerStudy cancerStudy = cancerStudyService.findById(task.getCancerStudyId());
+        TermMappingVo mappingVo = cancerStudyService.convertVo(cancerStudy);
+        List<OrganizeFile> organizeFiles = organizeFileService.listAll();
+        Code code =codeService.findById(task.getCodeId());
+
+        Map<String, Object> map = new HashMap<>();
+        map.putAll(ObjectToCollection.setConditionObjMap(mappingVo));
+        map.putAll(organizeFiles.stream().collect(Collectors.toMap(OrganizeFile::getEnName, OrganizeFile::getAbsolutePath)));
+
+        CancerStudy  cancerStudyProcess = cancerStudyService.findByParACodeId(cancerStudy.getId(), code.getId());
+        if(cancerStudyProcess==null){
+            cancerStudyProcess = new CancerStudy();
+        }
+        cancerStudyProcess.setCancerId(cancerStudy.getCancerId());
+        cancerStudyProcess.setStudyId(cancerStudy.getStudyId());
+        cancerStudyProcess.setDataOriginId(cancerStudy.getDataOriginId());
+        cancerStudyProcess.setDataCategoryId(cancerStudy.getDataCategoryId());
+        cancerStudyProcess.setAnalysisSoftwareId(cancerStudy.getAnalysisSoftwareId());
+        cancerStudyProcess.setUserId(user.getId());
+        cancerStudyProcess.setCodeId(code.getId());
+        cancerStudyProcess.setParentId(cancerStudy.getId());
+
+        asyncService.processCancerStudy(task,code,cancerStudyProcess,map);
+        return task;
+    }
+
+
+    //    @Override
 //    public Task addTaskByCancerStudyId(Integer cancerStudyId){
 //        CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(cancerStudyId);
 //        Task task = new Task();

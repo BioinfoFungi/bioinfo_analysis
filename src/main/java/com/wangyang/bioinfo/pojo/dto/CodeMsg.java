@@ -10,4 +10,5 @@ public class CodeMsg {
     private String exception;
     private Boolean status;
     private CancerStudyParam cancerStudyParam;
+    private String result;
 }

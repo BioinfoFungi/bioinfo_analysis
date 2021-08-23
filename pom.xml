@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+		 xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.springframework.boot</groupId>
@@ -18,6 +18,8 @@
 		<jjwt.version>0.10.6</jjwt.version>
 		<flexmark.version>0.62.2</flexmark.version>
 		<fastjson_version>1.2.28</fastjson_version>
+		<RCaller.version>3.0.2</RCaller.version>
+		<!--		3.0.2-->
 	</properties>
 	<dependencies>
 		<dependency>
@@ -32,10 +34,10 @@
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.springframework.boot</groupId>-->
-<!--			<artifactId>spring-boot-starter-data-mongodb</artifactId>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.springframework.boot</groupId>-->
+		<!--			<artifactId>spring-boot-starter-data-mongodb</artifactId>-->
+		<!--		</dependency>-->
 		<dependency>
 			<groupId>com.h2database</groupId>
 			<artifactId>h2</artifactId>
@@ -80,21 +82,21 @@
 			<version>4.5.13</version>
 		</dependency>
 
-<!--######################java call R#########################-->
-<!--		https://github.com/s-u/REngine-->
+		<!--######################java call R#########################-->
+		<!--		https://github.com/s-u/REngine-->
 		<dependency>
 			<groupId>org.rosuda.REngine</groupId>
 			<artifactId>Rserve</artifactId>
 			<version>1.8.1</version>
-<!--			<version>1.8.2-SNAPSHOT</version>-->
+			<!--			<version>1.8.2-SNAPSHOT</version>-->
 		</dependency>
 		<dependency>
 			<groupId>org.rosuda.REngine</groupId>
 			<artifactId>REngine</artifactId>
 			<version>2.1.0</version>
-<!--			<version>2.1.1-SNAPSHOT</version>-->
+			<!--			<version>2.1.1-SNAPSHOT</version>-->
 		</dependency>
-<!--		https://github.com/s-u/rJava-->
+		<!--		https://github.com/s-u/rJava-->
 		<dependency>
 			<groupId>org.nuiton.thirdparty</groupId>
 			<artifactId>JRI</artifactId>
@@ -105,24 +107,24 @@
 		<dependency>
 			<groupId>com.github.jbytecode</groupId>
 			<artifactId>RCaller</artifactId>
-			<version>3.0.2</version>
+			<version>${RCaller.version}</version>
 			<classifier>jar-with-dependencies</classifier>
 		</dependency>
-<!--		<dependency>-->
-<!--			<groupId>org.renjin</groupId>-->
-<!--			<artifactId>renjin-script-engine</artifactId>-->
-<!--			<version>RELEASE</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>com.github.jbytecode</groupId>-->
-<!--			<artifactId>RCaller</artifactId>-->
-<!--			<version>4.0.0</version>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>org.renjin</groupId>-->
+		<!--			<artifactId>renjin-script-engine</artifactId>-->
+		<!--			<version>RELEASE</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>com.github.jbytecode</groupId>-->
+		<!--			<artifactId>RCaller</artifactId>-->
+		<!--			<version>4.0.0</version>-->
+		<!--		</dependency>-->
 
 		<!--######################java call R#########################-->
 
 
-<!--#########################jwt#########################-->
+		<!--#########################jwt#########################-->
 		<dependency>
 			<groupId>io.jsonwebtoken</groupId>
 			<artifactId>jjwt-api</artifactId>
@@ -138,7 +140,7 @@
 			<artifactId>jjwt-jackson</artifactId>
 			<version>${jjwt.version}</version>
 		</dependency>
-<!--#########################jwt#########################-->
+		<!--#########################jwt#########################-->
 
 
 		<!--markdown-->
@@ -206,100 +208,100 @@
 
 
 		<!--Swagger2-->
-<!--		<dependency>-->
-<!--			<groupId>io.springfox</groupId>-->
-<!--			<artifactId>springfox-swagger2</artifactId>-->
-<!--			<exclusions>-->
-<!--				&lt;!&ndash;swagger2.92默认依赖1.5.0版本的models和annotations-->
-<!--                排除掉此版本，引入一个其他版本，不让项目启动时未报Illegal DefaultValue null for parameter type integer的警告&ndash;&gt;-->
-<!--				<exclusion>-->
-<!--					<groupId>io.swagger</groupId>-->
-<!--					<artifactId>swagger-models</artifactId>-->
-<!--				</exclusion>-->
-<!--				<exclusion>-->
-<!--					<groupId>io.swagger</groupId>-->
-<!--					<artifactId>swagger-annotations</artifactId>-->
-<!--				</exclusion>-->
-<!--			</exclusions>-->
-<!--			<version>2.9.2</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>io.swagger</groupId>-->
-<!--			<artifactId>swagger-models</artifactId>-->
-<!--			<version>1.5.22</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>io.swagger</groupId>-->
-<!--			<artifactId>swagger-annotations</artifactId>-->
-<!--			<version>1.5.22</version>-->
-<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>io.springfox</groupId>-->
+		<!--			<artifactId>springfox-swagger2</artifactId>-->
+		<!--			<exclusions>-->
+		<!--				&lt;!&ndash;swagger2.92默认依赖1.5.0版本的models和annotations-->
+		<!--                排除掉此版本，引入一个其他版本，不让项目启动时未报Illegal DefaultValue null for parameter type integer的警告&ndash;&gt;-->
+		<!--				<exclusion>-->
+		<!--					<groupId>io.swagger</groupId>-->
+		<!--					<artifactId>swagger-models</artifactId>-->
+		<!--				</exclusion>-->
+		<!--				<exclusion>-->
+		<!--					<groupId>io.swagger</groupId>-->
+		<!--					<artifactId>swagger-annotations</artifactId>-->
+		<!--				</exclusion>-->
+		<!--			</exclusions>-->
+		<!--			<version>2.9.2</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>io.swagger</groupId>-->
+		<!--			<artifactId>swagger-models</artifactId>-->
+		<!--			<version>1.5.22</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>io.swagger</groupId>-->
+		<!--			<artifactId>swagger-annotations</artifactId>-->
+		<!--			<version>1.5.22</version>-->
+		<!--		</dependency>-->
 
-<!--		&lt;!&ndash;Swagger-UI&ndash;&gt;-->
-<!--		&lt;!&ndash;访问路径：http://localhost:8080/swagger-ui.html&ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>io.springfox</groupId>-->
-<!--			<artifactId>springfox-swagger-ui</artifactId>-->
-<!--			<version>2.9.2</version>-->
-<!--		</dependency>-->
+		<!--		&lt;!&ndash;Swagger-UI&ndash;&gt;-->
+		<!--		&lt;!&ndash;访问路径：http://localhost:8080/swagger-ui.html&ndash;&gt;-->
+		<!--		<dependency>-->
+		<!--			<groupId>io.springfox</groupId>-->
+		<!--			<artifactId>springfox-swagger-ui</artifactId>-->
+		<!--			<version>2.9.2</version>-->
+		<!--		</dependency>-->
 
-<!--		&lt;!&ndash;swaggerui  几个自定义界面方便查看接口&ndash;&gt;-->
-<!--		&lt;!&ndash;访问路径：http://localhost:8080/doc.html&ndash;&gt;-->
-<!--		<dependency>-->
-<!--			<groupId>com.github.xiaoymin</groupId>-->
-<!--			<artifactId>swagger-bootstrap-ui</artifactId>-->
-<!--			<version>1.9.5</version>-->
-<!--		</dependency>-->
-
-
+		<!--		&lt;!&ndash;swaggerui  几个自定义界面方便查看接口&ndash;&gt;-->
+		<!--		&lt;!&ndash;访问路径：http://localhost:8080/doc.html&ndash;&gt;-->
+		<!--		<dependency>-->
+		<!--			<groupId>com.github.xiaoymin</groupId>-->
+		<!--			<artifactId>swagger-bootstrap-ui</artifactId>-->
+		<!--			<version>1.9.5</version>-->
+		<!--		</dependency>-->
 
 
 
 
-<!--		<dependency>-->
-<!--			<groupId>com.google.code.google-collections</groupId>-->
-<!--			<artifactId>google-collect</artifactId>-->
-<!--			<version>snapshot-20080530</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>tech.tablesaw</groupId>-->
-<!--			<artifactId>tablesaw-core</artifactId>-->
-<!--			<version>0.38.1</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>tech.tablesaw</groupId>-->
-<!--			<artifactId>tablesaw-jsplot</artifactId>-->
-<!--			<version>0.38.1</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>tech.tablesaw</groupId>-->
-<!--			<artifactId>tablesaw-json</artifactId>-->
-<!--			<version>0.38.1</version>-->
-<!--		</dependency>-->
 
-<!--		<dependency>-->
-<!--			<groupId>org.apache.poi</groupId>-->
-<!--			<artifactId>poi</artifactId>-->
-<!--			<version>3.9</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>sh.joinery</groupId>-->
-<!--			<artifactId>joinery-dataframe</artifactId>-->
-<!--			<version>1.10</version>-->
-<!--		</dependency>-->
-<!--		<dependency>-->
-<!--			<groupId>de.unknownreality</groupId>-->
-<!--			<artifactId>dataframe</artifactId>-->
-<!--			<version>0.7.6</version>-->
-<!--		</dependency>-->
+
+		<!--		<dependency>-->
+		<!--			<groupId>com.google.code.google-collections</groupId>-->
+		<!--			<artifactId>google-collect</artifactId>-->
+		<!--			<version>snapshot-20080530</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>tech.tablesaw</groupId>-->
+		<!--			<artifactId>tablesaw-core</artifactId>-->
+		<!--			<version>0.38.1</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>tech.tablesaw</groupId>-->
+		<!--			<artifactId>tablesaw-jsplot</artifactId>-->
+		<!--			<version>0.38.1</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>tech.tablesaw</groupId>-->
+		<!--			<artifactId>tablesaw-json</artifactId>-->
+		<!--			<version>0.38.1</version>-->
+		<!--		</dependency>-->
+
+		<!--		<dependency>-->
+		<!--			<groupId>org.apache.poi</groupId>-->
+		<!--			<artifactId>poi</artifactId>-->
+		<!--			<version>3.9</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>sh.joinery</groupId>-->
+		<!--			<artifactId>joinery-dataframe</artifactId>-->
+		<!--			<version>1.10</version>-->
+		<!--		</dependency>-->
+		<!--		<dependency>-->
+		<!--			<groupId>de.unknownreality</groupId>-->
+		<!--			<artifactId>dataframe</artifactId>-->
+		<!--			<version>0.7.6</version>-->
+		<!--		</dependency>-->
 
 	</dependencies>
-<!--	<repositories>-->
-<!--		<repository>-->
-<!--			<id>bedatadriven</id>-->
-<!--			<name>bedatadriven public repo</name>-->
-<!--			<url>https://nexus.bedatadriven.com/content/groups/public/</url>-->
-<!--		</repository>-->
-<!--	</repositories>-->
+	<!--	<repositories>-->
+	<!--		<repository>-->
+	<!--			<id>bedatadriven</id>-->
+	<!--			<name>bedatadriven public repo</name>-->
+	<!--			<url>https://nexus.bedatadriven.com/content/groups/public/</url>-->
+	<!--		</repository>-->
+	<!--	</repositories>-->
 	<build>
 		<plugins>
 			<plugin>
@@ -321,19 +323,19 @@
 		</plugins>
 	</build>
 	<repositories>
-<!--		<repository>-->
-<!--			<id>spring-milestones</id>-->
-<!--			<name>Spring Milestones</name>-->
-<!--			<url>https://repo1.maven.org/maven2/</url>-->
-<!--			<snapshots>-->
-<!--				<enabled>false</enabled>-->
-<!--			</snapshots>-->
-<!--		</repository>-->
+		<!--		<repository>-->
+		<!--			<id>spring-milestones</id>-->
+		<!--			<name>Spring Milestones</name>-->
+		<!--			<url>https://repo1.maven.org/maven2/</url>-->
+		<!--			<snapshots>-->
+		<!--				<enabled>false</enabled>-->
+		<!--			</snapshots>-->
+		<!--		</repository>-->
 
-<!--		<repository>-->
-<!--			<id>bedatadriven</id>-->
-<!--			<name>bedatadriven public repo</name>-->
-<!--			<url>https://nexus.bedatadriven.com/content/groups/public/</url>-->
-<!--		</repository>-->
+		<!--		<repository>-->
+		<!--			<id>bedatadriven</id>-->
+		<!--			<name>bedatadriven public repo</name>-->
+		<!--			<url>https://nexus.bedatadriven.com/content/groups/public/</url>-->
+		<!--		</repository>-->
 	</repositories>
 </project>
