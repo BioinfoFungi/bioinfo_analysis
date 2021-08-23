@@ -8,6 +8,6 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @date 2021/7/25
  */
 @NoRepositoryBean
-public interface BaseDataCategoryRepository<CATEGORY extends TermMapping> extends BaseFileRepository<CATEGORY> {
+public interface BaseTermMappingRepository<CATEGORY extends TermMapping> extends BaseFileRepository<CATEGORY> {
 
 }

@@ -1,7 +1,9 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.file.BaseDataCategory;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.dto.term.TermMappingDTO;
+import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -11,8 +13,19 @@ import java.util.List;
  * @author wangyang
  * @date 2021/7/25
  */
-public interface IBaseDataCategoryService<CATEGORY extends BaseDataCategory> extends IBaseFileService<CATEGORY>{
-    Page<CATEGORY> pageBy(CancerStudy cancerStudy, String keyWards, Pageable pageable);
+public interface IBaseDataCategoryService<TERMMAPPING extends TermMapping> extends IBaseFileService<TERMMAPPING>{
+//    <MAPPING extends TERMMAPPING>Page<TERMMAPPING> pageBy(MAPPING termMapping, Pageable pageable);
 
-    List<CATEGORY> findDataByCategoryId(CancerStudy cancerStudy,String keyWards);
+    List<TERMMAPPING> listBy(TERMMAPPING termMapping,String keyWard);
+
+//    Page<TERMMAPPING> pageDTOBy(TermMappingDTO termMappingDTO, Pageable pageable);
+
+    Page<? extends TermMappingVo> convertVo(Page<TERMMAPPING> fromCancerStudies);
+
+    //    @Override
+    TermMappingVo  convertVo(TERMMAPPING termmapping);
+
+    <VO extends TermMappingVo> VO convertVo(TERMMAPPING termmapping, Class<VO> clz);
+
+//    TERMMAPPING delBy(int id);
 }

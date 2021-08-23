@@ -21,15 +21,15 @@ public class Task extends BaseEntity {
     private Integer id;
     private Integer codeId;
     private String name;
-    private Integer objId;
+    private Integer cancerStudyId;
     private  TaskStatus taskStatus;
-    private String[] param;
+//    private String[] param;
     @Column(columnDefinition = "longtext")
     private String runMsg;
     @Column(columnDefinition = "longtext")
     private String exception;
     private String threadName;
-    private Boolean isSuccess;
+    private Boolean isSuccess=false;
     private TaskType taskType;
-
+    private Integer userId;
 }

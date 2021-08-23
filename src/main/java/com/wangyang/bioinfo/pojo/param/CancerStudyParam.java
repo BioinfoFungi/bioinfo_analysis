@@ -1,7 +1,6 @@
 package com.wangyang.bioinfo.pojo.param;
 
 import com.univocity.parsers.annotations.Parsed;
-import com.wangyang.bioinfo.pojo.dto.BaseFileDTO;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
@@ -11,24 +10,12 @@ import javax.validation.constraints.NotBlank;
  * @date 2021/6/26
  */
 @Data
-public class CancerStudyParam extends BaseFileDTO {
-    @NotBlank(message = "cancer不能为空!")
-    @Parsed
-    private String cancer;
-    @NotBlank(message = "study不能为空!")
-    @Parsed
-    private String study;
-    @NotBlank(message = "dataOrigin不能为空!")
-    @Parsed
-    private String dataOrigin;
-    @Parsed
-    private String dataCategory;
-    @Parsed
-    private String gse;
-    @Parsed
-    private String analysisSoftware;
+public class CancerStudyParam extends TermMappingParam {
+
     @Parsed
     private Integer parentId;
+    @Parsed
+    private String gse;
 
 //    private String processedAbsolutePath;
 //    @Parsed

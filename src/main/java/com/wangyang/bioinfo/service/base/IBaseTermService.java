@@ -16,6 +16,7 @@ public interface IBaseTermService<TERM extends BaseTerm>  extends ICrudService<T
     Page<TERM> pageBy(BaseTermParam baseTermParam, Pageable pageable);
 
     TERM findByEnName(String name);
+    TERM findById(Integer id);
 
     TERM findAndCheckByEnName(String name);
 

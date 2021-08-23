@@ -1,13 +1,10 @@
 package com.wangyang.bioinfo.call;
 
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.util.ObjectToMap;
+import com.wangyang.bioinfo.util.ObjectToCollection;
 import org.junit.Test;
-import org.rosuda.JRI.RConsoleOutputStream;
 import org.rosuda.REngine.*;
 //import org.rosuda.REngine.Rserve.OOBInterface;
-import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.Rserve.RserveException;
 
 import java.util.Map;
 class TestOOB {//implements OOBInterface {
@@ -80,7 +77,7 @@ public class TestR {
         CancerStudy cancerStudy = new CancerStudy();
         cancerStudy.setStudyId(2);
         cancerStudy.setDescription("sddd");
-        Map<String, String> stringObjectMap = ObjectToMap.setConditionMap(cancerStudy);
+        Map<String, String> stringObjectMap = ObjectToCollection.setConditionMap(cancerStudy);
         System.out.printf("");
 
     }

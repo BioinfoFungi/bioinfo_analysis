@@ -36,7 +36,11 @@ public class DataImportController {
     @Autowired
     ICancerStudyService cancerStudyService;
 
-    private static String[] filenames = new String[]{"Cancer","Study","DataOrigin","DataCategory","AnalysisSoftware","CancerStudy"};
+    @Autowired
+    ICodeService codeService;
+
+
+    private static String[] filenames = new String[]{"Cancer","Study","DataOrigin","DataCategory","AnalysisSoftware","CancerStudy","Code"};
 
     @GetMapping("/init")
     public  Map<String,String> importALl(@RequestParam("path") String pathDir){
@@ -66,6 +70,9 @@ public class DataImportController {
 
                 if(filename.equals("CancerStudy")){
                     cancerStudyService.initData(absolutePath);
+                }
+                if(filename.equals("Code")){
+                    codeService.initData(absolutePath);
                 }
 
             }

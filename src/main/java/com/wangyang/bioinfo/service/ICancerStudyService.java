@@ -4,7 +4,8 @@ import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
+import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
+import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.base.IBaseDataCategoryService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,25 +22,29 @@ import java.util.List;
 public interface ICancerStudyService extends IBaseDataCategoryService<CancerStudy> {
 
     CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam, User user);
-
+    CancerStudy updateCancerStudy(Integer id,CancerStudyParam cancerStudyParam, User user);
     CancerStudy saveCancerStudy(CancerStudy cancerStudy, User user);
 
+//    CancerStudy updateCancerStudy(Integer id, CancerStudy cancerStudyParam, User user);
+
     CancerStudy upload(@NonNull MultipartFile file, CancerStudyParam cancerStudyParam);
-    CancerStudy delCancerStudy(int id);
+
     CancerStudy findCancerStudyById(int id);
 //    Page<CancerStudyVo> pageCancerStudyVo(CancerStudyQuery findCancer, Pageable pageable);
 
+
+    CancerStudy findByParACodeId(Integer parentId, Integer codeId);
 
     List<CancerStudy> findAllById(Collection<Integer> id);
 
     Page<CancerStudy> pageCancerStudy(Pageable pageable);
 
-    Page<CancerStudy>  pageCancerStudy(CancerStudyQuery findCancer, Pageable pageable);
+    Page<CancerStudy>  pageBy(CancerStudyQuery cancerStudyQuery, Pageable pageable);
 
 //    Page<CancerStudy> pageCancerStudyById(CancerStudyQueryId cancerStudyQueryId, Pageable pageable);
 
     List<CancerStudy> listByCancerId(Integer cancerId);
-    List<CancerStudyVo> convertVo(List<CancerStudy> cancerStudies);
-    Page<CancerStudyVo> convertVo(Page<CancerStudy> cancerStudies);
 
+
+    List<TermMappingVo> convertVo(List<CancerStudy> cancerStudies);
 }

@@ -4,9 +4,10 @@ import com.wangyang.bioinfo.pojo.*;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
+import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVo;
+import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
@@ -40,10 +41,10 @@ public class CancerStudyController {
     IOrganizeFileService organizeFileService;
 
     @GetMapping
-    public Page<? extends CancerStudy> page(CancerStudyQuery cancerStudyQuery,
-                                    @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
-                                    @RequestParam(value = "more", defaultValue = "false") Boolean more){
-        Page<CancerStudy> cancerStudies = cancerStudyService.pageCancerStudy(cancerStudyQuery,pageable);
+    public Page<? extends TermMapping> page(CancerStudyQuery cancerStudyQuery,
+                                            @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
+                                            @RequestParam(value = "more", defaultValue = "false") Boolean more){
+        Page<CancerStudy> cancerStudies = cancerStudyService.pageBy(cancerStudyQuery,pageable);
         if(more){
             return cancerStudyService.convertVo(cancerStudies);
         }
@@ -52,9 +53,16 @@ public class CancerStudyController {
 
 
     @GetMapping("/listByCancerId/{id}")
-    public List<CancerStudyVo> listByCancerId(@PathVariable("id") Integer id){
+    public List<TermMappingVo> listByCancerId(@PathVariable("id") Integer id){
         List<CancerStudy> cancerStudies = cancerStudyService.listByCancerId(id);
         return cancerStudyService.convertVo(cancerStudies);
+    }
+
+    @PostMapping("/update/{id}")
+    public CancerStudy update(@PathVariable("id")Integer id,@RequestBody @Valid CancerStudyParam cancerStudyParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        CancerStudy cancerStudy = cancerStudyService.updateCancerStudy(id,cancerStudyParam,user);
+        return cancerStudy;
     }
 
 
@@ -102,8 +110,13 @@ public class CancerStudyController {
     }
 
     @GetMapping("/findById/{id}")
-    public CancerStudy findById(@PathVariable("id") Integer id){
-        return cancerStudyService.findCancerStudyById(id);
+    public TermMapping findById(@PathVariable("id") Integer id,
+                                @RequestParam(value = "more", defaultValue = "false") Boolean more){
+        CancerStudy cancerStudy = cancerStudyService.findCancerStudyById(id);
+        if(more){
+            return cancerStudyService.convertVo(cancerStudy);
+        }
+        return cancerStudy;
     }
 
 
@@ -123,5 +136,16 @@ public class CancerStudyController {
     public BaseResponse initDataBy(@RequestParam("path") String path){
         cancerStudyService.initData(path);
         return BaseResponse.ok("初始化完成!");
+    }
+
+    @GetMapping("/del/{id}")
+    public CancerStudy del(@PathVariable("id") Integer id){
+        return  cancerStudyService.delBy(id);
+    }
+
+    @GetMapping("/checkFile/{id}")
+    public CancerStudy checkFileExist(@PathVariable("id") Integer id){
+        CancerStudy cancerStudy = cancerStudyService.checkFileExist(id);
+        return cancerStudy;
     }
 }

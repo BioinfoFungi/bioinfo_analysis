@@ -3,12 +3,12 @@ package com.wangyang.bioinfo.service.base;
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.util.*;
+import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -32,7 +32,7 @@ import java.util.UUID;
  * @author wangyang
  * @date 2021/7/8
  */
-
+@Slf4j
 public class BaseFileService<FILE extends BaseFile>
         extends AbstractCrudService<FILE,Integer>
         implements IBaseFileService<FILE> {
@@ -94,27 +94,27 @@ public class BaseFileService<FILE extends BaseFile>
         return files.get(0);
     }
     @Override
-    public Page<FILE> pageBy(BaseFileQuery baseFileQuery, Pageable pageable) {
+    public Page<FILE> pageBy(FILE baseFileQuery, String keyWard,Pageable pageable) {
         Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery),pageable);
         return page;
     }
 
-    private Specification<FILE> buildSpecByQuery(BaseFileQuery baseFileQuery) {
+    private Specification<FILE> buildSpecByQuery(FILE baseFileQuery) {
         return (Specification<FILE>) (root, query, criteriaBuilder) ->{
             List<Predicate> predicates = new LinkedList<>();
-            if(baseFileQuery.getEnName()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("fileName"),baseFileQuery.getFileName()));
-            }
-            if(baseFileQuery.getKeyword()!=null){
-                String likeCondition = String
-                        .format("%%%s%%", StringUtils.strip(baseFileQuery.getKeyword()));
-                Predicate name = criteriaBuilder.like(root.get("enName"), likeCondition);
-                Predicate fileName = criteriaBuilder
-                        .like(root.get("fileName"), likeCondition);
-
-                predicates.add(criteriaBuilder.or(name, fileName));
-
-            }
+//            if(baseFileQuery.getEnName()!=null){
+//                predicates.add(criteriaBuilder.equal(root.get("fileName"),baseFileQuery.getFileName()));
+//            }
+//            if(baseFileQuery.getKeyword()!=null){
+//                String likeCondition = String
+//                        .format("%%%s%%", StringUtils.strip(baseFileQuery.getKeyword()));
+//                Predicate name = criteriaBuilder.like(root.get("enName"), likeCondition);
+//                Predicate fileName = criteriaBuilder
+//                        .like(root.get("fileName"), likeCondition);
+//
+//                predicates.add(criteriaBuilder.or(name, fileName));
+//
+//            }
             return query.where(predicates.toArray(new Predicate[0])).getRestriction();
         };
     }
@@ -170,38 +170,44 @@ public class BaseFileService<FILE extends BaseFile>
         if(file.getUuid()==null){
             file.setUuid(UUID.randomUUID().toString());
         }
-        if(file.getFileName()==null){
-            String basename = FilenameUtils.getBasename(file.getAbsolutePath());
-            file.setFileName(basename);
-        }
-        if(file.getRelativePath()==null){
-            String relativePath = FilenameUtils.relativePath(file.getAbsolutePath());
-            file.setRelativePath(relativePath);
-        }
-        String extension = FilenameUtils.getExtension(file.getAbsolutePath());
-        file.setFileType(extension);
-        if(file.getFileType().endsWith(".gz")){
-            file.setIsCompress(true);
-        }else {
-            file.setIsCompress(false);
-        }
-        FileLocation location= file.getLocation();
-        if(location.equals(FileLocation.LOCAL)){
-            File f = new File(file.getAbsolutePath());
-            if(f.exists()){
-                file.setStatus(true);
-                file.setSize(f.length());
-                String md5String = FileMd5Utils.getFileMD5String(f);
-                file.setMd5(md5String);
+        file.setStatus(false);
+        if(file.getAbsolutePath()!=null && !file.getAbsolutePath().equals("")){
+            if(file.getFileName()==null){
+                String basename = FilenameUtils.getBasename(file.getAbsolutePath());
+                file.setFileName(basename);
+            }
+            if(file.getRelativePath()==null){
+                String relativePath = FilenameUtils.relativePath(file.getAbsolutePath());
+                file.setRelativePath(relativePath);
+            }
+            String extension = FilenameUtils.getExtension(file.getAbsolutePath());
+            file.setFileType(extension);
+            if(file.getFileType().endsWith(".gz")){
+                file.setIsCompress(true);
             }else {
-                throw new BioinfoException("添加的文件不存在!");
+                file.setIsCompress(false);
+            }
+            FileLocation location= file.getLocation();
+            if(location.equals(FileLocation.LOCAL)){
+                File f = new File(file.getAbsolutePath());
+                if(f.exists()){
+                    file.setStatus(true);
+                    file.setSize(f.length());
+                    String md5String = FileMd5Utils.getFileMD5String(f);
+                    file.setMd5(md5String);
+                }
             }
         }
+
 
         return baseFileRepository.save(file);
     }
 
-
+    @Override
+    public FILE checkFileExist(int id) {
+        FILE file = findById(id);
+        return saveAndCheckFile(file);
+    }
 
 
     public FILE upload(UploadResult uploadResult,FILE file) {

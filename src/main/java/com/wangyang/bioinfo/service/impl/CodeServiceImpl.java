@@ -1,13 +1,26 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
+import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
+import com.wangyang.bioinfo.pojo.param.CodeParam;
+import com.wangyang.bioinfo.pojo.param.CodeQuery;
+import com.wangyang.bioinfo.pojo.vo.CodeVO;
+import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CodeRepository;
+import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;
+import com.wangyang.bioinfo.service.ITaskService;
 import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
-import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.ObjectToCollection;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -15,6 +28,8 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.lang.reflect.Field;
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -23,17 +38,21 @@ import java.util.List;
  */
 @Service
 @Slf4j
-public class ICodeServiceImpl  extends BaseDataCategoryServiceImpl<Code>
+public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
         implements ICodeService {
 
     @Autowired
-    CodeRepository rCodeRepository;
-    private String dataCategory;
-    private String analysisSoftware;
+    CodeRepository codeRepository;
+
+    @Autowired
+    ICancerStudyService cancerStudyService;
+
+    @Autowired
+    ITaskService taskService;
 
     @Override
     public Code findBy(String dataCategory,String analysisSoftware){
-        List<Code> codes = rCodeRepository.findAll(new Specification<Code>() {
+        List<Code> codes = codeRepository.findAll(new Specification<Code>() {
             @Override
             public Predicate toPredicate(Root<Code> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 return criteriaQuery.where(
@@ -48,8 +67,82 @@ public class ICodeServiceImpl  extends BaseDataCategoryServiceImpl<Code>
         return codes.get(0);
     }
 
+    @Override
+    public Page<Code> pageBy(CodeQuery codeQuery, Pageable pageable) {
+        Code code = super.convert(codeQuery);
+        Page<Code> codePage = pageBy(code, codeQuery.getKeyWard(), pageable);
+        return codePage;
+    }
+    @Override
+    public Page<CodeVO> convertVo(Page<Code> codes) {
+        return super.convertVo(codes, CodeVO.class);
+    }
 
 
+
+    @Override
+    public Code saveBy(CodeParam codeParam, User user) {
+        Code code = super.convert(codeParam);
+        return  add(code,user);
+    }
+
+    @Override
+    public Code updateBy(Integer id, CodeParam codeParam, User user) {
+        Code code = super.convert(codeParam);
+        return  update(id,code,user);
+    }
+    public Specification<Code> buildSpecBy(Code termMapping,String keyWard) {
+        return (Specification<Code>) (root, query, criteriaBuilder) ->{
+            List<Predicate> predicates = new LinkedList<>();
+            try {
+                List<Field> fields = ObjectToCollection.setConditionFieldList(termMapping);
+                for(Field field : fields){
+                    boolean fieldAnnotationPresent = field.isAnnotationPresent(QueryField.class);
+                    if(fieldAnnotationPresent){
+                        QueryField queryField = field.getDeclaredAnnotation(QueryField.class);
+                        field.setAccessible(true);
+                        String fieldName = field.getName();
+                        Object value = field.get(termMapping);
+                        if(value!=null){
+                            predicates.add(criteriaBuilder.or(
+                                    criteriaBuilder.equal(root.get(fieldName),value),
+                                    criteriaBuilder.isNull(root.get(fieldName))
+                            ));
+                        }
+//                        if(baseTermMappingDTO.getKeyword()!=null && !baseTermMappingDTO.getKeyword().equals("") && queryField.keyWards()){
+//                            String likeCondition = String
+//                                    .format("%%%s%%", StringUtils.strip(baseTermMappingDTO.getKeyword()));
+//                            Predicate fileName = criteriaBuilder.like(root.get("fileName"), likeCondition);
+//
+//                            predicates.add(criteriaBuilder.or(fileName));
+//                        }
+                    }
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
+        };
+    }
+    @Override
+    public List<Code> findByCan(Integer id) {
+        CancerStudy cancerStudy = cancerStudyService.findById(id);
+        Code code = new Code();
+        BeanUtils.copyProperties(cancerStudy,code);
+        List<Code> codes = codeRepository.findAll(buildSpecBy(code,null));
+        return codes;
+    }
+
+    @Override
+    public Code delBy(Integer id) {
+        taskService.delByCodeId(id);
+        return super.delBy(id);
+    }
+
+    @Override
+    public CodeVO convertVo(Code code) {
+        return super.convertVo(code, CodeVO.class);
+    }
 //    private Code findOneBy(int dataOriginId,int studyId){
 //        List<Code> codes = rCodeRepository.findAll(new Specification<Code>() {
 //            @Override
@@ -207,5 +300,10 @@ public class ICodeServiceImpl  extends BaseDataCategoryServiceImpl<Code>
 //            }
 //        }
 //    }
+
+    @Override
+    public List<Code> initData(String filePath) {
+        return super.initData(filePath, CodeParam.class);
+    }
 }
 

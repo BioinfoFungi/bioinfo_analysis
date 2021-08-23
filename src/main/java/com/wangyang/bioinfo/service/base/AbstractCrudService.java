@@ -1,12 +1,8 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.univocity.parsers.common.processor.BeanListProcessor;
 import com.univocity.parsers.common.processor.BeanWriterProcessor;
-import com.univocity.parsers.tsv.TsvParser;
-import com.univocity.parsers.tsv.TsvParserSettings;
 import com.univocity.parsers.tsv.TsvWriter;
 import com.univocity.parsers.tsv.TsvWriterSettings;
-import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.File2Tsv;
@@ -193,4 +189,10 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         return beans;
     }
 
+    @Override
+    public DOMAIN delBy(ID id) {
+        DOMAIN domain = findById(id);
+        repository.delete(domain);
+        return domain;
+    }
 }

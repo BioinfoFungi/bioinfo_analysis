@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.util;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
-import com.wangyang.bioinfo.pojo.dto.BaseFileDTO;
+import com.wangyang.bioinfo.pojo.dto.term.BaseFileDTO;
 import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;

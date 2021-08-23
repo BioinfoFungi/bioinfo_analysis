@@ -6,8 +6,8 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-public class ObjectToMap {
-    public static List<Field> setConditionFieldMap(Object obj) {
+public class ObjectToCollection {
+    public static List<Field> setConditionFieldList(Object obj) {
         Class<?> clazz = obj.getClass();
         List<Field> fields = new ArrayList<>();
         //把父类包含的字段遍历出来

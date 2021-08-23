@@ -4,7 +4,6 @@ import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
-import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -62,8 +61,8 @@ public class AttachmentController {
     }
 
     @GetMapping
-    public Page<Attachment> page(BaseFileQuery baseFileQuery,@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<Attachment> attachments = attachmentService.pageBy(baseFileQuery,pageable);
+    public Page<Attachment> page(Attachment baseFileQuery,@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+        Page<Attachment> attachments = attachmentService.pageBy(baseFileQuery,"",pageable);
         return attachments;
     }
 

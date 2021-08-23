@@ -1,9 +1,7 @@
-package com.wangyang.bioinfo.pojo.dto;
+package com.wangyang.bioinfo.pojo.dto.term;
 
 import com.univocity.parsers.annotations.Parsed;
 import lombok.Data;
-
-import javax.validation.constraints.NotBlank;
 
 /**
  * @author wangyang

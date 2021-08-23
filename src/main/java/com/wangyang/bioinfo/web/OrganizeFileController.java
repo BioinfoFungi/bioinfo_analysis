@@ -3,7 +3,6 @@ package com.wangyang.bioinfo.web;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
-import com.wangyang.bioinfo.pojo.param.BaseFileQuery;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +35,8 @@ public class OrganizeFileController {
     }
 
     @GetMapping
-    public Page<OrganizeFile> page(BaseFileQuery baseFileQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        Page<OrganizeFile> organizeFiles = organizeService.pageBy(baseFileQuery, pageable);
+    public Page<OrganizeFile> page(OrganizeFile baseFileQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+        Page<OrganizeFile> organizeFiles = organizeService.pageBy(baseFileQuery, "",pageable);
         return organizeFiles;
     }
 

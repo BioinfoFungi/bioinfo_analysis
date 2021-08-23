@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.pojo.base;
 import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.pojo.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import javax.persistence.*;
@@ -20,7 +21,7 @@ public class BaseFile extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Parsed
-    private int id;
+    private Integer id;
     /**
      * 显示文件的名称
      */

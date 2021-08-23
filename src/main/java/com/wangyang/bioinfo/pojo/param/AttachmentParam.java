@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.pojo.param;
 
-import com.wangyang.bioinfo.pojo.dto.BaseFileDTO;
+import com.wangyang.bioinfo.pojo.dto.term.BaseFileDTO;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;

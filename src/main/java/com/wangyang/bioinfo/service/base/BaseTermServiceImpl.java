@@ -19,6 +19,7 @@ import javax.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wangyang
@@ -77,15 +78,25 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
         return terms.get(0);
     }
 
+
+    @Override
+    public TERM findById(Integer id) {
+        if(id==null){
+            return null;
+        }
+        Optional<TERM> optionalTERM = repository.findById(id);
+        return optionalTERM.isPresent()?optionalTERM.get():null;
+    }
+
     @Override
     @Cacheable(cacheNames = {"TERM"})
     public TERM findAndCheckByEnName(String name) {
-        if(name==null){
+        if(name==null|| name.equals("")){
             return null;
         }
         TERM term = findByEnName(name);
         if(term==null){
-            throw new BioinfoException("要查找的对象不存在！");
+            throw new BioinfoException("TERM中要查找的["+name+"]对象不存在！");
         }
         return term;
     }

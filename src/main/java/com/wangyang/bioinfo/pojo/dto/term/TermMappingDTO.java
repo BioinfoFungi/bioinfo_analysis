@@ -1,15 +1,11 @@
-package com.wangyang.bioinfo.pojo.dto.cancerstudy;
+package com.wangyang.bioinfo.pojo.dto.term;
 
-import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.file.TermMapping;
 import lombok.Data;
 
 @Data
-public class TermMappingDTO extends BaseTermMappingDTO{
+public class TermMappingDTO extends TermMapping {
 
-    private String cancer;
-    private String study;
-    private String dataOrigin;
-    private String dataCategory;
-    private String analysisSoftware;
+
 
 }

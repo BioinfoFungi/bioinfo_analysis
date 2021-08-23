@@ -21,6 +21,6 @@ public interface ICrudService<DOMAIN, ID> {
     File createTSVFile(List<DOMAIN> domains, String filePath, String[] heads);
 
     List<DOMAIN> tsvToBean(String filePath);
-
+    DOMAIN delBy(ID id);
     List<DOMAIN> initData(String filePath);
 }
