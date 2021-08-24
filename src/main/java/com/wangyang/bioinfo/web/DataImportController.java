@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.util.StringCacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -43,7 +44,10 @@ public class DataImportController {
     private static String[] filenames = new String[]{"Cancer","Study","DataOrigin","DataCategory","AnalysisSoftware","CancerStudy","Code"};
 
     @GetMapping("/init")
-    public  Map<String,String> importALl(@RequestParam("path") String pathDir){
+    public  Map<String,String> importALl(@RequestParam(value = "path",defaultValue = "") String pathDir){
+        if(pathDir.equals("")){
+            pathDir = StringCacheStore.getValue("workDir")+"/TCGADOWNLOAD/data";
+        }
 //        Arrays.asList(filenames
         Map<String,String> map = new HashMap<>();
         for(String filename : filenames){
