@@ -15,6 +15,7 @@ import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
+import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import lombok.extern.slf4j.Slf4j;
@@ -131,14 +132,26 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         };
     }
 
+    public  boolean runCheck(Task task){
+        if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
     @Override
     public Task addTask(TaskParam taskParam, User user) {
+
         CancerStudy cancerStudy = cancerStudyService.findById(taskParam.getCancerStudyId());
         TermMappingVo mappingVo = cancerStudyService.convertVo(cancerStudy);
         List<OrganizeFile> organizeFiles = organizeFileService.listAll();
         Code code =codeService.findById(taskParam.getCodeId());
 
         Task task = findByCanSIdACodeId(cancerStudy.getId(), code.getId());
+        if(runCheck(task)){
+            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
+        }
         if(task==null){
             task = new Task();
         }
@@ -167,13 +180,16 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudyProcess.setParentId(cancerStudy.getId());
 
         //交给thread
-        asyncService.processCancerStudy(task,code,cancerStudyProcess,map);
+        asyncService.processCancerStudy(task,code,cancerStudy,cancerStudyProcess,map);
         return task;
     }
 
     @Override
     public Task runTask(Integer id, User user) {
         Task task = findById(id);
+        if(runCheck(task)){
+            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
+        }
         task.setTaskStatus(TaskStatus.UNTRACKING);
         task= super.save(task);
 
@@ -199,7 +215,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudyProcess.setCodeId(code.getId());
         cancerStudyProcess.setParentId(cancerStudy.getId());
 
-        asyncService.processCancerStudy(task,code,cancerStudyProcess,map);
+        asyncService.processCancerStudy(task,code,cancerStudy,cancerStudyProcess,map);
         return task;
     }
 

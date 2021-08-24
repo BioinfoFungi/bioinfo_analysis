@@ -11,4 +11,5 @@ public class CodeMsg {
     private Boolean status;
     private CancerStudyParam cancerStudyParam;
     private String result;
+    private Boolean isUpdate=false;
 }

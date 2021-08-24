@@ -117,7 +117,6 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy findByParACodeId(Integer parentId, Integer codeId){
-
         List<CancerStudy> cancerStudies = cancerStudyRepository.findAll(new Specification<CancerStudy>() {
             @Override
             public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
