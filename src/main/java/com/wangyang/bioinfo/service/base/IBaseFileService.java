@@ -19,7 +19,7 @@ public interface IBaseFileService<FILE extends BaseFile> extends ICrudService<FI
 
     FILE findByUUIDAndCheck(String uuid);
 
-    FILE findById(Integer Id);
+//    FILE findById(Integer Id);
 
 
     FILE findByUUID(String uuid);

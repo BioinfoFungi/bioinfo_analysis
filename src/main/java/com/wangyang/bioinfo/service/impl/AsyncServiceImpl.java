@@ -21,6 +21,7 @@ import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.BeanUtil;
+import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;
@@ -106,7 +107,29 @@ public class AsyncServiceImpl implements IAsyncService {
 //            }
 //        }
 //    }
-
+//    class TasKRun implements Runnable{
+//        Task task;
+//        Code code;
+//        CancerStudy cancerStudy;
+//        CancerStudy cancerStudyProcess;
+//        Map<String, Object> map;
+//
+//        public TasKRun(Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map) {
+//            this.task = task;
+//            this.code = code;
+//            this.cancerStudy = cancerStudy;
+//            this.cancerStudyProcess = cancerStudyProcess;
+//            this.map = map;
+//        }
+//        @Override
+//        public void run() {
+//            try {
+//                processCancerStudy(task, code, cancerStudy, cancerStudyProcess, map);
+//            } catch (Exception e) {
+//                e.printStackTrace();
+//            }
+//        }
+//    }
 
     @Override
     public void processCancerStudy1(Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map)  {
@@ -123,9 +146,7 @@ public class AsyncServiceImpl implements IAsyncService {
         executorService.submit(runnable);
 ////        ControlSubThread controlSubThread = new ControlSubThread(task, code, cancerStudy, cancerStudyProcess, map);
 //        executorService.submit(controlSubThread);
-
-//
-//        controlSubThread.stop();
+        //        controlSubThread.stop();
     }
     @Override
     @Async("taskExecutor")
@@ -181,17 +202,24 @@ public class AsyncServiceImpl implements IAsyncService {
 
     @Override
     public Task shutdownProcess(int taskId){
-        if(processMap.containsKey(taskId)){
-            TaskProcess taskProcess = processMap.get(taskId);
+        Task task = taskService.findById(taskId);
+        if(processMap.containsKey(task.getId())){
+            TaskProcess taskProcess = processMap.get(task.getId());
             if(taskProcess.getProcess().isAlive()){
                 taskProcess.getProcess().destroy();
-                processMap.remove(taskId);
+                processMap.remove(task.getId());
                 log.info("结束 {}",taskProcess.getTask().getName());
                 taskProcess.getTask().setRunMsg(taskProcess.getTask().getRunMsg()+"\nshutdownProcess by user");
             }
             return taskProcess.getTask();
         }
-        return null;
+        if(executorService.getActiveCount()==0 && !task.getTaskStatus().equals(TaskStatus.FINISH)){
+
+            task.setTaskStatus(TaskStatus.FINISH);
+            taskService.save(task);
+            throw new BioinfoException("出错了，线程已经结束，状态没有更改！");
+        }
+        throw new BioinfoException("不能结束该进程！");
     }
 
     private CodeMsg processBuilder(Task task,Code code, Map<String,Object> maps){
@@ -254,7 +282,6 @@ public class AsyncServiceImpl implements IAsyncService {
 
                 }
             }
-            System.out.printf("");
             process.waitFor();
             if(resultMap.containsKey("update")){
                 codeMsg.setIsUpdate(true);

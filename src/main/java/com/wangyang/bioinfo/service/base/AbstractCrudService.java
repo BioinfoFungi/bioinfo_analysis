@@ -40,11 +40,11 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         return ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[index];
     }
 
-
+    @Override
     public DOMAIN findById(ID Id){
         Optional<DOMAIN> fileOptional = repository.findById(Id);
         if(!fileOptional.isPresent()){
-            throw new BioinfoException("查找的File对象不存在!");
+            throw new BioinfoException("查找的象不存在!");
         }
         return fileOptional.get();
     }
@@ -80,6 +80,7 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
             throw new RuntimeException(e);
         }
     }
+
 
     @Override
     public  void   createTSVFile(HttpServletResponse response){

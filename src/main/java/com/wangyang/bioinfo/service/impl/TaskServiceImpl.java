@@ -193,9 +193,9 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     @Override
     public Task runTask(Integer id, User user) {
         Task task = findById(id);
-//        if(runCheck(task)){
-//            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
-//        }
+        if(runCheck(task)){
+            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
+        }
         task.setTaskStatus(TaskStatus.UNTRACKING);
         task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
         task= super.save(task);
