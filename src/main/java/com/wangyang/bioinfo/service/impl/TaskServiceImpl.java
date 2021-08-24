@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.impl;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.dto.TaskProcess;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
@@ -31,10 +32,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 /**
@@ -160,6 +158,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setTaskStatus(TaskStatus.UNTRACKING);
         task.setName(code.getName()+"-"+mappingVo.getCancer().getName());
         task.setUserId(user.getId());
+        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
+
         task= super.save(task);
 
         Map<String, Object> map = new HashMap<>();
@@ -180,17 +180,24 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudyProcess.setParentId(cancerStudy.getId());
 
         //交给thread
-        asyncService.processCancerStudy(task,code,cancerStudy,cancerStudyProcess,map);
+        asyncService.processCancerStudy1(task,code,cancerStudy,cancerStudyProcess,map);
+        return task;
+    }
+
+    @Override
+    public Task shutdownProcess(int taskId){
+        Task task = asyncService.shutdownProcess(taskId);
         return task;
     }
 
     @Override
     public Task runTask(Integer id, User user) {
         Task task = findById(id);
-        if(runCheck(task)){
-            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
-        }
+//        if(runCheck(task)){
+//            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
+//        }
         task.setTaskStatus(TaskStatus.UNTRACKING);
+        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
         task= super.save(task);
 
         CancerStudy cancerStudy = cancerStudyService.findById(task.getCancerStudyId());
@@ -215,7 +222,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudyProcess.setCodeId(code.getId());
         cancerStudyProcess.setParentId(cancerStudy.getId());
 
-        asyncService.processCancerStudy(task,code,cancerStudy,cancerStudyProcess,map);
+        asyncService.processCancerStudy1(task,code,cancerStudy,cancerStudyProcess,map);
         return task;
     }
 

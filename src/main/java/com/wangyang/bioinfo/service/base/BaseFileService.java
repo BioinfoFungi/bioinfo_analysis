@@ -190,7 +190,7 @@ public class BaseFileService<FILE extends BaseFile>
             FileLocation location= file.getLocation();
             if(location.equals(FileLocation.LOCAL)){
                 File f = new File(file.getAbsolutePath());
-                if(f.exists()){
+                if(f.exists()&& f.isFile()){
                     file.setStatus(true);
                     file.setSize(f.length());
                     String md5String = FileMd5Utils.getFileMD5String(f);

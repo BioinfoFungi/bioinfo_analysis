@@ -9,21 +9,25 @@ import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
+import com.wangyang.bioinfo.pojo.dto.TaskProcess;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
+import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.BeanUtil;
 import com.wangyang.bioinfo.util.ObjectToCollection;
+import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 
@@ -36,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.stream.Collectors;
 
 @Service
@@ -49,28 +54,107 @@ public class AsyncServiceImpl implements IAsyncService {
     ICancerStudyService cancerStudyService;
     @Autowired
     SpringWebSocketHandler springWebSocketHandler;
+    @Autowired
+    private ThreadPoolTaskExecutor executorService;
+
+    final Map<Integer, TaskProcess> processMap = new HashMap<>();
+
+//
+//    public class ControlSubThread implements Runnable {
+//
+////        private Thread worker;
+//        private final AtomicBoolean running = new AtomicBoolean(false);
+////        private int interval;
+//        Task task;
+//        Code code;
+//        CancerStudy cancerStudy;
+//        CancerStudy cancerStudyProcess;
+//        Map<String, Object> map;
+//
+//        public ControlSubThread(Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map) {
+//            this.task = task;
+//            this.code = code;
+//            this.cancerStudy = cancerStudy;
+//            this.cancerStudyProcess = cancerStudyProcess;
+//            this.map = map;
+//        }
+//        //        public ControlSubThread(int sleepInterval) {
+////            interval = sleepInterval;
+////        }
+//
+////        public void start() {
+////            worker = new Thread(this);
+////            worker.start();
+////        }
+//
+//        public void stop() {
+//            running.set(false);
+//        }
+//
+//        public void run() {
+//            running.set(true);
+//            while (running.get()) {
+//                try {
+//                    Thread.sleep(5000);
+//                    System.out.printf("aaaaaaaaaaaaaaaaaaaa");
+//                } catch (InterruptedException e){
+//                    Thread.currentThread().interrupt();
+//                    System.out.println(
+//                            "Thread was interrupted, Failed to complete operation");
+//                }
+//                // do something here
+//            }
+//        }
+//    }
 
 
-
-    @Async("taskExecutor")
     @Override
+    public void processCancerStudy1(Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map)  {
+        Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    processCancerStudy(task, code, cancerStudy, cancerStudyProcess, map);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        executorService.submit(runnable);
+////        ControlSubThread controlSubThread = new ControlSubThread(task, code, cancerStudy, cancerStudyProcess, map);
+//        executorService.submit(controlSubThread);
+
+//
+//        controlSubThread.stop();
+    }
+    @Override
+    @Async("taskExecutor")
+    public void processCancerStudy2(Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
+        processCancerStudy(task,code,cancerStudy,cancerStudyProcess,map);
+    }
+
+
+
+
     public void processCancerStudy(Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
         /***************************************************************/
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
 //        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
         task.setThreadName(Thread.currentThread().getName());
         task.setTaskStatus(TaskStatus.RUNNING);
+        task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"开始分析！"+ new Date());
         taskService.save(task);
         /*****************************************************************/
 
 //        CodeMsg codeMsg = rCall(code, map);
-        CodeMsg codeMsg  = processBuilder(code, map);;
+        CodeMsg codeMsg  = processBuilder(task,code, map);;
         try {
             if(codeMsg.getCancerStudyParam()!=null){
+                CancerStudy covertCancerStudy = cancerStudyService.convert(codeMsg.getCancerStudyParam());
                 if(codeMsg.getIsUpdate()){
+                    BeanUtil.copyProperties(covertCancerStudy,cancerStudy);
                     cancerStudyService.saveCancerStudy(cancerStudy);
                 }else {
-                    CancerStudy covertCancerStudy = cancerStudyService.convert(codeMsg.getCancerStudyParam());
                     BeanUtil.copyProperties(covertCancerStudy,cancerStudyProcess);
                     cancerStudyService.saveCancerStudy(cancerStudyProcess);
                 }
@@ -88,45 +172,69 @@ public class AsyncServiceImpl implements IAsyncService {
         task.setResult(codeMsg.getResult());
         task.setRunMsg(codeMsg.getRunMsg());
         task.setTaskStatus(TaskStatus.FINISH);
-
+        task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
         taskService.save(task);
         log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         springWebSocketHandler.sendMessageToUsers(new TextMessage(JSONObject.toJSON(task).toString()));
         /*****************************************************************/
     }
 
+    @Override
+    public Task shutdownProcess(int taskId){
+        if(processMap.containsKey(taskId)){
+            TaskProcess taskProcess = processMap.get(taskId);
+            if(taskProcess.getProcess().isAlive()){
+                taskProcess.getProcess().destroy();
+                processMap.remove(taskId);
+                log.info("结束 {}",taskProcess.getTask().getName());
+                taskProcess.getTask().setRunMsg(taskProcess.getTask().getRunMsg()+"\nshutdownProcess by user");
+            }
+            return taskProcess.getTask();
+        }
+        return null;
+    }
 
-    private CodeMsg processBuilder(Code code, Map<String,Object> maps){
+    private CodeMsg processBuilder(Task task,Code code, Map<String,Object> maps){
         CodeMsg codeMsg = new CodeMsg();
         File  tempFile=null;
         try {
+            String workDir = StringCacheStore.getValue("workDir");
+            Path path = Paths.get(workDir, "data");
+            Files.createDirectories(path);
             tempFile = File.createTempFile("bioinfo-", ".R");
+            maps.put("workDir",path.toString());
             StringBuffer stringBuffer = new StringBuffer();
             for (String key: maps.keySet()){
-                if(maps.get(key) instanceof String && maps.get(key)!=null){
-                    stringBuffer.append(key+" <- \""+ maps.get(key)+"\"\n");
+                Object obj = maps.get(key);
+                if(obj instanceof String && obj!=null){
+                    stringBuffer.append(key+" <- \""+ obj+"\"\n");
+                }else if (obj instanceof Cancer){
+                    stringBuffer.append(key+" <- \""+ ((Cancer) obj).getEnName()+"\"\n");
                 }
             }
             stringBuffer.append("\n");
-
-            byte[] bytes = Files.readAllBytes(Paths.get(code.getAbsolutePath()));
-            String content = new String(bytes, StandardCharsets.UTF_8);
-            stringBuffer.append(content);
-            try (FileOutputStream fop = new FileOutputStream(tempFile)) {
-                fop.write(stringBuffer.toString().getBytes());
-                fop.flush();
+            if(code.getAbsolutePath()!=null){
+                byte[] bytes = Files.readAllBytes(Paths.get(code.getAbsolutePath()));
+                String content = new String(bytes, StandardCharsets.UTF_8);
+                stringBuffer.append(content);
+                try (FileOutputStream fop = new FileOutputStream(tempFile)) {
+                    fop.write(stringBuffer.toString().getBytes());
+                    fop.flush();
+                }
             }
 
 
             ProcessBuilder processBuilder = new ProcessBuilder();
+
+            processBuilder.directory(path.toFile());
             List<String> command = new ArrayList<>();
             command.add("Rscript");
             command.add(tempFile.getAbsolutePath());
             processBuilder.command(command);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
+            processMap.put(task.getId(),new TaskProcess(task,process));
             StringBuilder result = new StringBuilder();
-
             Map<String,String> resultMap = new HashMap<>();
 
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
@@ -139,15 +247,19 @@ public class AsyncServiceImpl implements IAsyncService {
                         String value = strings[1];
                         resultMap.put(key,value);
                     }
-                    result.append(line);
-                    System.out.println(line);
+                    if(!line.startsWith("Downloading")){
+                        result.append(line);
+                    }
+                    log.info(line);
+
                 }
             }
-
+            System.out.printf("");
+            process.waitFor();
+            if(resultMap.containsKey("update")){
+                codeMsg.setIsUpdate(true);
+            }
             CancerStudyParam cancerStudyParam =null;
-
-
-
             Method[] methods = CancerStudyParam.class.getMethods();
             for (Method method :methods){
                 String name = method.getName();
@@ -166,28 +278,40 @@ public class AsyncServiceImpl implements IAsyncService {
             }
 
 
-            process.waitFor();
+
             int exit = process.exitValue();
             if (exit != 0) {
                 codeMsg.setStatus(false);
-                codeMsg.setRunMsg(result.toString());
+                codeMsg.setRunMsg("failed to execute:" + processBuilder.command() + " with result:" + result);
 //                throw new IOException("failed to execute:" + processBuilder.command() + " with result:" + result);
+            }else {
+                codeMsg.setStatus(true);
+                codeMsg.setResult("");
+                codeMsg.setRunMsg(result.toString());
+                codeMsg.setCancerStudyParam(cancerStudyParam);
             }
-            codeMsg.setResult("");
-            codeMsg.setRunMsg(result.toString());
-            codeMsg.setCancerStudyParam(cancerStudyParam);
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
+            codeMsg.setStatus(false);
         } catch (InvocationTargetException e) {
             e.printStackTrace();
+            codeMsg.setStatus(false);
         } catch (IllegalAccessException e) {
             e.printStackTrace();
+            codeMsg.setStatus(false);
         }finally {
             if(tempFile!=null){
                 tempFile.delete();
             }
+            TaskProcess taskProcess = processMap.get(task.getId());
+            if(taskProcess!=null){
+                if(taskProcess.getProcess().isAlive()){
+                    taskProcess.getProcess().destroy();
+                }
+                processMap.remove(task.getId());
+            }
         }
-        codeMsg.setStatus(true);
+
         return codeMsg;
     }
 

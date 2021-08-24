@@ -50,7 +50,11 @@ public class TaskController {
         Task task = taskService.runTask(id,user);
         return task;
     }
-
+    @GetMapping("/shutdown/{taskId}")
+    public Task shutdownProcess(@PathVariable("taskId") int taskId){
+        Task task = taskService.shutdownProcess(taskId);
+        return task;
+    }
     @GetMapping
     public Page<Task> page(TaskQuery taskQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
         return taskService.page(taskQuery,pageable);

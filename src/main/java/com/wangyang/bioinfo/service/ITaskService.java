@@ -27,6 +27,9 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
     List<Task> delByCanSId(Integer canSId);
 
     Task addTask(TaskParam taskParam, User user);
+
+    Task shutdownProcess(int taskId);
+
     Task runTask(Integer id, User user);
 //    Task addTaskByCancerStudyId(Integer cancerStudyId);
 //

@@ -11,6 +11,10 @@ import org.springframework.scheduling.annotation.Async;
 import java.util.Map;
 
 public interface IAsyncService  {
+    void processCancerStudy1(Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map);
+
     @Async("taskExecutor")
-    void processCancerStudy(Task task, Code code,CancerStudy cancerStudy, CancerStudy cancerStudyProcess ,Map<String, Object> map);
+    void processCancerStudy2(Task task, Code code,CancerStudy cancerStudy, CancerStudy cancerStudyProcess ,Map<String, Object> map);
+
+    Task shutdownProcess(int taskId);
 }
