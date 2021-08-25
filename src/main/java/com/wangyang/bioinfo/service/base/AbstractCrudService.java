@@ -81,6 +81,15 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         }
     }
 
+    @Override
+    public void deleteAll(){
+        repository.deleteAll();
+    }
+
+    @Override
+    public void deleteAll(Iterable<DOMAIN> domains){
+        repository.deleteAll(domains);
+    }
 
     @Override
     public  void   createTSVFile(HttpServletResponse response){
@@ -108,6 +117,11 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
             }
         }
 
+    }
+
+    @Override
+    public List<DOMAIN> saveAll(Iterable<DOMAIN> domain) {
+        return repository.saveAll(domain);
     }
 
     @Override

@@ -19,7 +19,8 @@ public class Resource {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-    private String path;
+    private String url;
+    private String method;
 
 //    @ManyToMany(cascade = {CascadeType.MERGE})
 //    @JoinTable(name = "t_role_resource",joinColumns = @JoinColumn(name = "resourceId"),

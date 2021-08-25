@@ -31,8 +31,9 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
         return null;
     }
 
+
     @Override
-    @Cacheable(cacheNames = {"AUTHORIZE"})
+    @Cacheable(cacheNames = {"AUTHORIZE_Resource"})
     public List<Resource> listAll() {
         return super.listAll();
     }
@@ -62,7 +63,7 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
     @Override
     public Map<String, Resource> listAllMap() {
         List<Resource> resources = resourceRepository.findAll();
-        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getPath);
+        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getUrl);
         return resourceMap;
     }
 }

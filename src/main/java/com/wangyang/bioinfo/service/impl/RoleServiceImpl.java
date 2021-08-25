@@ -11,8 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -64,9 +69,19 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
         return null;
     }
 
+    @Override
+    public Role findByEnName(String name){
+        List<Role> roles = roleRepository.findAll(new Specification<Role>() {
+            @Override
+            public Predicate toPredicate(Root<Role> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("enName"),name)).getRestriction();
+            }
+        });
+        return roles.size()==0?null:roles.get(0);
+    }
 
     @Override
-    @Cacheable(cacheNames = {"AUTHORIZE"})
+    @Cacheable(cacheNames = {"AUTHORIZE_ROLE"})
     public List<Role> listAll() {
         return super.listAll();
     }

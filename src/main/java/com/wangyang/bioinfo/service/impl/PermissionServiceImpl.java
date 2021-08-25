@@ -38,7 +38,7 @@ public class PermissionServiceImpl implements IPermissionService {
          * 查数据库的进行缓存
          */
         List<Resource> resources=  resourceService.listAll();
-        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getPath);
+        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getUrl);
         List<Role> roles = roleService.listAll();
         List<RoleResource>  roleResources = roleResourceService.listAll();
 

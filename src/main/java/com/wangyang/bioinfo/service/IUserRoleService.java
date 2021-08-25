@@ -6,4 +6,5 @@ import com.wangyang.bioinfo.service.base.ICrudService;
 
 public interface IUserRoleService  extends ICrudService<UserRole, Integer> {
 
+    UserRole findBy(Integer userId, Integer roleId);
 }

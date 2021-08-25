@@ -21,6 +21,8 @@ public interface IRoleService  extends ICrudService<Role, Integer> {
     Page<RoleDto> pageRole(Pageable pageable);
     Role updateRole(Role role);
 
+    Role findByEnName(String name);
+
 //    List<Role> listAll();
 
 }
