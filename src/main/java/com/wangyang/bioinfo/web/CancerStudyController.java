@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.*;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;

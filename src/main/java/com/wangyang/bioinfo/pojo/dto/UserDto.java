@@ -1,10 +1,6 @@
 package com.wangyang.bioinfo.pojo.dto;
 
-import com.wangyang.bioinfo.pojo.Role;
 import lombok.Data;
-
-import java.util.HashSet;
-import java.util.Set;
 
 /**
  * @author wangyang

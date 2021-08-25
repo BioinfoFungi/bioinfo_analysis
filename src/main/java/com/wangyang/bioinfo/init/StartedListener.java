@@ -2,8 +2,7 @@ package com.wangyang.bioinfo.init;
 
 import com.wangyang.bioinfo.pojo.Option;
 import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;

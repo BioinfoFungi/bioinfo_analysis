@@ -1,10 +1,15 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.UserDto;
 import com.wangyang.bioinfo.repository.UserRepository;
+import com.wangyang.bioinfo.service.IRoleResourceService;
+import com.wangyang.bioinfo.service.IRoleService;
+import com.wangyang.bioinfo.service.IUserRoleService;
 import com.wangyang.bioinfo.service.IUserService;
+import com.wangyang.bioinfo.service.base.BaseAuthorizeServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.ServiceUtil;
 import com.wangyang.bioinfo.util.UserException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +26,7 @@ import javax.persistence.criteria.Root;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -28,10 +34,16 @@ import java.util.stream.Collectors;
  * @date 2021/5/5
  */
 @Service
-public class UserServiceImpl implements IUserService {
+public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
+        implements IUserService {
 
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    IUserRoleService userRoleService;
+    @Autowired
+    IRoleService roleService;
 
     @Override
     public User addUser(User user) {
@@ -54,8 +66,9 @@ public class UserServiceImpl implements IUserService {
         return userRepository.findAllById(ids);
     }
 
+
     @Override
-    public List<UserDto> listAll() {
+    public List<UserDto> listAllUserDto() {
         List<UserDto> userDtos = userRepository.findAll().stream().map(user -> {
                     UserDto userDto = new UserDto();
                     BeanUtils.copyProperties(user,userDto);
@@ -91,7 +104,8 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public User login(String username,String password) {
+    public UserDetailDTO login(String username,String password) {
+        UserDetailDTO userDetailDTO = new UserDetailDTO();
         User user = findUserByUsername(username);
         if(user==null){
             throw new UserException("用户名不存在！");
@@ -99,7 +113,19 @@ public class UserServiceImpl implements IUserService {
         if(!user.getPassword().equals(password)){
             throw new UserException("用户名或密码错误！");
         }
-        return user;
+
+        List<Role> roles = roleService.listAll();
+        List<UserRole> userRoles = userRoleService.listAll();
+        userRoles = userRoles.stream()
+                .filter(userRole -> userRole.getUserId().equals(user.getId()))
+                .collect(Collectors.toList());
+        Set<Integer> roleIds = ServiceUtil.fetchProperty(userRoles, UserRole::getRoleId);
+        Set<Role> usrRoles = roles.stream()
+                .filter(role -> roleIds.contains(role.getId()))
+                .collect(Collectors.toSet());
+        userDetailDTO.setRoles(usrRoles);
+        BeanUtils.copyProperties(user,userDetailDTO);
+        return userDetailDTO;
     }
 
     @Override

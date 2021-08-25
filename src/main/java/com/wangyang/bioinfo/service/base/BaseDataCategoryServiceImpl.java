@@ -1,25 +1,20 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
-import com.wangyang.bioinfo.pojo.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.pojo.trem.*;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
-import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

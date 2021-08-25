@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.Attachment;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import org.springframework.beans.factory.annotation.Autowired;

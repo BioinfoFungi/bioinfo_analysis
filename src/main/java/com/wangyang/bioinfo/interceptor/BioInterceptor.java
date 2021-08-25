@@ -1,18 +1,21 @@
 package com.wangyang.bioinfo.interceptor;
 
-import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.util.AuthorizationException;
-import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.StringCacheStore;
-import com.wangyang.bioinfo.util.TokenProvider;
+import com.wangyang.bioinfo.pojo.authorize.ApiUserDetailDTO;
+import com.wangyang.bioinfo.pojo.authorize.Role;
+import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.authorize.UserDetailDTO;
+import com.wangyang.bioinfo.service.IPermissionService;
+import com.wangyang.bioinfo.util.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
 import org.springframework.util.StringUtils;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.Arrays;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -22,54 +25,55 @@ public class BioInterceptor implements HandlerInterceptor {
 
     @Autowired
     TokenProvider tokenProvider;
-
+    @Autowired
+    IPermissionService permissionService;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
-        if("OPTIONS".equals(request.getMethod().toString())) {
+        String uri = request.getRequestURI();
+
+        Set<Role> needsRoles = permissionService.findRolesByResource(uri);
+        Set<String> needRoleStr = ServiceUtil.fetchProperty(needsRoles, Role::getEnName);
+
+        if(needRoleStr.contains("anonymous")){
             return true;
         }
-        String uri = request.getRequestURI();
-        System.out.println("BioInterceptor: "+uri);
-//        if(uri.equals("/api/user/login")){
-//            return true;
-//        }
-        String authorization_sdk = request.getHeader("Authorization_SDK");
-        String authorize = request.getParameter("authorize");
 
-        if(authorization_sdk!=null || authorize!=null){
-            Optional<String> authorizationSdkDB = StringCacheStore.get("Authorization_SDK");
-            if(!authorizationSdkDB.isPresent()){
-                throw new BioinfoException("请在服务器配置Authorization_SDK Options");
+        String authorize=null;
+        String authorizationSdk = request.getHeader("authorizeSDK");
+        String authorizeParam = request.getParameter("authorize");
+        if(authorizationSdk!=null)authorize=authorizationSdk;
+        if(authorizeParam!=null)authorize=authorizeParam;
+
+        if(authorize!=null){
+            ApiUserDetailDTO apiUserDetailDTO = permissionService.findSDKRolesByResource(authorize);
+            for(Role needRole : needsRoles){
+                if(apiUserDetailDTO.getRoles().contains(needRole)){
+                    request.setAttribute("user",apiUserDetailDTO);
+                    return true;
+                }
             }
-            if(authorizationSdkDB.get().equals(authorization_sdk)){
-                User user = new User();
-                user.setId(-1);
-                user.setUsername("admin");
-                request.setAttribute("user",user);
-                return true;
-            }
-            if(authorizationSdkDB.get().equals(authorize)){
-                User user = new User();
-                user.setId(-1);
-                user.setUsername("admin");
+        }
+
+
+        String token = getToken(request, "Authorization");
+        if(token==null | tokenProvider.validateToken(token)){
+            throw new AuthorizationException("未授权！");
+        }
+
+        UserDetailDTO user = tokenProvider.getAuthentication(token);
+        for(Role needRole : needsRoles){
+            Set<Role> roles = user.getRoles();
+            Set<String> roleStr = ServiceUtil.fetchProperty(roles, Role::getEnName);
+            if(roleStr.contains(needRole.getEnName())) {
                 request.setAttribute("user",user);
                 return true;
             }
         }
-        if(uri.startsWith("/api")){
-            System.out.println("需要授权!");
-            String token = getToken(request, "Authorization");
-            if(token==null){
-                throw new AuthorizationException("未授权！");
-            }
-            if(!tokenProvider.validateToken(token)){
-                throw new AuthorizationException("未授权！");
-            }
-            User user = tokenProvider.getAuthentication(token);
-//            System.out.println(user);
-            request.setAttribute("user",user);
-        }
-        return true;
+
+
+        String authorities = needRoleStr.stream()
+                .collect(Collectors.joining(" | "));
+        throw new AuthorizationException("权限不足，当前路径请求角色："+authorities);
     }
 
     public static  String getToken(HttpServletRequest request,String tokenName){

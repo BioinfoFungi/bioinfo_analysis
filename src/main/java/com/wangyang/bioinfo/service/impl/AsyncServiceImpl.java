@@ -2,30 +2,22 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.alibaba.fastjson.JSONObject;
 import com.github.rcaller.FunctionCall;
-import com.github.rcaller.FunctionParameter;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
 import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.dto.TaskProcess;
-import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.BeanUtil;
 import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
@@ -33,7 +25,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 
 import java.io.*;
-import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
@@ -41,8 +32,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.stream.Collectors;
 
 @Service
 @Slf4j

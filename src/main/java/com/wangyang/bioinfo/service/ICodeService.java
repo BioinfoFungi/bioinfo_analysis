@@ -1,21 +1,14 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.dto.CodeMsg;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.service.base.IBaseDataCategoryService;
-import com.wangyang.bioinfo.service.base.IBaseFileService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.scheduling.annotation.Async;
-import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author wangyang

@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.ITaskService;

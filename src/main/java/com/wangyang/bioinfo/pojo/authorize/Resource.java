@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -21,8 +21,8 @@ public class Resource {
     private String name;
     private String path;
 
-    @ManyToMany(cascade = {CascadeType.MERGE})
-    @JoinTable(name = "t_role_resource",joinColumns = @JoinColumn(name = "resourceId"),
-    inverseJoinColumns = @JoinColumn(name = "roleId"))
-    private Set<Role> roles = new HashSet<>();
+//    @ManyToMany(cascade = {CascadeType.MERGE})
+//    @JoinTable(name = "t_role_resource",joinColumns = @JoinColumn(name = "resourceId"),
+//    inverseJoinColumns = @JoinColumn(name = "roleId"))
+//    private Set<Role> roles = new HashSet<>();
 }

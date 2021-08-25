@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.Project;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.ProjectContentParam;
 import com.wangyang.bioinfo.pojo.param.ProjectParam;
 import com.wangyang.bioinfo.pojo.param.ProjectQuery;
@@ -9,18 +9,13 @@ import com.wangyang.bioinfo.pojo.param.ProjectSDK;
 import com.wangyang.bioinfo.pojo.vo.ProjectListVo;
 import com.wangyang.bioinfo.pojo.vo.ProjectVo;
 import com.wangyang.bioinfo.service.IProjectService;
-import com.wangyang.bioinfo.service.IUserService;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;

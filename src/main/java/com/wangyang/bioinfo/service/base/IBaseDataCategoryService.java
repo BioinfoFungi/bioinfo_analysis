@@ -1,12 +1,9 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.dto.term.TermMappingDTO;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 

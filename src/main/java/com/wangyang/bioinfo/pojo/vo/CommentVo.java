@@ -1,11 +1,8 @@
 package com.wangyang.bioinfo.pojo.vo;
 
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import lombok.Data;
 
-import javax.persistence.Column;
-import javax.persistence.Temporal;
-import javax.persistence.TemporalType;
 import java.util.Date;
 
 /**

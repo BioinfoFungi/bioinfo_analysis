@@ -1,27 +1,33 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.Role;
+import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
 import com.wangyang.bioinfo.repository.RoleRepository;
 import com.wangyang.bioinfo.service.IRoleService;
+import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * @author wangyang
  * @date 2021/5/5
  */
 @Service
-public class RoleServiceImpl implements IRoleService {
+public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
+            implements IRoleService {
 
     @Autowired
     RoleRepository roleRepository;
+
 
     @Override
     public Role addRole(Role role) {
@@ -56,5 +62,12 @@ public class RoleServiceImpl implements IRoleService {
     @Override
     public Role updateRole(Role role) {
         return null;
+    }
+
+
+    @Override
+    @Cacheable(cacheNames = {"AUTHORIZE"})
+    public List<Role> listAll() {
+        return super.listAll();
     }
 }

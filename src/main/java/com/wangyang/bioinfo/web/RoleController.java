@@ -1,6 +1,5 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.Role;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
 import com.wangyang.bioinfo.service.IRoleService;
 import org.springframework.beans.factory.annotation.Autowired;

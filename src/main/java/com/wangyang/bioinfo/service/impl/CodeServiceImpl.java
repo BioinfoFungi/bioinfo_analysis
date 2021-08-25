@@ -1,14 +1,12 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
-import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CodeRepository;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.ICodeService;

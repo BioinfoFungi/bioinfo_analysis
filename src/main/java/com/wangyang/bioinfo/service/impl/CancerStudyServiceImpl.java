@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;

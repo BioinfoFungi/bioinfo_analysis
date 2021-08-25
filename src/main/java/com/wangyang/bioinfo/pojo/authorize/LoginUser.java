@@ -1,6 +1,8 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Data;
+
+import java.util.Set;
 
 /**
  * @author wangyang

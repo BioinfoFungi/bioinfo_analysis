@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.service.IDataOriginService;

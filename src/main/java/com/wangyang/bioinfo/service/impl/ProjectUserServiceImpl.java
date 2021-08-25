@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.ProjectUser;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.repository.ProjectUserRepository;
 import com.wangyang.bioinfo.service.IProjectUserService;
 import com.wangyang.bioinfo.util.BioinfoException;

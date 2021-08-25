@@ -1,11 +1,9 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Comment;
 import com.wangyang.bioinfo.pojo.ProjectUser;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
 
 /**

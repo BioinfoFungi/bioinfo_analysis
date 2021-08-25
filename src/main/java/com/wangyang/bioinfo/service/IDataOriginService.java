@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
 import org.springframework.data.domain.Page;

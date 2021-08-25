@@ -1,7 +1,6 @@
 package com.wangyang.bioinfo.pojo.param;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.wangyang.bioinfo.pojo.User;
 import com.wangyang.bioinfo.pojo.enums.ProjectStatus;
 import lombok.Data;
 

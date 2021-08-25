@@ -1,19 +1,20 @@
 package com.wangyang.bioinfo.util;
 
-import com.wangyang.bioinfo.pojo.User;
+import com.wangyang.bioinfo.pojo.authorize.Role;
+import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.authorize.UserDetailDTO;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.InitializingBean;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Date;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
@@ -25,7 +26,7 @@ import java.util.stream.Collectors;
 public class TokenProvider implements InitializingBean {
 
     private final String base64Secret;
-
+    public final String AUTHORITIES_KEY="auth";
     public TokenProvider(@Value("${jwt.base64-secret}") String base64Secret) {
         this.base64Secret = base64Secret;
     }
@@ -39,8 +40,10 @@ public class TokenProvider implements InitializingBean {
 
 
 
-    public Token generateToken(User user) {
-
+    public Token generateToken(UserDetailDTO user) {
+        String authorities = user.getRoles().stream()
+                .map(Role::getEnName)
+                .collect(Collectors.joining(","));
 
         long now = (new Date()).getTime();
         Date validity = new Date(now + 24*60*60*1000);;
@@ -49,6 +52,7 @@ public class TokenProvider implements InitializingBean {
         String token = Jwts.builder()
                 .setSubject(user.getUsername())
                 .claim("ID", user.getId())
+                .claim(AUTHORITIES_KEY, authorities)
                 .signWith(key, SignatureAlgorithm.HS512)
                 .setExpiration(validity)
                 .compact();
@@ -73,16 +77,23 @@ public class TokenProvider implements InitializingBean {
         }
         return false;
     }
-    public User getAuthentication(String token) {
+    public UserDetailDTO getAuthentication(String token) {
         Claims claims = Jwts.parser()
                 .setSigningKey(key)
                 .parseClaimsJws(token)
                 .getBody();
+        Set<Role> roles = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
+                .map(name -> {
+                    Role role = new Role();
+                    return role;
+                }).collect(Collectors.toSet());
+
         int id = (Integer)claims.get("ID");
         String subject = claims.getSubject();
-        User user=new User();
+        UserDetailDTO user=new UserDetailDTO();
         user.setId(id);
+        user.setRoles(roles);
         user.setUsername(subject);
-        return user;
+        return null;
     }
 }

@@ -1,7 +1,6 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.User;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.file.TermMapping;

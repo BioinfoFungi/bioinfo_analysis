@@ -1,7 +1,8 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.authorize;
 
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import javax.persistence.*;
@@ -13,16 +14,13 @@ import java.util.Set;
  * @date 2021/5/3
  */
 
-@Entity(name = "t_user")
-@Getter
-@Setter
-public class User {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+@Entity
+@DiscriminatorValue(value = "0")
+@Data
+public class User extends BaseAuthorize{
     private String username;
-    private String password;
     private String avatar;
+    private String password;
     private String email;
     private Integer gender;
 
