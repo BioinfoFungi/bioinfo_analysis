@@ -1,8 +1,10 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.Resource;
+import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.repository.ResourceRepository;
 import com.wangyang.bioinfo.service.IResourceService;
+import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.hibernate.annotations.Cache;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * @author wangyang
@@ -25,6 +28,8 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
 
     @Autowired
     ResourceRepository resourceRepository;
+    @Autowired
+    IRoleResourceService roleResourceService;
 
     @Override
     public Resource addResource(Resource resource) {
@@ -65,5 +70,18 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
         List<Resource> resources = resourceRepository.findAll();
         Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getUrl);
         return resourceMap;
+    }
+
+    public List<Resource> findByIds(Iterable<Integer> ids){
+        List<Resource> resources = resourceRepository.findAllById(ids);
+        return resources;
+    }
+
+    @Override
+    public List<Resource> findByRoleId(Integer id) {
+        List<RoleResource> roleResources = roleResourceService.findByRoleId(id);
+        Set<Integer> resourceIds = ServiceUtil.fetchProperty(roleResources, RoleResource::getResourceId);
+        List<Resource> resources = findByIds(resourceIds);
+        return resources;
     }
 }

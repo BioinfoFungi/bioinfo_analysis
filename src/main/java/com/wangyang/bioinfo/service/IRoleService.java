@@ -23,6 +23,8 @@ public interface IRoleService  extends ICrudService<Role, Integer> {
 
     Role findByEnName(String name);
 
+    List<Role> findByUserId(Integer id);
+
 //    List<Role> listAll();
 
 }

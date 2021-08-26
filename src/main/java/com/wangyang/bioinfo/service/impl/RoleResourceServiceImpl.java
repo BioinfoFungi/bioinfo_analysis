@@ -54,4 +54,18 @@ public class RoleResourceServiceImpl extends AbstractCrudService<RoleResource,In
         });
         return userRoles.size()==0?null:userRoles.get(0);
     }
+
+    @Override
+    public List<RoleResource> findByRoleId(int roleId){
+        List<RoleResource> roleResources = resourceRepository.findAll(new Specification<RoleResource>() {
+            @Override
+            public Predicate toPredicate(Root<RoleResource> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(
+                        criteriaBuilder.equal(root.get("roleId"),roleId)
+                ).getRestriction();
+            }
+        });
+        return roleResources;
+
+    }
 }

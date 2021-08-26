@@ -1,5 +1,7 @@
 package com.wangyang.bioinfo.service.base;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 
 import javax.servlet.http.HttpServletResponse;
@@ -18,6 +20,8 @@ public interface ICrudService<DOMAIN, ID> {
 
     void deleteAll();
 
+
+    Page<DOMAIN> pageBy(Pageable pageable);
 
     void deleteAll(Iterable<DOMAIN> domains);
 

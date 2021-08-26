@@ -9,4 +9,6 @@ import java.util.List;
 public interface IRoleResourceService  extends ICrudService<RoleResource, Integer> {
 
     RoleResource findBy(Integer resourceId, Integer roleId);
+
+    List<RoleResource> findByRoleId(int roleId);
 }

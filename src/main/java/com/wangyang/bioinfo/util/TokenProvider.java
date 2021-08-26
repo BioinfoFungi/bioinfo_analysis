@@ -85,6 +85,7 @@ public class TokenProvider implements InitializingBean {
         Set<Role> roles = Arrays.stream(claims.get(AUTHORITIES_KEY).toString().split(","))
                 .map(name -> {
                     Role role = new Role();
+                    role.setEnName(name);
                     return role;
                 }).collect(Collectors.toSet());
 
@@ -94,6 +95,6 @@ public class TokenProvider implements InitializingBean {
         user.setId(id);
         user.setRoles(roles);
         user.setUsername(subject);
-        return null;
+        return user;
     }
 }

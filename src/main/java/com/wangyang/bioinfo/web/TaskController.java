@@ -9,10 +9,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.lang.NonNull;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 
@@ -59,6 +57,13 @@ public class TaskController {
     public Page<Task> page(TaskQuery taskQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
         return taskService.page(taskQuery,pageable);
     }
+
+    @GetMapping("/log")
+    public  String getLogFiles(@RequestParam Integer taskId, @RequestParam(defaultValue = "20") Integer lines) {
+        String logFiles = taskService.getLogFiles(taskId, lines);
+        return logFiles;
+    }
+
     @GetMapping("/del/{id}")
     public Task del(@PathVariable("id") Integer id){
         return  taskService.delBy(id);

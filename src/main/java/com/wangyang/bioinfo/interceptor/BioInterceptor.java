@@ -29,6 +29,9 @@ public class BioInterceptor implements HandlerInterceptor {
     IPermissionService permissionService;
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
+        if("OPTIONS".equals(request.getMethod().toString())) {
+            return true;
+        }
         String uri = request.getRequestURI();
 
         Set<Role> needsRoles = permissionService.findRolesByResource(uri);
@@ -58,7 +61,7 @@ public class BioInterceptor implements HandlerInterceptor {
 
 
         String token = getToken(request, "Authorization");
-        if(token==null | tokenProvider.validateToken(token)){
+        if(token==null | !tokenProvider.validateToken(token)){
             throw new AuthorizationException("未授权！");
         }
 

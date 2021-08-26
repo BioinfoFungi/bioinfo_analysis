@@ -96,6 +96,7 @@ public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
     public Page<User> pageUser(Pageable pageable) {
         return userRepository.findAll(pageable).map(user -> {
           User user1 = new User();
+            user1.setId(user.getId());
 //          user1.setRoles(user.getRoles());
             user1.setUsername(user.getUsername());
 //          BeanUtils.copyProperties(user,user1);

@@ -11,6 +11,8 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.Cache;
 import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
 
 import javax.servlet.ServletOutputStream;
@@ -84,6 +86,11 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
     @Override
     public void deleteAll(){
         repository.deleteAll();
+    }
+
+    @Override
+    public Page<DOMAIN> pageBy(Pageable pageable){
+        return repository.findAll(pageable);
     }
 
     @Override

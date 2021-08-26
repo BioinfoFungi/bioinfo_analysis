@@ -5,10 +5,8 @@ import com.google.common.collect.Maps;
 import com.wangyang.bioinfo.pojo.Option;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.annotation.Authorize;
-import com.wangyang.bioinfo.pojo.authorize.Resource;
-import com.wangyang.bioinfo.pojo.authorize.Role;
-import com.wangyang.bioinfo.pojo.authorize.RoleResource;
-import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.authorize.*;
+import com.wangyang.bioinfo.pojo.dto.RoleUrl;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import com.wangyang.bioinfo.util.StringCacheStore;
@@ -75,6 +73,14 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             StringCacheStore.setValue(option.getKey_(),option.getValue_());
         });
         StringCacheStore.setValue("workDir",workDir);
+
+        Role role = roleService.findByEnName("ADMIN");
+        if(role==null){
+            role = new Role();
+            role.setName("ADMIN");
+            role.setEnName("ADMIN");
+            role = roleService.save(role);
+        }
         User user = userService.findUserByUsername("admin");
         if(user==null){
             user = new User();
@@ -82,13 +88,8 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             user.setGender(0);
             user.setPassword("123456");
             userService.addUser(user);
-        }
-        Role role = roleService.findByEnName("ADMIN");
-        if(role==null){
-            role = new Role();
-            role.setName("ADMIN");
-            role.setEnName("ADMIN");
-            roleService.save(role);
+            UserRole userRole = new UserRole(user.getId(),role.getId());
+            userRoleService.save(userRole);
         }
         addQueue();
         initResource();
@@ -115,7 +116,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
         RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping",RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> methodMap = mapping.getHandlerMethods();
         List<Resource> resources = new ArrayList<>();
-        Map<String,String> roleResourceName = new HashMap<>();
+        List<RoleUrl> roleResourceName = new ArrayList<>();
         for (RequestMappingInfo info : methodMap.keySet()){
             Resource resource = new Resource();
             HandlerMethod handlerMethod = methodMap.get(info);
@@ -127,7 +128,8 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             if(method.isAnnotationPresent(Authorize.class)){
                 Authorize authorize = method.getAnnotation(Authorize.class);
                 String roleName = authorize.role();
-                roleResourceName.put(roleName,url);
+                RoleUrl roleUrl = new RoleUrl(roleName,url);
+                roleResourceName.add(roleUrl);
             }
             resources.add(resource);
         }
@@ -138,25 +140,24 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
         MapDifference<String, Resource> difference = Maps.difference(systemResource, convertToMap2);
         Map<String, Resource> onlyOnLeft = difference.entriesOnlyOnLeft();
         List<Resource> addResource = onlyOnLeft.values().stream().collect(Collectors.toList());
+        resourceService.saveAll(addResource);
         Map<String, Resource> onlyOnRight = difference.entriesOnlyOnRight();
         List<Resource> removeResource = onlyOnRight.values().stream().collect(Collectors.toList());
         resourceService.deleteAll(removeResource);
 
         List<Role> roles = roleService.listAll();
-
         Map<String, Role> roleMap = ServiceUtil.convertToMap(roles, Role::getEnName);
-        List<Resource> resourceALL = systemResource.values().stream().collect(Collectors.toList());
+        List<Resource> resourceALL = resourceService.listAll();
         Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resourceALL, Resource::getUrl);
 
-        roleResourceName.forEach((key,value)->{
+        roleResourceName.forEach(roleUrl->{
             RoleResource roleResource = new RoleResource();
-            Role role = roleMap.get(key);
-            Resource resource = resourceMap.get(value);
+            Role role = roleMap.get(roleUrl.getRole());
+            Resource resource = resourceMap.get(roleUrl.getUrl());
             roleResource.setRoleId(role.getId());
             roleResource.setResourceId(resource.getId());
             roleResourceService.save(roleResource);
         });
 
-        resourceService.saveAll(addResource);
     }
 }

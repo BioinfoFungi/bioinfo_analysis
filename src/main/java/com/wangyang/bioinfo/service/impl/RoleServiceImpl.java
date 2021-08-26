@@ -1,11 +1,16 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.pojo.authorize.Resource;
 import com.wangyang.bioinfo.pojo.authorize.Role;
+import com.wangyang.bioinfo.pojo.authorize.RoleResource;
+import com.wangyang.bioinfo.pojo.authorize.UserRole;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
 import com.wangyang.bioinfo.repository.RoleRepository;
 import com.wangyang.bioinfo.service.IRoleService;
+import com.wangyang.bioinfo.service.IUserRoleService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -32,6 +37,8 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
 
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    IUserRoleService userRoleService;
 
 
     @Override
@@ -84,5 +91,20 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
     @Cacheable(cacheNames = {"AUTHORIZE_ROLE"})
     public List<Role> listAll() {
         return super.listAll();
+    }
+
+
+    public List<Role> findByIds(Iterable<Integer> ids){
+        List<Role> roles = roleRepository.findAllById(ids);
+        return roles;
+    }
+
+
+    @Override
+    public List<Role> findByUserId(Integer id) {
+        List<UserRole> userRoles = userRoleService.findByUserId(id);
+        Set<Integer> resourceIds = ServiceUtil.fetchProperty(userRoles, UserRole::getRoleId);
+        List<Role> roles = findByIds(resourceIds);
+        return roles;
     }
 }

@@ -229,7 +229,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     }
 
     @Override
-    public String getLogFiles(@NonNull Integer taskId,@NonNull  Long lines){
+    public String getLogFiles(@NonNull Integer taskId,@NonNull  Integer lines){
         File file = new File(StringCacheStore.getValue("workDir"),"log/"+taskId+".log");
         if(!file.exists()){
             return "文件不存在！";
@@ -278,7 +278,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         }
 
         Collections.reverse(linesArray);
-        return null;
+        linesArray.forEach(line -> result.append(line).append("\n"));
+        return result.toString();
     }
 
 

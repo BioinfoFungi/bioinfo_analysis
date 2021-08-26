@@ -3,7 +3,7 @@ package com.wangyang.bioinfo.web;
 import com.wangyang.bioinfo.pojo.authorize.Resource;
 import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
-import com.wangyang.bioinfo.service.IRoleService;
+import com.wangyang.bioinfo.service.IResourceService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,27 +17,21 @@ import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
-/**
- * @author wangyang
- * @date 2021/5/5
- */
 @RestController
-@RequestMapping("/api/role")
-public class RoleController {
-
+@RequestMapping("/api/resource")
+public class ResourceController {
     @Autowired
-    IRoleService roleService;
+    IResourceService resourceService;
     @GetMapping
-    public Page<Role> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
-        return roleService.pageBy(pageable);
+    public Page<Resource> page(@PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
+        return resourceService.pageBy(pageable);
     }
     @GetMapping("/listAll")
-    public List<Role> listRole(){
-        return roleService.listAll();
+    public List<Resource> listResource(){
+        return resourceService.listAll();
     }
-
     @GetMapping("/findByRoleId/{id}")
-    public List<Role> findByUserId(@PathVariable("id") Integer id){
-        return  roleService.findByUserId(id);
+    public List<Resource> findByRoleId(@PathVariable("id") Integer id){
+        return  resourceService.findByRoleId(id);
     }
 }

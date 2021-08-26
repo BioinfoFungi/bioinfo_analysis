@@ -40,7 +40,7 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
 //
 //    Task runCancerStudyTask(int id);
 
-    String getLogFiles(@NonNull Integer taskId, @NonNull Long lines);
+    String getLogFiles(@NonNull Integer taskId, @NonNull Integer lines);
 
     List<Task> listPending();
 

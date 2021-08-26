@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Data;
+import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,4 +16,12 @@ public class UserRole {
     private int id;
     private Integer userId;
     private Integer roleId;
+
+    public UserRole(){}
+
+
+    public UserRole(Integer userId, Integer roleId) {
+        this.userId = userId;
+        this.roleId = roleId;
+    }
 }
