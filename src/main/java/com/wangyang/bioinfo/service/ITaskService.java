@@ -7,6 +7,7 @@ import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.base.ICrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 
 import java.util.List;
 
@@ -38,6 +39,8 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
 //    Task addTask(Integer id, Integer cancerStudyId);
 //
 //    Task runCancerStudyTask(int id);
+
+    String getLogFiles(@NonNull Integer taskId, @NonNull Long lines);
 
     List<Task> listPending();
 

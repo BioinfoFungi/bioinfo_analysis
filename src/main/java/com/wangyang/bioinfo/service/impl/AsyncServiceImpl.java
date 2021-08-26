@@ -214,6 +214,7 @@ public class AsyncServiceImpl implements IAsyncService {
     private CodeMsg processBuilder(Task task,Code code, Map<String,Object> maps){
         CodeMsg codeMsg = new CodeMsg();
         File  tempFile=null;
+        FileOutputStream outputStream =null;
         try {
             String workDir = StringCacheStore.getValue("workDir");
             Path path = Paths.get(workDir, "data");
@@ -254,10 +255,16 @@ public class AsyncServiceImpl implements IAsyncService {
             StringBuilder result = new StringBuilder();
             Map<String,String> resultMap = new HashMap<>();
 
+            Path logPath = Paths.get(workDir, "log",task.getId()+".log");
+            Files.createDirectories(logPath.getParent());
+            if(!logPath.toFile().exists()){
+                Files.createFile(logPath);
+            }
+            outputStream = new FileOutputStream(logPath.toFile());
+
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
                 String line;
                 while ((line = reader.readLine()) != null) {
-
                     if(line.startsWith("$")) {
                         String[] strings = line.split(":");
                         String key = strings[0].substring(1);
@@ -267,8 +274,8 @@ public class AsyncServiceImpl implements IAsyncService {
                     if(!line.startsWith("Downloading")){
                         result.append(line);
                     }
-                    log.info(line);
-
+                    outputStream.write((Thread.currentThread().getName()+": "+line+"\n").getBytes());
+                    log.debug(line);
                 }
             }
             process.waitFor();
@@ -292,8 +299,6 @@ public class AsyncServiceImpl implements IAsyncService {
                     }
                 }
             }
-
-
 
             int exit = process.exitValue();
             if (exit != 0) {
@@ -325,6 +330,13 @@ public class AsyncServiceImpl implements IAsyncService {
                     taskProcess.getProcess().destroy();
                 }
                 processMap.remove(task.getId());
+            }
+            if(outputStream!=null){
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
         }
 

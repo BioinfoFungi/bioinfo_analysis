@@ -10,7 +10,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 
 @Data
-@Entity(name = "t_role_resource")
+@Entity(name = "t_role_resources")
 public class RoleResource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

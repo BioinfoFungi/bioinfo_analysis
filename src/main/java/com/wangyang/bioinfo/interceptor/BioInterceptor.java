@@ -35,6 +35,8 @@ public class BioInterceptor implements HandlerInterceptor {
         Set<String> needRoleStr = ServiceUtil.fetchProperty(needsRoles, Role::getEnName);
 
         if(needRoleStr.contains("anonymous")){
+            User user = new User(-1);
+            request.setAttribute("user",user);
             return true;
         }
 
@@ -60,12 +62,12 @@ public class BioInterceptor implements HandlerInterceptor {
             throw new AuthorizationException("未授权！");
         }
 
-        UserDetailDTO user = tokenProvider.getAuthentication(token);
+        UserDetailDTO userDetailDTO = tokenProvider.getAuthentication(token);
         for(Role needRole : needsRoles){
-            Set<Role> roles = user.getRoles();
+            Set<Role> roles = userDetailDTO.getRoles();
             Set<String> roleStr = ServiceUtil.fetchProperty(roles, Role::getEnName);
             if(roleStr.contains(needRole.getEnName())) {
-                request.setAttribute("user",user);
+                request.setAttribute("user",userDetailDTO);
                 return true;
             }
         }

@@ -15,11 +15,14 @@ import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToCollection;
+import com.wangyang.bioinfo.util.StringCacheStore;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.lang.NonNull;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +30,10 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.nio.charset.StandardCharsets;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -220,6 +227,60 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         asyncService.processCancerStudy1(task,code,cancerStudy,cancerStudyProcess,map);
         return task;
     }
+
+    @Override
+    public String getLogFiles(@NonNull Integer taskId,@NonNull  Long lines){
+        File file = new File(StringCacheStore.getValue("workDir"),"log/"+taskId+".log");
+        if(!file.exists()){
+            return "文件不存在！";
+        }
+        List<String> linesArray = new ArrayList<>();
+        final StringBuilder result = new StringBuilder();
+        long count = 0;
+        RandomAccessFile randomAccessFile = null;
+        try {
+            randomAccessFile = new RandomAccessFile(file, "r");
+            long length = randomAccessFile.length();
+            if (length == 0L) {
+                return StringUtils.EMPTY;
+            } else {
+                long pos = length - 1;
+                while (pos > 0) {
+                    pos--;
+                    randomAccessFile.seek(pos);
+                    if (randomAccessFile.readByte() == '\n') {
+                        String line = randomAccessFile.readLine();
+                        linesArray.add(new String(line.getBytes(StandardCharsets.ISO_8859_1),
+                                StandardCharsets.UTF_8));
+                        count++;
+                        if (count == lines) {
+                            break;
+                        }
+                    }
+                }
+                if (pos == 0) {
+                    randomAccessFile.seek(0);
+                    linesArray.add(new String(
+                            randomAccessFile.readLine().getBytes(StandardCharsets.ISO_8859_1),
+                            StandardCharsets.UTF_8));
+                }
+            }
+        } catch (Exception e) {
+            throw new BioinfoException("读取日志失败");
+        } finally {
+            if (randomAccessFile != null) {
+                try {
+                    randomAccessFile.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+        Collections.reverse(linesArray);
+        return null;
+    }
+
 
 
     //    @Override

@@ -24,6 +24,12 @@ public class User extends BaseAuthorize{
     private String email;
     private Integer gender;
 
+    public User(int id){
+        this.id = id;
+    }
+    public User(){
+
+    }
 
     //    @ManyToMany(cascade = {CascadeType.MERGE},fetch = FetchType.LAZY)
 //    @JoinTable(name = "t_user_role",joinColumns = @JoinColumn(name = "userId"),

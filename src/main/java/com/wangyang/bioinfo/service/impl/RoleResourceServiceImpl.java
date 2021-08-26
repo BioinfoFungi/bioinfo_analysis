@@ -35,7 +35,7 @@ public class RoleResourceServiceImpl extends AbstractCrudService<RoleResource,In
     @Override
     public RoleResource save(RoleResource roleResource) {
         RoleResource resource = findBy(roleResource.getResourceId(), roleResource.getRoleId());
-        if(resource!=null){
+        if(resource==null){
             resource = super.save(roleResource);
         }
         return resource;

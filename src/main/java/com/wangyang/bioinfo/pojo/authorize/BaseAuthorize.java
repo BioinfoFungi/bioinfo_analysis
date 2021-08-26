@@ -12,7 +12,7 @@ public class BaseAuthorize {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Parsed
-    private int id;
+    protected int id;
     private String username;
     private String avatar;
 }

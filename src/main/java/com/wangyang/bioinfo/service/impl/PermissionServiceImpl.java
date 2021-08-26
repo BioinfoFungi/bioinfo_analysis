@@ -56,6 +56,9 @@ public class PermissionServiceImpl implements IPermissionService {
         needRoles = roles.stream()
                 .filter(role -> roleIds.contains(role.getId()))
                 .collect(Collectors.toSet());
+        if(needRoles.size()==0){
+            needRoles.add(new Role("anonymous"));
+        }
         return needRoles;
     }
 
