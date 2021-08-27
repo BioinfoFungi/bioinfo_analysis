@@ -8,10 +8,23 @@ spring:
   jpa:
     hibernate.ddl-auto: update
     show-sql: true
-    open-in-view: false
+    open-in-view: false # 在controller层就打开EntityManager
     properties:
       hibernate:
-        enable_lazy_load_no_trans: true
+#        format_sql: true
+#        generate_statistics: true # 将hibernate的统计打开来看看到底是不是被缓存了
+        enable_lazy_load_no_trans: true # 在没有事务的情况下允许懒加载
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
+#    javax:
+#      persistence:
+#        sharedCache:
+#          mode: ALL
+
+
 
   servlet:
     multipart:
@@ -69,3 +82,9 @@ server:
 
 http:
   port: 8080
+
+logging:
+  level:
+    org:
+      hibernate:
+#        type: trace

@@ -3,7 +3,6 @@ package com.wangyang.bioinfo.task;
 import com.wangyang.bioinfo.task.manage1.PrintTask;
 import com.wangyang.bioinfo.task.manage1.Priority;
 import com.wangyang.bioinfo.task.manage1.TaskQueue;
-import org.junit.jupiter.api.Test;
 
 /**
  * @author wangyang

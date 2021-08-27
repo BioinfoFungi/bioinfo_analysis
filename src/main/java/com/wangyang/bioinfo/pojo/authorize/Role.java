@@ -1,12 +1,14 @@
 package com.wangyang.bioinfo.pojo.authorize;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
-import java.util.HashSet;
-import java.util.Set;
+import org.hibernate.annotations.Cache;
+import javax.persistence.Cacheable;
 
 /**
  * @author wangyang
@@ -15,8 +17,9 @@ import java.util.Set;
 
 
 @Entity(name = "t_role")
-@Getter
-@Setter
+@Data
+@Cacheable(true)
+@Cache(usage = CacheConcurrencyStrategy.READ_WRITE) //Provide cache strategy.
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

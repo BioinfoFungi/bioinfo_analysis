@@ -17,6 +17,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
 
 import java.io.File;
@@ -25,6 +26,7 @@ import java.io.IOException;
 @SpringBootApplication
 @EnableAsync
 @EnableCaching
+//@EnableTransactionManagement
 //@EnableSwagger2
 //@ComponentScan("com.wangyang.bioinfo.a")
 public class BioinfoApplication {

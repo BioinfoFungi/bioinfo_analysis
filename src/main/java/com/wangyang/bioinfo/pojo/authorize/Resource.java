@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -14,6 +15,8 @@ import java.util.Set;
 @Entity(name = "t_resource")
 @Getter
 @Setter
+@Cacheable(true)
+@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE) //Provide cache strategy.
 public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

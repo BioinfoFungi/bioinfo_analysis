@@ -17,12 +17,17 @@ import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.EntityManager;
+import javax.persistence.QueryHint;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -32,6 +37,7 @@ import java.util.Set;
  * @date 2021/5/5
  */
 @Service
+//@Transactional
 public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
             implements IRoleService {
 
@@ -40,6 +46,8 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
     @Autowired
     IUserRoleService userRoleService;
 
+    @Autowired
+    EntityManager entityManager;
 
     @Override
     public Role addRole(Role role) {
@@ -78,6 +86,14 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
 
     @Override
     public Role findByEnName(String name){
+//        Role role = entityManager.find(Role.class, 1);
+//        Role role2 = entityManager.find(Role.class, 1);
+//        roleRepository.findAll();
+//        roleRepository.findAll();
+//        roleRepository.findById(1);
+//        roleRepository.findById(1);
+//        roleRepository.findAllById(Arrays.asList(1));
+//        roleRepository.findAllById(Arrays.asList(1));
         List<Role> roles = roleRepository.findAll(new Specification<Role>() {
             @Override
             public Predicate toPredicate(Root<Role> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
@@ -88,7 +104,6 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
     }
 
     @Override
-    @Cacheable(cacheNames = {"AUTHORIZE_ROLE"})
     public List<Role> listAll() {
         return super.listAll();
     }

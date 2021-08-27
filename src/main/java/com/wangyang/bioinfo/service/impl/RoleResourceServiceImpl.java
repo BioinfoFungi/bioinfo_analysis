@@ -26,7 +26,6 @@ public class RoleResourceServiceImpl extends AbstractCrudService<RoleResource,In
     RoleResourceRepository resourceRepository;
 
     @Override
-    @Cacheable(cacheNames = {"AUTHORIZE_ROLE_RESOURCE"})
     public List<RoleResource> listAll() {
         return super.listAll();
     }

@@ -75,6 +75,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
         StringCacheStore.setValue("workDir",workDir);
 
         Role role = roleService.findByEnName("ADMIN");
+
         if(role==null){
             role = new Role();
             role.setName("ADMIN");
@@ -134,6 +135,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             resources.add(resource);
         }
         List<Resource> existResource = resourceService.listAll();
+
         Map<String, Resource> systemResource = ServiceUtil.convertToMap(resources, Resource::getUrl);
         Map<String, Resource> convertToMap2 = ServiceUtil.convertToMap(existResource, Resource::getUrl);
 
@@ -156,7 +158,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             Resource resource = resourceMap.get(roleUrl.getUrl());
             roleResource.setRoleId(role.getId());
             roleResource.setResourceId(resource.getId());
-            roleResourceService.save(roleResource);
+//            roleResourceService.save(roleResource);
         });
 
     }

@@ -27,7 +27,6 @@ public class UserRoleServiceImpl extends AbstractCrudService<UserRole,Integer>
     UserRoleRepository  userRoleRepository;
 
     @Override
-    @Cacheable(cacheNames = {"AUTHORIZE_USR_ROLE"})
     public List<UserRole> listAll() {
 
         return super.listAll();

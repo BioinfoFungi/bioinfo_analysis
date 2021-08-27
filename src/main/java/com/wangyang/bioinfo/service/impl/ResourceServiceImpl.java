@@ -38,7 +38,6 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
 
 
     @Override
-    @Cacheable(cacheNames = {"AUTHORIZE_Resource"})
     public List<Resource> listAll() {
         return super.listAll();
     }

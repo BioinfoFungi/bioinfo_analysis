@@ -31,8 +31,8 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
     private final String domainName;
     @Autowired
     BaseRepository<DOMAIN, ID> repository;
-    @Autowired
-    ConcurrentMapCacheManager concurrentMapCacheManager;
+//    @Autowired
+//    ConcurrentMapCacheManager concurrentMapCacheManager;
     public AbstractCrudService(){
         Class<DOMAIN> domainClass = (Class<DOMAIN>) fetchType(0);
         domainName = domainClass.getSimpleName();
@@ -198,8 +198,8 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
 
     @Override
     public List<DOMAIN> initData(String filePath){
-        Cache cache = concurrentMapCacheManager.getCache("TERM");
-        cache.clear();
+//        Cache cache = concurrentMapCacheManager.getCache("TERM");
+//        cache.clear();
         repository.deleteAll();
         List<DOMAIN> beans = tsvToBean(filePath);
         if(beans==null){
