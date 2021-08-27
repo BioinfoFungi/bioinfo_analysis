@@ -16,14 +16,14 @@ import java.util.List;
 
 public interface RoleResourceRepository extends BaseRepository<RoleResource,Integer>,
         JpaSpecificationExecutor<RoleResource> {
-//    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-//    List<RoleResource> findAll();
-//    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-//    List<RoleResource> findAllById(Iterable<Integer> var1);
-//    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-//    List<RoleResource> findAll(@Nullable Specification<RoleResource> var1);
-//    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-//    Page<RoleResource> findAll(@Nullable Specification<RoleResource> var1, Pageable var2);
-//    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-//    Page<RoleResource> findAll(Pageable var1);
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    List<RoleResource> findAll();
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    List<RoleResource> findAllById(Iterable<Integer> var1);
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    List<RoleResource> findAll(@Nullable Specification<RoleResource> var1);
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    Page<RoleResource> findAll(@Nullable Specification<RoleResource> var1, Pageable var2);
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    Page<RoleResource> findAll(Pageable var1);
 }
