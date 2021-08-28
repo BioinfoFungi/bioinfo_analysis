@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.repository.CancerRepository;
+import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.service.ICancerService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
@@ -28,8 +29,13 @@ import java.util.Optional;
  */
 @Service
 public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements ICancerService {
-    @Autowired
-    CancerRepository cancerRepository;
+
+    private  final CancerRepository cancerRepository;
+
+    public CancerServiceImpl(CancerRepository cancerRepository) {
+        super(cancerRepository);
+        this.cancerRepository =cancerRepository;
+    }
 
     @Override
     public Cancer addCancer(CancerParam cancerParam, User user) {

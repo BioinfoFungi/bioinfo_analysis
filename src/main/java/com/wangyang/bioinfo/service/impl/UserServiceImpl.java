@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.impl;
 import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.UserDto;
 import com.wangyang.bioinfo.repository.UserRepository;
+import com.wangyang.bioinfo.repository.base.BaseAuthorizeRepository;
 import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.IRoleService;
 import com.wangyang.bioinfo.service.IUserRoleService;
@@ -37,13 +38,18 @@ import java.util.stream.Collectors;
 public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
         implements IUserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final IUserRoleService userRoleService;
+    private final IRoleService roleService;
 
-    @Autowired
-    IUserRoleService userRoleService;
-    @Autowired
-    IRoleService roleService;
+    public UserServiceImpl(UserRepository userRepository,
+                           IUserRoleService userRoleService,
+                           IRoleService roleService) {
+        super(userRepository);
+        this.userRepository=userRepository;
+        this.userRoleService=userRoleService;
+        this.roleService=roleService;
+    }
 
     @Override
     public User addUser(User user) {

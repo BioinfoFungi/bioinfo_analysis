@@ -3,9 +3,9 @@ package com.wangyang.bioinfo.service.base;
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.base.BaseFileRepository;
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -37,11 +37,13 @@ public class BaseFileService<FILE extends BaseFile>
         extends AbstractCrudService<FILE,Integer>
         implements IBaseFileService<FILE> {
 
-    @Autowired
-    BaseFileRepository<FILE> baseFileRepository;
-    @Autowired
-    protected  FileHandlers fileHandlers;
-
+    private final  BaseFileRepository<FILE> baseFileRepository;
+    private final   FileHandlers fileHandlers;
+    public BaseFileService(FileHandlers fileHandlers,BaseFileRepository<FILE> baseFileRepository) {
+        super(baseFileRepository);
+        this.baseFileRepository= baseFileRepository;
+        this.fileHandlers = fileHandlers;
+    }
 
 
     public UploadResult upload(MultipartFile file,String path,String filename,String fileType){
@@ -154,7 +156,7 @@ public class BaseFileService<FILE extends BaseFile>
             }
         }else if (file.getLocation().equals(FileLocation.ALIOSS)){
             try {
-                String oss_url = StringCacheStore.getValue("oss_url") + "/" + file.getRelativePath();
+                String oss_url = CacheStore.getValue("oss_url") + "/" + file.getRelativePath();
                 response.sendRedirect(oss_url);
             } catch (IOException e) {
                 e.printStackTrace();

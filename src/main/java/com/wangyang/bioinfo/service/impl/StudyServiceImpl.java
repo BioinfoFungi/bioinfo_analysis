@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.trem.Study;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.repository.StudyRepository;
+import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.service.IStudyService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
@@ -28,7 +29,12 @@ import java.util.Optional;
 @Service
 public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStudyService {
     @Autowired
-    StudyRepository studyRepository;
+    private final StudyRepository studyRepository;
+
+    public StudyServiceImpl(StudyRepository studyRepository) {
+        super(studyRepository);
+        this.studyRepository=studyRepository;
+    }
 
     @Override
     public Study addStudy(StudyParam studyParam, User user) {

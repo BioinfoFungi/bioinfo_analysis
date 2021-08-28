@@ -1,9 +1,8 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.util.BaseResponse;
-import com.wangyang.bioinfo.util.StringCacheStore;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.apache.commons.io.FileUtils;
-import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -27,7 +26,7 @@ public class FileController {
                                  HttpServletRequest request, HttpServletResponse response){
         try {
             ServletOutputStream outputStream = response.getOutputStream();
-            byte[] bytes = FileUtils.readFileToByteArray(new File(StringCacheStore.getValue("workDir")+"/data/"+filename));
+            byte[] bytes = FileUtils.readFileToByteArray(new File(CacheStore.getValue("workDir")+"/data/"+filename));
             //写之前设置响应流以附件的形式打开返回值,这样可以保证前边打开文件出错时异常可以返回给前台
             response.setHeader("Content-Disposition","attachment;filename="+filename);
             outputStream.write(bytes);

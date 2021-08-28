@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.impl;
 import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.pojo.authorize.UserRole;
 import com.wangyang.bioinfo.repository.RoleResourceRepository;
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Service
@@ -22,14 +24,17 @@ public class RoleResourceServiceImpl extends AbstractCrudService<RoleResource,In
         implements IRoleResourceService {
 
 
-    @Autowired
-    RoleResourceRepository resourceRepository;
+
+    private  final RoleResourceRepository resourceRepository;
+    public RoleResourceServiceImpl(RoleResourceRepository resourceRepository) {
+        super(resourceRepository);
+        this.resourceRepository =resourceRepository;
+    }
 
     @Override
     public List<RoleResource> listAll() {
-        return super.listAll();
+        return resourceRepository.listAllCached();
     }
-
 
     @Override
     public RoleResource save(RoleResource roleResource) {
@@ -42,29 +47,25 @@ public class RoleResourceServiceImpl extends AbstractCrudService<RoleResource,In
 
     @Override
     public RoleResource findBy(Integer resourceId, Integer roleId){
-        List<RoleResource> userRoles = resourceRepository.findAll(new Specification<RoleResource>() {
-            @Override
-            public Predicate toPredicate(Root<RoleResource> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(
-                        criteriaBuilder.equal(root.get("resourceId"),resourceId),
-                        criteriaBuilder.equal(root.get("roleId"),roleId)
-                ).getRestriction();
-            }
-        });
-        return userRoles.size()==0?null:userRoles.get(0);
+        List<RoleResource> roleResources = listAll().stream()
+                .filter(roleResource -> roleResource.getResourceId().equals(resourceId) && roleResource.getRoleId().equals(roleId))
+                .collect(Collectors.toList());
+        return roleResources.size()==0?null:roleResources.get(0);
     }
 
     @Override
     public List<RoleResource> findByRoleId(int roleId){
-        List<RoleResource> roleResources = resourceRepository.findAll(new Specification<RoleResource>() {
-            @Override
-            public Predicate toPredicate(Root<RoleResource> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(
-                        criteriaBuilder.equal(root.get("roleId"),roleId)
-                ).getRestriction();
-            }
-        });
+        List<RoleResource> roleResources = listAll().stream()
+                .filter(roleResource -> roleResource.getRoleId().equals(roleId))
+                .collect(Collectors.toList());
         return roleResources;
+    }
 
+    @Override
+    public List<RoleResource> findByResourceId(int resourceId){
+        List<RoleResource> roleResources = listAll().stream()
+                .filter(roleResource -> roleResource.getResourceId().equals(resourceId))
+                .collect(Collectors.toList());
+        return roleResources;
     }
 }

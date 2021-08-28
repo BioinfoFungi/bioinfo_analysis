@@ -37,12 +37,13 @@ public class PermissionServiceImpl implements IPermissionService {
         /**
          * 查数据库的进行缓存
          */
+        Set<Role> needRoles;//= new HashSet<>();
         List<Resource> resources=  resourceService.listAll();
         Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getUrl);
         List<Role> roles = roleService.listAll();
         List<RoleResource>  roleResources = roleResourceService.listAll();
 
-        Set<Role> needRoles;
+
         if(!resourceMap.containsKey(uri)){
             needRoles = new HashSet<>();
             needRoles.add(new Role("anonymous"));
@@ -59,6 +60,7 @@ public class PermissionServiceImpl implements IPermissionService {
         if(needRoles.size()==0){
             needRoles.add(new Role("anonymous"));
         }
+        needRoles.add(new Role("anonymous"));
         return needRoles;
     }
 

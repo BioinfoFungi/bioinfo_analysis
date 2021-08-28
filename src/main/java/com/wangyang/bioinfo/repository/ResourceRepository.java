@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.repository;
 import com.wangyang.bioinfo.pojo.authorize.Resource;
 import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -18,17 +19,28 @@ import java.util.List;
  * @author wangyang
  * @date 2021/5/5
  */
-public interface ResourceRepository extends BaseRepository<Resource,Integer> ,
-        JpaSpecificationExecutor<Resource> {
+public interface ResourceRepository extends BaseRepository<Resource,Integer>  {
 
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    List<Resource> findAll();
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    List<Resource> findAllById(Iterable<Integer> var1);
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    List<Resource> findAll(@Nullable Specification<Resource> var1);
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    Page<Resource> findAll(@Nullable Specification<Resource> var1, Pageable var2);
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    Page<Resource> findAll(Pageable var1);
+
+
+//    @Override
+//    default  List<Resource> findAll(){
+//        List<Resource> resources = CacheStore.getList("Resource", Resource.class);
+//        if(resources==null){
+//            super.findAll();
+//            resources = super.
+//            CacheStore.save("Resource",resources);
+//        }
+//        return resources;
+//    }
+
+//    default  List<Resource> save(){
+//        List<Resource> resources = CacheStore.getList("Resource", Resource.class);
+//        if(resources==null){
+//            resources = this.findAll();
+//            CacheStore.save("Resource",resources);
+//        }
+//        return resources;
+//    }
+
 }

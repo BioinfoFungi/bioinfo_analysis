@@ -18,8 +18,6 @@ import javax.persistence.Cacheable;
 
 @Entity(name = "t_role")
 @Data
-@Cacheable(true)
-@Cache(usage = CacheConcurrencyStrategy.READ_WRITE) //Provide cache strategy.
 public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

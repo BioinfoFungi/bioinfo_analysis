@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.file.Attachment;
 import com.wangyang.bioinfo.pojo.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -7,6 +8,7 @@ import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.AttachmentRepository;
+import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
@@ -34,14 +36,19 @@ import java.util.Optional;
  */
 @Service
 public class AttachmentServiceImpl extends BaseFileService<Attachment> implements IAttachmentService {
-    @Autowired
-    AttachmentRepository attachmentRepository;
 
-    @Autowired
-    IProjectService projectService;
+    private final AttachmentRepository attachmentRepository;
+    private final IProjectService projectService;
+    private final FileHandlers fileHandlers;
 
-
-
+    public AttachmentServiceImpl(FileHandlers fileHandlers,
+                                 AttachmentRepository attachmentRepository,
+                                 IProjectService projectService) {
+        super(fileHandlers, attachmentRepository);
+        this.attachmentRepository=attachmentRepository;
+        this.projectService=projectService;
+        this.fileHandlers=fileHandlers;
+    }
 
 
     @Override

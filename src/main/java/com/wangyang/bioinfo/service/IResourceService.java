@@ -20,7 +20,6 @@ public interface IResourceService  extends ICrudService<Resource, Integer> {
     Page<Resource> pageResource(Pageable pageable);
     Resource listByUri(String Uri);
 
-    Map<String, Resource> listAllMap();
 
     List<Resource> findByRoleId(Integer id);
 }

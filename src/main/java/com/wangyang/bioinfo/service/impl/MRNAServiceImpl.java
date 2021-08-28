@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.RNA.MRNA;
 import com.wangyang.bioinfo.repository.MRNARepository;
+import com.wangyang.bioinfo.repository.base.BaseRNARepository;
 import com.wangyang.bioinfo.service.IMRNAService;
 import com.wangyang.bioinfo.service.base.BaseRNAServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,12 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class MRNAServiceImpl extends BaseRNAServiceImpl<MRNA> implements IMRNAService {
-    @Autowired
-    MRNARepository mrnaRepository;
+
+    private final MRNARepository mrnaRepository;
 
 
+    public MRNAServiceImpl( MRNARepository   mrnaRepository) {
+        super(mrnaRepository);
+        this.mrnaRepository=mrnaRepository;
+    }
 }

@@ -6,11 +6,9 @@ import com.univocity.parsers.tsv.TsvWriterSettings;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.File2Tsv;
-import com.wangyang.bioinfo.util.StringCacheStore;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.apache.commons.io.FileUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.Cache;
-import org.springframework.cache.concurrent.ConcurrentMapCacheManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.util.Assert;
@@ -27,16 +25,22 @@ import java.util.Optional;
  * @author wangyang
  * @date 2021/6/27
  */
-public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DOMAIN, ID> {
+public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> implements ICrudService<DOMAIN, ID> {
+
     private final String domainName;
-    @Autowired
-    BaseRepository<DOMAIN, ID> repository;
-//    @Autowired
-//    ConcurrentMapCacheManager concurrentMapCacheManager;
-    public AbstractCrudService(){
+    private final BaseRepository<DOMAIN, ID> repository;
+    public AbstractCrudService(BaseRepository<DOMAIN, ID> repository) {
+        this.repository = repository;
         Class<DOMAIN> domainClass = (Class<DOMAIN>) fetchType(0);
         domainName = domainClass.getSimpleName();
     }
+
+
+    //    @Autowired
+//    ConcurrentMapCacheManager concurrentMapCacheManager;
+//    public AbstractCrudService(){
+//
+//    }
     private Type fetchType(int index) {
         Assert.isTrue(index >= 0 && index <= 1, "type index must be between 0 to 1");
         return ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[index];
@@ -103,7 +107,7 @@ public abstract class AbstractCrudService<DOMAIN, ID> implements ICrudService<DO
         List<DOMAIN> domains = listAll();
         String name = getInstance().getClass().getSimpleName();
         File tsvFile = createTSVFile(domains,
-                StringCacheStore.getValue("workDir")+"/export/"+name+".tsv", null);
+                CacheStore.getValue("workDir")+"/export/"+name+".tsv", null);
         ServletOutputStream outputStream = null;
         try {
             outputStream = response.getOutputStream();

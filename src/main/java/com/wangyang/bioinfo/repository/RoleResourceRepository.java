@@ -1,9 +1,12 @@
 package com.wangyang.bioinfo.repository;
 
 import com.wangyang.bioinfo.pojo.authorize.Resource;
+import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.pojo.authorize.UserRole;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
+import com.wangyang.bioinfo.util.CacheStore;
+import org.springframework.data.domain.Example;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -14,16 +17,15 @@ import org.springframework.lang.Nullable;
 import javax.persistence.QueryHint;
 import java.util.List;
 
-public interface RoleResourceRepository extends BaseRepository<RoleResource,Integer>,
-        JpaSpecificationExecutor<RoleResource> {
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    List<RoleResource> findAll();
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    List<RoleResource> findAllById(Iterable<Integer> var1);
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    List<RoleResource> findAll(@Nullable Specification<RoleResource> var1);
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    Page<RoleResource> findAll(@Nullable Specification<RoleResource> var1, Pageable var2);
-    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
-    Page<RoleResource> findAll(Pageable var1);
+public interface RoleResourceRepository extends BaseRepository<RoleResource,Integer> {
+
+
+    default  List<RoleResource> listAll(){
+        List<RoleResource> roleResource = CacheStore.getList("RoleResource", RoleResource.class);
+        if(roleResource==null){
+            roleResource = this.findAll();
+            CacheStore.save("RoleResource",roleResource);
+        }
+        return roleResource;
+    }
 }

@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo;
 
+import com.wangyang.bioinfo.repository.base.BaseRepositoryFactoryBean;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
@@ -16,6 +17,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.transaction.annotation.EnableTransactionManagement;
 import springfox.documentation.swagger2.annotations.EnableSwagger2;
@@ -26,6 +28,9 @@ import java.io.IOException;
 @SpringBootApplication
 @EnableAsync
 @EnableCaching
+@EnableJpaRepositories(basePackages = {"com.wangyang.bioinfo.repository"},
+		repositoryFactoryBeanClass = BaseRepositoryFactoryBean.class//指定自己的工厂类
+)
 //@EnableTransactionManagement
 //@EnableSwagger2
 //@ComponentScan("com.wangyang.bioinfo.a")

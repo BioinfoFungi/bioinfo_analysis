@@ -4,16 +4,12 @@ import com.github.rcaller.graphics.SkyTheme;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
-import com.wangyang.bioinfo.util.StringCacheStore;
-import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
+import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
 
-import org.rosuda.REngine.REXP;
 import org.rosuda.REngine.REXPMismatchException;
 import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
-import org.rosuda.REngine.Rserve.RserveException;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.scheduling.annotation.Async;
@@ -31,13 +27,11 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Base64;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.Executor;
 
 
 /**
@@ -73,9 +67,9 @@ public class MainController {
     @ResponseBody
     public Map<String,String> globalConfig(){
         Map<String,String> map = new HashMap<>();
-        map.put("attachment", StringCacheStore.getValue("workDir")+"/upload");
-        map.put("cancerStudy", StringCacheStore.getValue("workDir")+"/data");
-        map.put("Attachment_base_url", StringCacheStore.getValue("Attachment_base_url"));
+        map.put("attachment", CacheStore.getValue("workDir")+"/upload");
+        map.put("cancerStudy", CacheStore.getValue("workDir")+"/data");
+        map.put("Attachment_base_url", CacheStore.getValue("Attachment_base_url"));
         return map;
     }
 

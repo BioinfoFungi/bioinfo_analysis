@@ -13,10 +13,11 @@ import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
+import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.BeanUtil;
 import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.StringCacheStore;
+import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
@@ -24,6 +25,7 @@ import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 
+import java.beans.PropertyVetoException;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -38,16 +40,22 @@ import java.util.*;
 public class AsyncServiceImpl implements IAsyncService {
 
 
-    @Autowired
-    ITaskService taskService;
-    @Autowired
-    ICancerStudyService cancerStudyService;
-    @Autowired
-    SpringWebSocketHandler springWebSocketHandler;
-    @Autowired
+    private final TaskRepository taskRepository;
+    private final ICancerStudyService cancerStudyService;
+    private final SpringWebSocketHandler springWebSocketHandler;
     private ThreadPoolTaskExecutor executorService;
+    private final Map<Integer, TaskProcess> processMap;
 
-    final Map<Integer, TaskProcess> processMap = new HashMap<>();
+    public AsyncServiceImpl(TaskRepository taskRepository,
+                            ICancerStudyService cancerStudyService,
+                            SpringWebSocketHandler springWebSocketHandler){
+        processMap= new HashMap<>();
+        this.taskRepository=taskRepository;
+        this.cancerStudyService=cancerStudyService;
+        this.springWebSocketHandler=springWebSocketHandler;
+    }
+
+
 
 //
 //    public class ControlSubThread implements Runnable {
@@ -153,7 +161,7 @@ public class AsyncServiceImpl implements IAsyncService {
         task.setThreadName(Thread.currentThread().getName());
         task.setTaskStatus(TaskStatus.RUNNING);
         task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"开始分析！"+ new Date());
-        taskService.save(task);
+        taskRepository.save(task);
         /*****************************************************************/
 
 //        CodeMsg codeMsg = rCall(code, map);
@@ -183,7 +191,7 @@ public class AsyncServiceImpl implements IAsyncService {
         task.setRunMsg(codeMsg.getRunMsg());
         task.setTaskStatus(TaskStatus.FINISH);
         task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
-        taskService.save(task);
+        taskRepository.save(task);
         log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         springWebSocketHandler.sendMessageToUsers(new TextMessage(JSONObject.toJSON(task).toString()));
         /*****************************************************************/
@@ -191,7 +199,11 @@ public class AsyncServiceImpl implements IAsyncService {
 
     @Override
     public Task shutdownProcess(int taskId){
-        Task task = taskService.findById(taskId);
+        Optional<Task> optionalTask = taskRepository.findById(taskId);
+        if(!optionalTask.isPresent()){
+            throw new BioinfoException("Task is not found!");
+        }
+        Task task = optionalTask.get();
         if(processMap.containsKey(task.getId())){
             TaskProcess taskProcess = processMap.get(task.getId());
             if(taskProcess.getProcess().isAlive()){
@@ -205,7 +217,7 @@ public class AsyncServiceImpl implements IAsyncService {
         if(executorService.getActiveCount()==0 && !task.getTaskStatus().equals(TaskStatus.FINISH)){
 
             task.setTaskStatus(TaskStatus.FINISH);
-            taskService.save(task);
+            taskRepository.save(task);
             throw new BioinfoException("出错了，线程已经结束，状态没有更改！");
         }
         throw new BioinfoException("不能结束该进程！");
@@ -216,7 +228,7 @@ public class AsyncServiceImpl implements IAsyncService {
         File  tempFile=null;
         FileOutputStream outputStream =null;
         try {
-            String workDir = StringCacheStore.getValue("workDir");
+            String workDir = CacheStore.getValue("workDir");
             Path path = Paths.get(workDir, "data");
             Files.createDirectories(path);
             tempFile = File.createTempFile("bioinfo-", ".R");

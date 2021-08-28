@@ -1,8 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.service.*;
-import com.wangyang.bioinfo.util.BaseResponse;
-import com.wangyang.bioinfo.util.StringCacheStore;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,11 +10,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -46,7 +42,7 @@ public class DataImportController {
     @GetMapping("/init")
     public  Map<String,String> importALl(@RequestParam(value = "path",defaultValue = "") String pathDir){
         if(pathDir.equals("")){
-            pathDir = StringCacheStore.getValue("workDir")+"/TCGADOWNLOAD/data";
+            pathDir = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data";
         }
 //        Arrays.asList(filenames
         Map<String,String> map = new HashMap<>();

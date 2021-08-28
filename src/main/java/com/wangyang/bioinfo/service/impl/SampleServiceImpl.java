@@ -1,6 +1,8 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.Sample;
+import com.wangyang.bioinfo.repository.SampleRepository;
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.ISampleService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import org.springframework.stereotype.Service;
@@ -11,5 +13,9 @@ import org.springframework.stereotype.Service;
  */
 @Service
 public class SampleServiceImpl extends AbstractCrudService<Sample,Integer> implements ISampleService {
-
+    private final SampleRepository sampleRepository;
+    public SampleServiceImpl(SampleRepository sampleRepository) {
+        super(sampleRepository);
+        this.sampleRepository=sampleRepository;
+    }
 }

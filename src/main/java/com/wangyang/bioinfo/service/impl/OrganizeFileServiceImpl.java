@@ -1,10 +1,12 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.OrganizeFileRepository;
+import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import org.springframework.beans.BeanUtils;
@@ -28,8 +30,13 @@ public class OrganizeFileServiceImpl
         extends BaseFileService<OrganizeFile>
         implements IOrganizeFileService {
 
-    @Autowired
-    OrganizeFileRepository organizeFileRepository;
+    private final OrganizeFileRepository organizeFileRepository;
+    private final FileHandlers fileHandlers;
+    public OrganizeFileServiceImpl(FileHandlers fileHandlers,OrganizeFileRepository organizeFileRepository) {
+        super(fileHandlers, organizeFileRepository);
+        this.organizeFileRepository=organizeFileRepository;
+        this.fileHandlers = fileHandlers;
+    }
 
 
     @Override

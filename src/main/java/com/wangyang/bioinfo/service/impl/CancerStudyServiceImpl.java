@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 
+import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
@@ -9,6 +10,8 @@ import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CancerStudyRepository;
+import com.wangyang.bioinfo.repository.TaskRepository;
+import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
@@ -36,23 +39,31 @@ import java.util.stream.Collectors;
 public class CancerStudyServiceImpl
         extends BaseDataCategoryServiceImpl<CancerStudy>
         implements ICancerStudyService {
-    @Autowired
-    CancerStudyRepository cancerStudyRepository;
-    @Autowired
-    ICancerService cancerService;
-    @Autowired
-    IStudyService studyService;
-    @Autowired
-    IDataOriginService dataOriginService;
 
-    @Autowired
-    IDataCategoryService dataCategoryService;
-
-    @Autowired
-    IAnalysisSoftwareService analysisSoftwareService;
-
-    @Autowired
-    ITaskService taskService;
+    private  final CancerStudyRepository cancerStudyRepository;
+    private  final ICancerService cancerService;
+    private  final IStudyService studyService;
+    private  final IDataOriginService dataOriginService;
+    private  final IDataCategoryService dataCategoryService;
+    private  final IAnalysisSoftwareService analysisSoftwareService;
+    private  final TaskRepository taskRepository;
+    public CancerStudyServiceImpl(FileHandlers fileHandlers,
+                                        CancerStudyRepository cancerStudyRepository,
+                                       ICancerService cancerService,
+                                       IStudyService studyService,
+                                       IDataOriginService dataOriginService,
+                                       IDataCategoryService dataCategoryService,
+                                       IAnalysisSoftwareService analysisSoftwareService,
+                                  TaskRepository taskRepository) {
+        super(fileHandlers, cancerStudyRepository,cancerService,studyService,dataOriginService,dataCategoryService,analysisSoftwareService);
+        this.cancerStudyRepository=cancerStudyRepository;
+        this.cancerService =cancerService;
+        this.studyService=studyService;
+        this.dataOriginService=dataOriginService;
+        this.dataCategoryService=dataCategoryService;
+        this.analysisSoftwareService=analysisSoftwareService;
+        this.taskRepository=taskRepository;
+    }
 
 
 
@@ -286,7 +297,7 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy delBy(Integer id) {
-        taskService.delByCanSId(id);
+//        taskRepository.delByCanSId(id);
         return super.delBy(id);
     }
 

@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.Resource;
+import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.repository.ResourceRepository;
 import com.wangyang.bioinfo.service.IResourceService;
@@ -17,6 +18,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -26,10 +28,19 @@ import java.util.Set;
 public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
         implements IResourceService {
 
-    @Autowired
-    ResourceRepository resourceRepository;
-    @Autowired
-    IRoleResourceService roleResourceService;
+    private final IRoleResourceService roleResourceService;
+    private final  ResourceRepository resourceRepository;
+    public ResourceServiceImpl(ResourceRepository resourceRepository,
+                               IRoleResourceService roleResourceService) {
+        super(resourceRepository);
+        this.resourceRepository = resourceRepository;
+        this.roleResourceService=roleResourceService;
+    }
+
+    @Override
+    public List<Resource> listAll() {
+        return resourceRepository.listAllCached();
+    }
 
     @Override
     public Resource addResource(Resource resource) {
@@ -37,10 +48,6 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
     }
 
 
-    @Override
-    public List<Resource> listAll() {
-        return super.listAll();
-    }
 
     @Override
     public Resource findRoleById(int id) {
@@ -62,18 +69,12 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
         return null;
     }
 
-
-
-    @Override
-    public Map<String, Resource> listAllMap() {
-        List<Resource> resources = resourceRepository.findAll();
-        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getUrl);
-        return resourceMap;
-    }
-
-    public List<Resource> findByIds(Iterable<Integer> ids){
-        List<Resource> resources = resourceRepository.findAllById(ids);
-        return resources;
+    public List<Resource> findByIds(Iterable<Integer> inputIds){
+        Set<Integer> ids = (Set<Integer> )inputIds;
+        List<Resource> resourceList = listAll().stream()
+                .filter(resource -> ids.contains(resource.getId()))
+                .collect(Collectors.toList());
+        return resourceList;
     }
 
     @Override

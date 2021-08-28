@@ -1,6 +1,9 @@
 package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Data;
+import org.hibernate.annotations.Cache;
+import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.web.bind.annotation.PostMapping;
 
 import javax.persistence.Entity;

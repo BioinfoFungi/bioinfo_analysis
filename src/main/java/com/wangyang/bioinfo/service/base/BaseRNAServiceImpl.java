@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.txt.IDataInputService;
 import com.wangyang.bioinfo.pojo.base.BaseRNA;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
@@ -27,11 +28,12 @@ import java.util.List;
 
 public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T,Integer> implements IBaseRNAService<T> {
 
-    @Autowired
-    BaseRNARepository<T> baseRNARepository;
-    @Autowired
-    IDataInputService dataInputService;
+    private final BaseRNARepository<T> baseRNARepository;
 
+    public BaseRNAServiceImpl(BaseRNARepository<T> baseRNARepository) {
+        super(baseRNARepository);
+        this.baseRNARepository=baseRNARepository;
+    }
 
 
 //    public BaseRNAServiceImpl(BaseRNARepository<T> baseRNARepository) {

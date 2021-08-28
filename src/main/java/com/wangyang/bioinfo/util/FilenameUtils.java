@@ -6,7 +6,6 @@ import org.springframework.util.Assert;
 
 import java.io.File;
 import java.util.Calendar;
-import java.util.Optional;
 
 /**
  * @author wangyang
@@ -64,7 +63,7 @@ public class FilenameUtils {
 
     public static String relativePath(@NonNull String relativePath) {
         Assert.hasText(relativePath, "relativePath must not be blank");
-        String workDir = StringCacheStore.getValue("workDir");
+        String workDir = CacheStore.getValue("workDir");
         if(relativePath.contains(workDir)){
             return relativePath.replace(workDir+"/","");
         }

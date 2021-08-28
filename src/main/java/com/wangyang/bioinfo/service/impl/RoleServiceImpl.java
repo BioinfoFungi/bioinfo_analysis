@@ -6,6 +6,7 @@ import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.pojo.authorize.UserRole;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
 import com.wangyang.bioinfo.repository.RoleRepository;
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.IRoleService;
 import com.wangyang.bioinfo.service.IUserRoleService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
@@ -27,10 +28,8 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -41,23 +40,34 @@ import java.util.Set;
 public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
             implements IRoleService {
 
-    @Autowired
-    RoleRepository roleRepository;
-    @Autowired
-    IUserRoleService userRoleService;
 
-    @Autowired
-    EntityManager entityManager;
+    private final RoleRepository roleRepository;
+    private final IUserRoleService userRoleService;
+
+    public RoleServiceImpl(RoleRepository roleRepository,
+                           IUserRoleService userRoleService) {
+        super(roleRepository);
+        this.roleRepository=roleRepository;
+        this.userRoleService=userRoleService;
+    }
+
+
+    @Override
+    public List<Role> listAll() {
+        return roleRepository.listAll();
+    }
 
     @Override
     public Role addRole(Role role) {
-        return roleRepository.save(role);
+        return super.save(role);
     }
 
     @Override
     public Role findRoleById(int id) {
-        Optional<Role> roleOptional = roleRepository.findById(id);
-        return roleOptional.isPresent()?roleOptional.get():null;
+        List<Role> roleList = listAll().stream()
+                .filter(role -> role.getId() == id)
+                .collect(Collectors.toList());
+        return roleList.size()==0?null:roleList.get(0);
     }
 
     @Override
@@ -86,32 +96,19 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
 
     @Override
     public Role findByEnName(String name){
-//        Role role = entityManager.find(Role.class, 1);
-//        Role role2 = entityManager.find(Role.class, 1);
-//        roleRepository.findAll();
-//        roleRepository.findAll();
-//        roleRepository.findById(1);
-//        roleRepository.findById(1);
-//        roleRepository.findAllById(Arrays.asList(1));
-//        roleRepository.findAllById(Arrays.asList(1));
-        List<Role> roles = roleRepository.findAll(new Specification<Role>() {
-            @Override
-            public Predicate toPredicate(Root<Role> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(criteriaBuilder.equal(root.get("enName"),name)).getRestriction();
-            }
-        });
-        return roles.size()==0?null:roles.get(0);
-    }
-
-    @Override
-    public List<Role> listAll() {
-        return super.listAll();
+        List<Role> roleList = listAll().stream()
+                .filter(role -> role.getEnName().equals(name))
+                .collect(Collectors.toList());
+        return roleList.size()==0?null:roleList.get(0);
     }
 
 
-    public List<Role> findByIds(Iterable<Integer> ids){
-        List<Role> roles = roleRepository.findAllById(ids);
-        return roles;
+    public List<Role> findByIds(Iterable<Integer> inputIds){
+        Set<Integer> ids = (Set<Integer> )inputIds;
+        List<Role> roleList = listAll().stream()
+                .filter(role -> ids.contains(role.getId()))
+                .collect(Collectors.toList());
+        return roleList;
     }
 
 

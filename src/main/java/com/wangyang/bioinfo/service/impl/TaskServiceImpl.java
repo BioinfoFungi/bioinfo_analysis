@@ -11,11 +11,12 @@ import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.TaskRepository;
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToCollection;
-import com.wangyang.bioinfo.util.StringCacheStore;
+import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,25 +47,27 @@ import java.util.stream.Collectors;
 public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
                 implements  ITaskService{
 
-    @Autowired
-    TaskRepository taskRepository;
-    @Autowired
-    ICancerStudyService cancerStudyService;
-    @Autowired
-    ICodeService codeService;
-    @Autowired
-    ThreadPoolTaskExecutor executor;
-    @Autowired
-    SpringWebSocketHandler springWebSocketHandler;
-    @Autowired
-    IAsyncService asyncService;
-    @Autowired
-    IOrganizeFileService organizeFileService;
+    private final TaskRepository taskRepository;
+    private final ICancerStudyService cancerStudyService;
+    private final ICodeService codeService;
+    private final IAsyncService asyncService;
+    private final IOrganizeFileService organizeFileService;
 
     //TUDO
     private int QUEUE_CAPACITY= 300;
 
-
+    public TaskServiceImpl(TaskRepository taskRepository,
+                           ICancerStudyService cancerStudyService,
+                           ICodeService codeService,
+                           IAsyncService asyncService,
+                           IOrganizeFileService organizeFileService) {
+        super(taskRepository);
+        this.taskRepository=taskRepository;
+        this.cancerStudyService=cancerStudyService;
+        this.codeService=codeService;
+        this.asyncService=asyncService;
+        this.organizeFileService=organizeFileService;
+    }
 
 
     @Override
@@ -230,7 +233,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
     @Override
     public String getLogFiles(@NonNull Integer taskId,@NonNull  Integer lines){
-        File file = new File(StringCacheStore.getValue("workDir"),"log/"+taskId+".log");
+        File file = new File(CacheStore.getValue("workDir"),"log/"+taskId+".log");
         if(!file.exists()){
             return "文件不存在！";
         }

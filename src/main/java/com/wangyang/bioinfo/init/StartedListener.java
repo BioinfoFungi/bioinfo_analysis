@@ -9,9 +9,8 @@ import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.RoleUrl;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.ServiceUtil;
-import com.wangyang.bioinfo.util.StringCacheStore;
+import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -19,7 +18,6 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
@@ -70,11 +68,16 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
         System.out.println("################init########################");
         List<Option> options = optionService.listAll();
         options.forEach(option -> {
-            StringCacheStore.setValue(option.getKey_(),option.getValue_());
+            CacheStore.setValue(option.getKey_(),option.getValue_());
         });
-        StringCacheStore.setValue("workDir",workDir);
+        CacheStore.setValue("workDir",workDir);
+        List<Resource> existResource = resourceService.listAll();
+        List<Resource> existResource2 = resourceService.listAll();
 
         Role role = roleService.findByEnName("ADMIN");
+        Role role2 = roleService.findByEnName("ADMIN");
+        List<Role> roles = roleService.listAll();
+        List<Role> roles2 = roleService.listAll();
 
         if(role==null){
             role = new Role();
@@ -83,6 +86,7 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             role = roleService.save(role);
         }
         User user = userService.findUserByUsername("admin");
+
         if(user==null){
             user = new User();
             user.setUsername("admin");

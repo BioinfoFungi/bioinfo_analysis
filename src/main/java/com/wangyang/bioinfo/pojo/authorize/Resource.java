@@ -2,9 +2,15 @@ package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.Cache;
 import org.hibernate.annotations.CacheConcurrencyStrategy;
+import org.springframework.cache.annotation.Cacheable;
 
-import javax.persistence.*;
+//import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -15,8 +21,6 @@ import java.util.Set;
 @Entity(name = "t_resource")
 @Getter
 @Setter
-@Cacheable(true)
-@org.hibernate.annotations.Cache(usage = CacheConcurrencyStrategy.READ_WRITE) //Provide cache strategy.
 public class Resource {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

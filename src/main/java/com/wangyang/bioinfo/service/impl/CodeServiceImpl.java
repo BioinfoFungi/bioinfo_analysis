@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
@@ -7,10 +8,10 @@ import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
+import com.wangyang.bioinfo.repository.CancerStudyRepository;
 import com.wangyang.bioinfo.repository.CodeRepository;
-import com.wangyang.bioinfo.service.ICancerStudyService;
-import com.wangyang.bioinfo.service.ICodeService;
-import com.wangyang.bioinfo.service.ITaskService;
+import com.wangyang.bioinfo.repository.TaskRepository;
+import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToCollection;
@@ -41,15 +42,34 @@ import java.util.List;
 public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
         implements ICodeService {
 
-    @Autowired
-    CodeRepository codeRepository;
 
-    @Autowired
-    ICancerStudyService cancerStudyService;
-
-    @Autowired
-    ITaskService taskService;
-
+    private  final CodeRepository codeRepository;
+    private  final ICancerService cancerService;
+    private  final IStudyService studyService;
+    private  final IDataOriginService dataOriginService;
+    private  final IDataCategoryService dataCategoryService;
+    private  final IAnalysisSoftwareService analysisSoftwareService;
+    private  final TaskRepository taskRepository;
+    private final ICancerStudyService cancerStudyService;
+    public CodeServiceImpl(FileHandlers fileHandlers,
+                           CodeRepository codeRepository,
+                                  ICancerService cancerService,
+                                  IStudyService studyService,
+                                  IDataOriginService dataOriginService,
+                                  IDataCategoryService dataCategoryService,
+                                  IAnalysisSoftwareService analysisSoftwareService,
+                           TaskRepository taskRepository,
+                           ICancerStudyService cancerStudyService) {
+        super(fileHandlers, codeRepository,cancerService,studyService,dataOriginService,dataCategoryService,analysisSoftwareService);
+        this.codeRepository=codeRepository;
+        this.cancerService =cancerService;
+        this.studyService=studyService;
+        this.dataOriginService=dataOriginService;
+        this.dataCategoryService=dataCategoryService;
+        this.analysisSoftwareService=analysisSoftwareService;
+        this.cancerStudyService=cancerStudyService;
+        this.taskRepository=taskRepository;
+    }
     @Override
     public Code findBy(String dataCategory,String analysisSoftware){
         List<Code> codes = codeRepository.findAll(new Specification<Code>() {
@@ -135,7 +155,7 @@ public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
 
     @Override
     public Code delBy(Integer id) {
-        taskService.delByCodeId(id);
+//        taskRepository.delByCodeId(id);
         return super.delBy(id);
     }
 

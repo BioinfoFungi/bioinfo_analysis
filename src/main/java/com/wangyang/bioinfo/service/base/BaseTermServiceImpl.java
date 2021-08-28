@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.pojo.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
+import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.apache.commons.lang3.StringUtils;
@@ -29,8 +30,13 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
         extends AbstractCrudService<TERM,Integer>
         implements IBaseTermService<TERM> {
 
-    @Autowired
-    BaseTermRepository<TERM> baseTermRepository;
+    private final BaseTermRepository<TERM> baseTermRepository;
+
+    public BaseTermServiceImpl(BaseTermRepository<TERM> baseTermRepository) {
+        super(baseTermRepository);
+        this.baseTermRepository=baseTermRepository;
+    }
+
 
     @Override
     public Page<TERM> pageBy(BaseTermParam baseTermParam, Pageable pageable) {
@@ -84,7 +90,7 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
         if(id==null){
             return null;
         }
-        Optional<TERM> optionalTERM = repository.findById(id);
+        Optional<TERM> optionalTERM = baseTermRepository.findById(id);
         return optionalTERM.isPresent()?optionalTERM.get():null;
     }
 

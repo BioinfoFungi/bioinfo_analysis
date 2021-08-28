@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
@@ -8,6 +9,7 @@ import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
+import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.File2Tsv;
@@ -36,18 +38,32 @@ public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
         extends BaseFileService<TERMMAPPING>
         implements IBaseDataCategoryService<TERMMAPPING>{
 
-    @Autowired
-    BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository;
-    @Autowired
-    ICancerService cancerService;
-    @Autowired
-    IStudyService studyService;
-    @Autowired
-    IDataOriginService dataOriginService;
-    @Autowired
-    IDataCategoryService dataCategoryService;
-    @Autowired
-    IAnalysisSoftwareService analysisSoftwareService;
+    private  final BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository;
+    private  final ICancerService cancerService;
+    private  final IStudyService studyService;
+    private  final IDataOriginService dataOriginService;
+    private  final IDataCategoryService dataCategoryService;
+    private  final IAnalysisSoftwareService analysisSoftwareService;
+    private  final FileHandlers fileHandlers;
+
+    public BaseDataCategoryServiceImpl(FileHandlers fileHandlers,
+                                       BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository,
+                                       ICancerService cancerService,
+                                       IStudyService studyService,
+                                       IDataOriginService dataOriginService,
+                                       IDataCategoryService dataCategoryService,
+                                       IAnalysisSoftwareService analysisSoftwareService) {
+        super(fileHandlers, baseTermMappingRepository);
+        this.fileHandlers=fileHandlers;
+        this.baseTermMappingRepository=baseTermMappingRepository;
+        this.cancerService =cancerService;
+        this.studyService=studyService;
+        this.dataOriginService=dataOriginService;
+        this.dataCategoryService=dataCategoryService;
+        this.analysisSoftwareService=analysisSoftwareService;
+
+    }
+
 
     public Specification<TERMMAPPING> buildSpecBy(TERMMAPPING termMapping,String keyWard) {
         return (Specification<TERMMAPPING>) (root, query, criteriaBuilder) ->{

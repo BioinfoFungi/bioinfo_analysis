@@ -1,6 +1,8 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
+import com.wangyang.bioinfo.repository.AnalysisSoftwareRepository;
+import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.service.IAnalysisSoftwareService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import org.springframework.stereotype.Service;
@@ -12,4 +14,15 @@ import org.springframework.stereotype.Service;
 @Service
 public class AnalysisSoftwareServiceImpl extends BaseTermServiceImpl<AnalysisSoftware>
         implements IAnalysisSoftwareService {
+    private  final  AnalysisSoftwareRepository analysisSoftwareRepository;
+    public AnalysisSoftwareServiceImpl(AnalysisSoftwareRepository analysisSoftwareRepository) {
+        super(analysisSoftwareRepository);
+        this.analysisSoftwareRepository = analysisSoftwareRepository;
+    }
+
+//    private final AnalysisSoftwareRepository analysisSoftwareRepository;
+//    public AnalysisSoftwareServiceImpl(AnalysisSoftwareRepository AnalysisSoftwareRepository) {
+//        super(analysisSoftwareRepository);
+//        this.AnalysisSoftwareRepository= analysisSoftwareRepository;
+//    }
 }

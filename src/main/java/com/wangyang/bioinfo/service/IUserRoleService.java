@@ -11,4 +11,6 @@ public interface IUserRoleService  extends ICrudService<UserRole, Integer> {
     UserRole findBy(Integer userId, Integer roleId);
 
     List<UserRole> findByUserId(Integer id);
+
+    List<UserRole> findByRoleId(Integer roleId);
 }
