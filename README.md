@@ -1,7 +1,12 @@
 ## 生物信息资源管理
++ 演示地址:<http://bioinfofungi.gitee.io/web>
 #### 技术
 + SpringBoot
 + mysql
++ jap
++ H2 database
++ 线程池
++ java系统调用R
 
 #### 功能
 + 项目报告管理
@@ -15,8 +20,9 @@
     + dataCategory(数据分类)[FPKM、Counts、clinical...]
     + analysisSoftware(分析软件)[limma、DESeq2...]
     + dataId[数据Id](GSEXXX...)
-    
+
 ![](vignettes/cancer.png)
+
 
 #### 测试
 + <https://bioinfofungi.gitee.io/bioinfo_web_ui/>
