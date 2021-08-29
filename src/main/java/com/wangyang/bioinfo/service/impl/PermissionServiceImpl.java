@@ -39,7 +39,9 @@ public class PermissionServiceImpl implements IPermissionService {
          */
         Set<Role> needRoles;//= new HashSet<>();
         List<Resource> resources=  resourceService.listAll();
-        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resources, Resource::getUrl);
+        Map<String, Resource> resourceMap = resources.stream()
+                .collect(Collectors.toMap(resource ->
+                        resource.getMethod()+resource.getUrl(),resource -> resource));
         List<Role> roles = roleService.listAll();
         List<RoleResource>  roleResources = roleResourceService.listAll();
 
@@ -60,7 +62,6 @@ public class PermissionServiceImpl implements IPermissionService {
         if(needRoles.size()==0){
             needRoles.add(new Role("anonymous"));
         }
-        needRoles.add(new Role("anonymous"));
         return needRoles;
     }
 

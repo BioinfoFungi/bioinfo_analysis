@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.trem.DataCategory;
@@ -34,6 +35,7 @@ public class DataCategoryController {
     IOrganizeFileService organizeFileService;
 
     @GetMapping
+    @Anonymous
     public Page<DataCategory> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
         Page<DataCategory> dataCategories = dataCategoryService.pageBy(baseTermParam,pageable);
         return dataCategories;

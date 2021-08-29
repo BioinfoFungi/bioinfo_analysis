@@ -4,6 +4,7 @@ import com.github.rcaller.graphics.SkyTheme;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
 
@@ -65,6 +66,7 @@ public class MainController {
 //    }
     @GetMapping("/api/global")
     @ResponseBody
+    @Anonymous
     public Map<String,String> globalConfig(){
         Map<String,String> map = new HashMap<>();
         map.put("attachment", CacheStore.getValue("workDir")+"/upload");

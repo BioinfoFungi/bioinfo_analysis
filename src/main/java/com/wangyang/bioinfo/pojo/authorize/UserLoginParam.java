@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.pojo;
+package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Data;
 
@@ -7,7 +7,7 @@ import lombok.Data;
  * @date 2021/6/11
  */
 @Data
-public class UserParam {
+public class UserLoginParam {
     private String username;
     private String password;
 }

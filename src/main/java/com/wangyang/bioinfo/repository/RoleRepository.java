@@ -17,6 +17,7 @@ import org.springframework.lang.Nullable;
 
 import javax.persistence.QueryHint;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * @author wangyang
@@ -25,13 +26,11 @@ import java.util.List;
 
 
 public interface RoleRepository extends BaseRepository<Role,Integer>{
+    @Override
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    List<Role> findAll();
 
-    default  List<Role> listAll(){
-        List<Role> roles = CacheStore.getList("Role", Role.class);
-        if(roles==null){
-            roles = findAll();
-            CacheStore.save("Role",roles);
-        }
-        return roles;
-    }
+    @Override
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    Optional<Role> findById(Integer integer);
 }

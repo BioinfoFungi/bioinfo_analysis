@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.authorize.Resource;
+import com.wangyang.bioinfo.pojo.authorize.ResourceVO;
 import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
 import com.wangyang.bioinfo.service.IResourceService;
@@ -31,7 +32,12 @@ public class ResourceController {
         return resourceService.listAll();
     }
     @GetMapping("/findByRoleId/{id}")
-    public List<Resource> findByRoleId(@PathVariable("id") Integer id){
+    public List<ResourceVO> findByRoleId(@PathVariable("id") Integer id){
         return  resourceService.findByRoleId(id);
+    }
+
+    @GetMapping("/findByWithoutRoleId/{id}")
+    public List<Resource> listResource(@PathVariable("id") Integer id){
+        return resourceService.findByWithoutRoleId(id);
     }
 }

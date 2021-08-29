@@ -4,13 +4,14 @@ import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
 import com.wangyang.bioinfo.pojo.Option;
 import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.annotation.Authorize;
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.RoleUrl;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.context.event.ApplicationStartedEvent;
@@ -18,11 +19,15 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.method.HandlerMethod;
 import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
+
+import javax.cache.CacheManager;
 import java.lang.reflect.Method;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -35,6 +40,12 @@ import java.util.stream.Collectors;
 public class StartedListener implements ApplicationListener<ApplicationStartedEvent> {
     @Value("${bioinfo.workDir}")
     private String workDir;
+
+    @Value("${bioinfo.authorizeInit}")
+    private Boolean authorizeInit;
+
+    @Autowired
+    private CacheManager cacheManager;
     @Autowired
     IOptionService optionService;
     @Autowired
@@ -66,36 +77,12 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     @Override
     public void onApplicationEvent(ApplicationStartedEvent applicationStartedEvent) {
         System.out.println("################init########################");
+        System.out.println(StringUtils.join((Collection) cacheManager.getCacheNames(), ","));
         List<Option> options = optionService.listAll();
         options.forEach(option -> {
             CacheStore.setValue(option.getKey_(),option.getValue_());
         });
         CacheStore.setValue("workDir",workDir);
-        List<Resource> existResource = resourceService.listAll();
-        List<Resource> existResource2 = resourceService.listAll();
-
-        Role role = roleService.findByEnName("ADMIN");
-        Role role2 = roleService.findByEnName("ADMIN");
-        List<Role> roles = roleService.listAll();
-        List<Role> roles2 = roleService.listAll();
-
-        if(role==null){
-            role = new Role();
-            role.setName("ADMIN");
-            role.setEnName("ADMIN");
-            role = roleService.save(role);
-        }
-        User user = userService.findUserByUsername("admin");
-
-        if(user==null){
-            user = new User();
-            user.setUsername("admin");
-            user.setGender(0);
-            user.setPassword("123456");
-            userService.addUser(user);
-            UserRole userRole = new UserRole(user.getId(),role.getId());
-            userRoleService.save(userRole);
-        }
         addQueue();
         initResource();
     }
@@ -117,6 +104,24 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     }
 
     public void initResource(){
+        Role role = roleService.findByEnName("ADMIN");
+        if(role==null){
+            role = new Role();
+            role.setName("ADMIN");
+            role.setEnName("ADMIN");
+            role = roleService.save(role);
+        }
+        User user = userService.findUserByUsername("admin");
+
+        if(user==null){
+            user = new User();
+            user.setUsername("admin");
+            user.setGender(0);
+            user.setPassword("123456");
+            userService.addUser(user);
+            UserRole userRole = new UserRole(user.getId(),role.getId());
+            userRoleService.save(userRole);
+        }
 //        Map<String, Object> controllers = applicationContext.getBeansWithAnnotation(RequestMapping.class);
         RequestMappingHandlerMapping mapping = applicationContext.getBean("requestMappingHandlerMapping",RequestMappingHandlerMapping.class);
         Map<RequestMappingInfo, HandlerMethod> methodMap = mapping.getHandlerMethods();
@@ -127,23 +132,34 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
             HandlerMethod handlerMethod = methodMap.get(info);
             Set<String> urlSet = info.getPatternsCondition().getPatterns();
             String url = urlSet.iterator().next();
-            resource.setMethod(info.getMethodsCondition().getMethods().toString());
+            if (url.equals("/error"))continue;
+            Set<RequestMethod> methodSet = info.getMethodsCondition().getMethods();
+            String methodName;
+            if(methodSet.size()!=0){
+                methodName=methodSet.iterator().next().name();
+            }else {
+                methodName="";
+            }
+
+
+            resource.setMethod(methodName);
             resource.setUrl(url);
             Method method = handlerMethod.getMethod();
-            if(method.isAnnotationPresent(Authorize.class)){
-                Authorize authorize = method.getAnnotation(Authorize.class);
-                String roleName = authorize.role();
-                RoleUrl roleUrl = new RoleUrl(roleName,url);
+            if(!method.isAnnotationPresent(Anonymous.class)){
+//                Anonymous authorize = method.getAnnotation(Anonymous.class);
+//                String roleName = authorize.role();
+                RoleUrl roleUrl = new RoleUrl(role.getId(),url,methodName);
                 roleResourceName.add(roleUrl);
             }
             resources.add(resource);
         }
-        List<Resource> existResource = resourceService.listAll();
+        List<Resource> dataBaseResource = resourceService.listAll();
+        Map<String, Resource> systemResourceMap = resources.stream()
+                .collect(Collectors.toMap(resource -> resource.getMethod()+resource.getUrl(),resource -> resource));
+        Map<String, Resource> dataBaseResourceMap = dataBaseResource.stream()
+                .collect(Collectors.toMap(resource -> resource.getMethod()+resource.getUrl(),resource -> resource));
 
-        Map<String, Resource> systemResource = ServiceUtil.convertToMap(resources, Resource::getUrl);
-        Map<String, Resource> convertToMap2 = ServiceUtil.convertToMap(existResource, Resource::getUrl);
-
-        MapDifference<String, Resource> difference = Maps.difference(systemResource, convertToMap2);
+        MapDifference<String, Resource> difference = Maps.difference(systemResourceMap, dataBaseResourceMap);
         Map<String, Resource> onlyOnLeft = difference.entriesOnlyOnLeft();
         List<Resource> addResource = onlyOnLeft.values().stream().collect(Collectors.toList());
         resourceService.saveAll(addResource);
@@ -151,19 +167,34 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
         List<Resource> removeResource = onlyOnRight.values().stream().collect(Collectors.toList());
         resourceService.deleteAll(removeResource);
 
-        List<Role> roles = roleService.listAll();
-        Map<String, Role> roleMap = ServiceUtil.convertToMap(roles, Role::getEnName);
-        List<Resource> resourceALL = resourceService.listAll();
-        Map<String, Resource> resourceMap = ServiceUtil.convertToMap(resourceALL, Resource::getUrl);
+        if(authorizeInit){
+            List<Role> roles = roleService.listAll();
+            Map<Integer, Role> roleMap = ServiceUtil.convertToMap(roles, Role::getId);
+            List<Resource> resourceResult = resourceService.listAll();
+            Map<String, Resource> resourceMap = resourceResult.stream()
+                    .collect(Collectors.toMap(resource -> resource.getMethod()+resource.getUrl(),resource -> resource));
 
-        roleResourceName.forEach(roleUrl->{
-            RoleResource roleResource = new RoleResource();
-            Role role = roleMap.get(roleUrl.getRole());
-            Resource resource = resourceMap.get(roleUrl.getUrl());
-            roleResource.setRoleId(role.getId());
-            roleResource.setResourceId(resource.getId());
-//            roleResourceService.save(roleResource);
-        });
-
+            List<RoleResource> roleResources = roleResourceName.stream().map(
+                    roleUrl -> {
+                        RoleResource roleResource = new RoleResource();
+                        Integer roleId = roleUrl.getRoleId();
+                        Resource resource = resourceMap.get(roleUrl.getMethod() + roleUrl.getUrl());
+                        roleResource.setResourceId(resource.getId());
+                        roleResource.setRoleId(roleId);
+                        return roleResource;
+                    }).collect(Collectors.toList());
+            roleResourceService.deleteAll();
+            roleResourceService.saveAll(roleResources);
+//            List<RoleResource> databaseRoleResources = roleResourceService.listAll();
+//            roleResources.containsAll(databaseRoleResources);
+//
+//            roleResourceName.forEach(roleUrl->{
+//                RoleResource roleResource = new RoleResource();
+//                Resource resource = resourceMap.get(roleUrl.getMethod()+roleUrl.getUrl());
+//                roleResource.setRoleId(roleUrl.getRoleId());
+//                roleResource.setResourceId(resource.getId());
+//                roleResourceService.save(roleResource);
+//            });
+        }
     }
 }

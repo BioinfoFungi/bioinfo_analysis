@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 
 import com.wangyang.bioinfo.handle.FileHandlers;
+import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
@@ -297,7 +298,8 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy delBy(Integer id) {
-//        taskRepository.delByCanSId(id);
+        List<Task> tasks = taskRepository.findByCancerStudyId(id);
+        taskRepository.deleteAll(tasks);
         return super.delBy(id);
     }
 

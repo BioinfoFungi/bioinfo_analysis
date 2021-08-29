@@ -7,6 +7,7 @@ import javax.persistence.Column;
 import javax.persistence.MappedSuperclass;
 import javax.persistence.Temporal;
 import javax.persistence.TemporalType;
+import java.io.Serializable;
 import java.util.Date;
 
 /**
@@ -15,7 +16,7 @@ import java.util.Date;
  */
 @MappedSuperclass
 @Data
-public class BaseEntity {
+public class BaseEntity implements Serializable {
     @Column(name = "create_time")
     @Temporal(TemporalType.TIMESTAMP)
 //    @JsonFormat(pattern="yyyy-MM-dd HH:mm", timezone="GMT+8")

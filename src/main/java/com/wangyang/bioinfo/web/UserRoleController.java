@@ -7,10 +7,7 @@ import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.IUserRoleService;
 import io.jsonwebtoken.lang.Assert;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.validation.constraints.NotNull;
 
@@ -23,5 +20,12 @@ public class UserRoleController {
     @PostMapping
     public UserRole save(@RequestBody UserRole userRole){
         return userRoleService.save(userRole);
+    }
+
+
+    @GetMapping("/del/{id}")
+    public UserRole del(@PathVariable("id") Integer id){
+        UserRole userRole = userRoleService.delBy(id);
+        return userRole;
     }
 }

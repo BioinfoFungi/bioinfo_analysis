@@ -50,9 +50,21 @@ public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
         this.userRoleService=userRoleService;
         this.roleService=roleService;
     }
-
     @Override
     public User addUser(User user) {
+        return userRepository.save(user);
+    }
+    @Override
+    public User addUser(UserParam userParam) {
+        User user = new User();
+        BeanUtils.copyProperties(userParam,user);
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User updateUser(int id, UserParam userParam) {
+        User user = findUserById(id);
+        BeanUtils.copyProperties(userParam,user);
         return userRepository.save(user);
     }
 
@@ -86,15 +98,16 @@ public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
 
     @Override
     public User delUser(int id) {
-        User user = findUserById(id);
+        User user = findById(id);
+        if(user.getUsername().equals("admin")){
+            throw new BioinfoException("超级管理员不能删除！");
+        }
+        List<UserRole> userRoles = userRoleService.findByUserId(user.getId());
+        userRoleService.deleteAll(userRoles);
         userRepository.delete(user);
         return user;
     }
 
-    @Override
-    public User updateUser(User user) {
-        return null;
-    }
 
 
 
@@ -102,10 +115,8 @@ public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
     public Page<User> pageUser(Pageable pageable) {
         return userRepository.findAll(pageable).map(user -> {
           User user1 = new User();
-            user1.setId(user.getId());
-//          user1.setRoles(user.getRoles());
-            user1.setUsername(user.getUsername());
-//          BeanUtils.copyProperties(user,user1);
+          BeanUtils.copyProperties(user,user1);
+          user1.setPassword("");
           return user1;
         });
     }

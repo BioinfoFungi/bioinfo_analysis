@@ -33,8 +33,8 @@ public class BioInterceptor implements HandlerInterceptor {
             return true;
         }
         String uri = request.getRequestURI();
-
-        Set<Role> needsRoles = permissionService.findRolesByResource(uri);
+        String method = request.getMethod();
+        Set<Role> needsRoles = permissionService.findRolesByResource(method+uri);
         Set<String> needRoleStr = ServiceUtil.fetchProperty(needsRoles, Role::getEnName);
 
         if(needRoleStr.contains("anonymous")){
@@ -78,7 +78,7 @@ public class BioInterceptor implements HandlerInterceptor {
 
         String authorities = needRoleStr.stream()
                 .collect(Collectors.joining(" | "));
-        throw new AuthorizationException("权限不足，当前路径请求角色："+authorities);
+        throw new AuthorizationException("权限不足，["+uri+"]请求角色："+authorities);
     }
 
     public static  String getToken(HttpServletRequest request,String tokenName){

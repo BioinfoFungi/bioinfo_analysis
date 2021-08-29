@@ -4,11 +4,13 @@ import lombok.Data;
 
 @Data
 public class RoleUrl {
-    private String role;
+    private Integer roleId;
     private String url;
+    private String method;
 
-    public RoleUrl(String role, String url) {
-        this.role = role;
+    public RoleUrl(Integer roleId, String url, String method) {
+        this.roleId = roleId;
         this.url = url;
+        this.method = method;
     }
 }

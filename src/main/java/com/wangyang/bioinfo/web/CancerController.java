@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -34,6 +35,7 @@ public class CancerController {
     IOrganizeFileService organizeFileService;
 
     @GetMapping
+    @Anonymous
     public Page<Cancer> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
         Page<Cancer> cancers = cancerService.pageBy(baseTermParam,pageable);
         return cancers;

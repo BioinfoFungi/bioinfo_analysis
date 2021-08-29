@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
+import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
@@ -155,7 +156,8 @@ public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
 
     @Override
     public Code delBy(Integer id) {
-//        taskRepository.delByCodeId(id);
+        List<Task> tasks = taskRepository.findByCodeId(id);
+        taskRepository.deleteAll(tasks);
         return super.delBy(id);
     }
 

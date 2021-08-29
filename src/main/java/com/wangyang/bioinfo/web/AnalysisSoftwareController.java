@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.annotation.Authorize;
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
@@ -30,7 +30,7 @@ public class AnalysisSoftwareController {
 
 
     @GetMapping
-    @Authorize
+    @Anonymous
     public Page<AnalysisSoftware> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
         Page<AnalysisSoftware> analysisSoftwares = analysisSoftwareService.pageBy(baseTermParam,pageable);
         return analysisSoftwares;
@@ -41,7 +41,6 @@ public class AnalysisSoftwareController {
         return  analysisSoftwareService.save(baseTermParam);
     }
     @GetMapping("/init/{name}")
-    @Authorize
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
         analysisSoftwareService.initData(organizeFile.getAbsolutePath());
@@ -49,7 +48,6 @@ public class AnalysisSoftwareController {
     }
 
     @GetMapping("/init")
-    @Authorize
     public BaseResponse initDataBy(@RequestParam("path") String path){
         analysisSoftwareService.initData(path);
         return BaseResponse.ok("初始化完成!");

@@ -2,6 +2,15 @@ spring:
 #  data:
 #    mongodb:
 #      uri: mongodb://localhost:27017/bioinfo
+#  cache:
+#    type: ehcache
+#    ehcache:
+#      config: classpath:ehcache.xml
+#    jcache:
+#      provider: org.ehcache.jsr107.EhcacheCachingProvider
+#  cache:
+#    ehcache:
+#      config: classpath:ehcache.xml
   http:
     encoding:
       charset=UTF-8:
@@ -14,17 +23,24 @@ spring:
 #        format_sql: true
 #        generate_statistics: true # 将hibernate的统计打开来看看到底是不是被缓存了
         enable_lazy_load_no_trans: true # 在没有事务的情况下允许懒加载
-#        cache:
-#          use_second_level_cache: true
-#          use_query_cache: true
-#          region:
-#            factory_class: org.hibernate.cache.jcache.JCacheRegionFactory
-#    javax:
-#      persistence:
-#        sharedCache:
-#          mode: ALL
+        cache:
+          use_second_level_cache: true
+          use_query_cache: true
+          region:
+            factory_class: jcache
+#        javax:
+#          cache:
+#            provider: org.ehcache.jsr107.EhcacheCachingProvider
+#            uri: classpath:ehcache.xml
+#          persistence:
+#            sharedCache:
+#              mode: ALL
 
+  cache:
+    jcache:
+      config: classpath:ehcache.xml
 
+  #https://docs.jboss.org/hibernate/orm/5.4/userguide/html_single/Hibernate_User_Guide.html#caching-provider-jcache
 
   servlet:
     multipart:
@@ -51,7 +67,7 @@ spring:
   datasource:
     platform: h2
     driverClassName: org.h2.Driver
-    url: jdbc:h2:file:~/Downloads/h2/dbc2m_
+    url: jdbc:h2:file:~/Downloads/h2/dbc2m_2
     username: root
     password: 123456
 #    schema: classpath:db/user.sql #启动时需要初始化的建表语句
@@ -69,6 +85,7 @@ jwt:
   base64-secret: ZmQ0ZGI5NjQ0MDQwY2I4MjMxY2Y3ZmI3MjdhN2ZmMjNhODViOTg1ZGE0NTBjMGM4NDA5NzYxMjdjOWMwYWRmZTBlZjlhNGY3ZTg4Y2U3YTE1ODVkZDU5Y2Y3OGYwZWE1NzUzNWQ2YjFjZDc0NGMxZWU2MmQ3MjY1NzJmNTE0MzI=
 bioinfo:
     workDir: ${user.home}/.bioinfo
+    authorizeInit: true
 
 #https://www.jianshu.com/p/35878d4ec130
 server:

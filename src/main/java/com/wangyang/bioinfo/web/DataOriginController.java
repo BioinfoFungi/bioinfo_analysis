@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -36,6 +37,7 @@ public class DataOriginController {
 
 
     @GetMapping
+    @Anonymous
     public Page<DataOrigin> page(BaseTermParam baseTermParam, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable) {
         Page<DataOrigin> dataOrigins = dataOriginService.pageBy(baseTermParam,pageable);
         return dataOrigins;

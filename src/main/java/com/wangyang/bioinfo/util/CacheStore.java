@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.util;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -9,7 +10,8 @@ import java.util.concurrent.ConcurrentHashMap;
  * @date 2021/6/14
  */
 public class CacheStore {
-    public final static ConcurrentHashMap<String,Object> CACHE_CONTAINER = new ConcurrentHashMap<>();
+    public final static Map<String,Object> CACHE_CONTAINER = new ConcurrentHashMap<>();
+
     public static Optional<String> get(String key){
         return Optional.ofNullable((String) CACHE_CONTAINER.get(key));
     }
@@ -27,18 +29,7 @@ public class CacheStore {
         return (String)CACHE_CONTAINER.get(key);
     }
 
-    public static  <T>T save(String key,T t){
-        CACHE_CONTAINER.put(key,t);
-        return t;
-    }
-    public static  <T>List<T> getList(String key,Class<T> clz){
-        Object o = CACHE_CONTAINER.get(key);
-        if(o!=null){
-            List<T> list = (List<T>)o;
-            return list;
-        }
-        return null;
-    }
+
     public static  <T>T get(String key,Class<T> clz){
         Object o = CACHE_CONTAINER.get(key);
         if(clz.isInstance(o)){

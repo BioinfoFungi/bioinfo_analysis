@@ -16,16 +16,23 @@ import org.springframework.lang.Nullable;
 
 import javax.persistence.QueryHint;
 import java.util.List;
+import java.util.Optional;
 
 public interface RoleResourceRepository extends BaseRepository<RoleResource,Integer> {
 
+    @Override
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    List<RoleResource> findAll();
 
-    default  List<RoleResource> listAll(){
-        List<RoleResource> roleResource = CacheStore.getList("RoleResource", RoleResource.class);
-        if(roleResource==null){
-            roleResource = this.findAll();
-            CacheStore.save("RoleResource",roleResource);
-        }
-        return roleResource;
-    }
+    @Override
+    @QueryHints({ @QueryHint(name = "org.hibernate.cacheable", value ="true") })
+    Optional<RoleResource> findById(Integer integer);
+//    default  List<RoleResource> listAll(){
+//        List<RoleResource> roleResource = CacheStore.getList("RoleResource", RoleResource.class);
+//        if(roleResource==null){
+//            roleResource = this.findAll();
+//            CacheStore.save("RoleResource",roleResource);
+//        }
+//        return roleResource;
+//    }
 }

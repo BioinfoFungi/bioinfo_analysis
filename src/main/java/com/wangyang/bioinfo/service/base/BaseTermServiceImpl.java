@@ -7,7 +7,6 @@ import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,7 +94,7 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
     }
 
     @Override
-    @Cacheable(cacheNames = {"TERM"})
+    @Cacheable(cacheNames="TERM")
     public TERM findAndCheckByEnName(String name) {
         if(name==null|| name.equals("")){
             return null;

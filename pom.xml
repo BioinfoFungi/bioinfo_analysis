@@ -63,10 +63,6 @@
 		</dependency>
 
 <!--		springboot jpa 开启二级缓存-->
-<!--		<dependency>-->
-<!--			<groupId>org.hibernate</groupId>-->
-<!--			<artifactId>hibernate-ehcache</artifactId>-->
-<!--		</dependency>-->
 
 		<dependency>
 			<groupId>org.hibernate</groupId>
@@ -74,11 +70,12 @@
 			<version>${hibernate.version}</version>
 		</dependency>
 
+
 		<dependency>
 			<groupId>org.ehcache</groupId>
 			<artifactId>ehcache</artifactId>
-			<version>3.6.3</version>
-			<scope>runtime</scope>
+			<version>3.8.1</version>
+<!--			<scope>runtime</scope>-->
 		</dependency>
 
 <!--		<dependency>-->

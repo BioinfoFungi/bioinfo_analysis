@@ -15,6 +15,10 @@ import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
+import org.springframework.cache.Cache;
+import org.springframework.cache.CacheManager;
+import org.springframework.cache.concurrent.ConcurrentMapCache;
+import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -30,7 +34,10 @@ import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
 import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+
+
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -43,6 +50,17 @@ import java.util.List;
 public class MvcConfig   extends WebMvcConfigurationSupport implements WebSocketConfigurer {
     @Value("${bioinfo.workDir}")
     private String workDir;
+
+//    @Bean
+//    public CacheManager cacheManager() {
+//        SimpleCacheManager cacheManager = new SimpleCacheManager();
+//        List<Cache> caches = new ArrayList<Cache>();
+//        ConcurrentMapCache actionsBycasId = new ConcurrentMapCache("TERM");
+//        caches.add(actionsBycasId);
+//        cacheManager.setCaches(caches);
+//        return cacheManager;
+//    }
+
     @Override
     protected void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/**")

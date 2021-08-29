@@ -1,17 +1,16 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.authorize.Resource;
-import com.wangyang.bioinfo.pojo.authorize.Role;
-import com.wangyang.bioinfo.pojo.authorize.RoleResource;
-import com.wangyang.bioinfo.pojo.authorize.UserRole;
+import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
 import com.wangyang.bioinfo.repository.RoleRepository;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
+import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.IRoleService;
 import com.wangyang.bioinfo.service.IUserRoleService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ServiceUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cache.annotation.Cacheable;
@@ -28,6 +27,7 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -37,24 +37,28 @@ import java.util.stream.Collectors;
  */
 @Service
 //@Transactional
+@Slf4j
 public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
             implements IRoleService {
 
 
     private final RoleRepository roleRepository;
     private final IUserRoleService userRoleService;
+    private final IRoleResourceService roleResourceService;
 
     public RoleServiceImpl(RoleRepository roleRepository,
-                           IUserRoleService userRoleService) {
+                           IUserRoleService userRoleService,
+                           IRoleResourceService roleResourceService) {
         super(roleRepository);
         this.roleRepository=roleRepository;
         this.userRoleService=userRoleService;
+        this.roleResourceService=roleResourceService;
     }
 
 
     @Override
     public List<Role> listAll() {
-        return roleRepository.listAll();
+        return roleRepository.findAll();
     }
 
     @Override
@@ -72,10 +76,12 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
 
     @Override
     public Role delRole(int id) {
-        Role role = findRoleById(id);
-        if(role==null){
-            throw new BioinfoException("要删除的角色不存在");
+        Role role = findById(id);
+        if(role.getEnName().equals("ADMIN")){
+            throw new BioinfoException("ADMIN角色不能删除！");
         }
+        List<RoleResource> roleResources = roleResourceService.findByRoleId(role.getId());
+        roleResourceService.deleteAll(roleResources);
         roleRepository.delete(role);
         return role;
     }
@@ -90,12 +96,23 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
     }
 
     @Override
-    public Role updateRole(Role role) {
-        return null;
+    public Role addRole(RoleParam roleParam) {
+        Role role = new Role();
+        BeanUtils.copyProperties(roleParam,role);
+        return roleRepository.save(role);
+    }
+
+    @Override
+    public Role updateRole(Integer id, RoleParam roleParam) {
+        Role role = findById(id);
+        BeanUtils.copyProperties(roleParam,role);
+        return roleRepository.save(role);
     }
 
     @Override
     public Role findByEnName(String name){
+
+
         List<Role> roleList = listAll().stream()
                 .filter(role -> role.getEnName().equals(name))
                 .collect(Collectors.toList());
@@ -110,13 +127,68 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
                 .collect(Collectors.toList());
         return roleList;
     }
+    public List<Role> findByWithoutIds(Iterable<Integer> inputIds){
+        Set<Integer> ids = (Set<Integer> )inputIds;
+        List<Role> roleList = listAll().stream()
+                .filter(role -> !ids.contains(role.getId()))
+                .collect(Collectors.toList());
+        return roleList;
+    }
+
+    @Override
+    public List<RoleVO> findByUserId(Integer id) {
+        List<UserRole> userRoles = userRoleService.findByUserId(id);
+        Set<Integer> roleIds = ServiceUtil.fetchProperty(userRoles, UserRole::getRoleId);
+        List<Role> roles = findByIds(roleIds);
+        Map<Integer, Role> roleMap = ServiceUtil.convertToMap(roles, Role::getId);
+        List<RoleVO> resourceVOS = userRoles.stream().map(userRole -> {
+            RoleVO roleVO = new RoleVO();
+            Role role = roleMap.get(userRole.getRoleId());
+            BeanUtils.copyProperties(role,roleVO);
+            roleVO.setUserRoleId(userRole.getId());
+            roleVO.setUserId( userRole.getUserId());
+
+            return roleVO;
+        }).collect(Collectors.toList());
+        return resourceVOS;
+    }
+
+    @Override
+    public List<Role> findByWithoutUserId(Integer id) {
+        List<UserRole> userRoles = userRoleService.findByUserId(id);
+        Set<Integer> roleIds = ServiceUtil.fetchProperty(userRoles, UserRole::getRoleId);
+        List<Role> roles = findByWithoutIds(roleIds);
+        return roles;
+    }
+
+
 
 
     @Override
-    public List<Role> findByUserId(Integer id) {
-        List<UserRole> userRoles = userRoleService.findByUserId(id);
-        Set<Integer> resourceIds = ServiceUtil.fetchProperty(userRoles, UserRole::getRoleId);
-        List<Role> roles = findByIds(resourceIds);
+    public List<RoleVO> findByRoleId(Integer id) {
+        List<RoleResource> roleResources = roleResourceService.findByResourceId(id);
+        Set<Integer> roleIds = ServiceUtil.fetchProperty(roleResources, RoleResource::getRoleId);
+        List<Role> roles = findByIds(roleIds);
+        Map<Integer, Role> resourceMap = ServiceUtil.convertToMap(roles, Role::getId);
+
+        List<RoleVO> resourceVOS = roleResources.stream().map(roleResource -> {
+            RoleVO roleVO = new RoleVO();
+            Role role = resourceMap.get(roleResource.getRoleId());
+            BeanUtils.copyProperties(role,roleVO);
+            roleVO.setResourceRoleId(roleResource.getId());
+            roleVO.setResourceId( roleResource.getResourceId());
+
+            return roleVO;
+        }).collect(Collectors.toList());
+        return resourceVOS;
+    }
+
+    @Override
+    public List<Role> findByWithoutRoleId(Integer id) {
+        List<RoleResource> roleResources = roleResourceService.findByRoleId(id);
+        Set<Integer> roleIds = ServiceUtil.fetchProperty(roleResources, RoleResource::getResourceId);
+        List<Role> roles = findByWithoutIds(roleIds);
         return roles;
     }
+
 }
