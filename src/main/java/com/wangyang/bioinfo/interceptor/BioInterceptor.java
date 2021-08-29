@@ -62,7 +62,7 @@ public class BioInterceptor implements HandlerInterceptor {
 
         String token = getToken(request, "Authorization");
         if(token==null | !tokenProvider.validateToken(token)){
-            throw new AuthorizationException("未授权！");
+            throw new AuthorizationException("["+uri+"]需要授权！");
         }
 
         UserDetailDTO userDetailDTO = tokenProvider.getAuthentication(token);

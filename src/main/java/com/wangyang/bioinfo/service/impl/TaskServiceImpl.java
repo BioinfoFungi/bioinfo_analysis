@@ -1,6 +1,5 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
@@ -11,7 +10,6 @@ import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.TaskRepository;
-import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
@@ -19,12 +17,10 @@ import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
-import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -136,7 +132,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     }
 
     public  boolean runCheck(Task task){
-        if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH)){
+        if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH) && !task.getTaskStatus().equals(TaskStatus.INTERRUPT) ){
             return true;
         }else{
             return false;
@@ -185,7 +181,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudyProcess.setParentId(cancerStudy.getId());
 
         //交给thread
-        asyncService.processCancerStudy1(task,code,cancerStudy,cancerStudyProcess,map);
+        asyncService.processCancerStudy1(user,task,code,cancerStudy,cancerStudyProcess,map);
         return task;
     }
 
@@ -227,7 +223,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudyProcess.setCodeId(code.getId());
         cancerStudyProcess.setParentId(cancerStudy.getId());
 
-        asyncService.processCancerStudy1(task,code,cancerStudy,cancerStudyProcess,map);
+        asyncService.processCancerStudy1(user,task,code,cancerStudy,cancerStudyProcess,map);
         return task;
     }
 

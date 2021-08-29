@@ -2,6 +2,7 @@ package com.wangyang.bioinfo;
 
 import com.wangyang.bioinfo.repository.base.BaseRepositoryFactoryBean;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.websocket.WebSocketServer;
 import org.apache.catalina.Context;
 import org.apache.catalina.connector.Connector;
 import org.apache.coyote.http11.Http11NioProtocol;
@@ -14,6 +15,7 @@ import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactor
 import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
 //import org.springframework.cache.annotation.EnableCaching;
 import org.springframework.cache.annotation.EnableCaching;
+import org.springframework.context.ConfigurableApplicationContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.PropertySource;

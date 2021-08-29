@@ -1,24 +1,25 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.dto.FileDTO;
 import com.wangyang.bioinfo.util.BaseResponse;
 import com.wangyang.bioinfo.util.CacheStore;
+import com.wangyang.bioinfo.util.FileUtil;
 import org.apache.commons.io.FileUtils;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 
 /**
  * @author wangyang
  * @date 2021/7/17
  */
 @RestController
-@RequestMapping("/data")
+@RequestMapping("/api/file")
 public class FileController {
 
     @RequestMapping("/{filename}")
@@ -39,5 +40,8 @@ public class FileController {
         }
 
     }
-
+    @GetMapping("/list")
+    public List<FileDTO> listPath(@RequestParam("path") String path){
+        return FileUtil.listPath(path);
+    }
 }

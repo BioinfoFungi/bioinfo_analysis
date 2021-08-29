@@ -67,7 +67,7 @@ spring:
   datasource:
     platform: h2
     driverClassName: org.h2.Driver
-    url: jdbc:h2:file:~/Downloads/h2/dbc2m_2
+    url: jdbc:h2:file:~/Downloads/h2/dbc2m
     username: root
     password: 123456
 #    schema: classpath:db/user.sql #启动时需要初始化的建表语句
@@ -102,6 +102,7 @@ http:
 
 logging:
   level:
+    com.wangyang.bioinfo: debug
     org:
       hibernate:
 #        type: trace

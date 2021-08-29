@@ -3,7 +3,7 @@ package com.wangyang.bioinfo.web;
 import com.github.rcaller.graphics.SkyTheme;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
-import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
+import com.wangyang.bioinfo.websocket.WebSocketServer;
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
@@ -50,7 +50,7 @@ public class MainController {
     ThreadPoolTaskExecutor executor;
 
     @Autowired
-    SpringWebSocketHandler webSocketHandler;
+    WebSocketServer webSocketHandler;
 
     @GetMapping("/testExecutor")
     @ResponseBody
@@ -78,9 +78,11 @@ public class MainController {
 
     @GetMapping("/test")
     @ResponseBody
-    public String test(){
+    @Anonymous
+    public String test(String fromUser,String toUser,String msg){
         System.out.println("-----test before");
         testAsync.testAsync();
+        webSocketHandler.sendMessageToUser(fromUser,toUser,msg);
         System.out.println("-----test after");
         return "你好";
     }
@@ -123,7 +125,7 @@ public class MainController {
         c.eval("p <- ggplot(deg,aes(x=log2FoldChange,y=-log10(padj),colour=direction))+geom_point(alpha=0.6)");
         String string = c.eval("hgd_inline({plot.new();print(p)})").asString();
         c.close();
-        webSocketHandler.sendMessageToUsers(new TextMessage(string));
+//        webSocketHandler.sendMessageToUsers(new TextMessage(string));
 
 //        httpServletResponse.setContentType("image/svg+xml;charset=utf-8");
 //        OutputStream os = httpServletResponse.getOutputStream();

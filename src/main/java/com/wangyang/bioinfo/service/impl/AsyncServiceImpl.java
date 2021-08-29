@@ -4,7 +4,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.rcaller.FunctionCall;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
-import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
+import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.websocket.WebSocketServer;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.dto.TaskProcess;
@@ -19,13 +20,11 @@ import com.wangyang.bioinfo.util.BeanUtil;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.socket.TextMessage;
 
-import java.beans.PropertyVetoException;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -42,17 +41,19 @@ public class AsyncServiceImpl implements IAsyncService {
 
     private final TaskRepository taskRepository;
     private final ICancerStudyService cancerStudyService;
-    private final SpringWebSocketHandler springWebSocketHandler;
-    private ThreadPoolTaskExecutor executorService;
+    private final WebSocketServer springWebSocketHandler;
+    private final ThreadPoolTaskExecutor executorService;
     private final Map<Integer, TaskProcess> processMap;
 
     public AsyncServiceImpl(TaskRepository taskRepository,
                             ICancerStudyService cancerStudyService,
-                            SpringWebSocketHandler springWebSocketHandler){
+                            WebSocketServer springWebSocketHandler,
+                            ThreadPoolTaskExecutor executorService){
         processMap= new HashMap<>();
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
         this.springWebSocketHandler=springWebSocketHandler;
+        this.executorService=executorService;
     }
 
 
@@ -129,12 +130,12 @@ public class AsyncServiceImpl implements IAsyncService {
 //    }
 
     @Override
-    public void processCancerStudy1(Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map)  {
+    public void processCancerStudy1(User user, Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map)  {
         Runnable runnable = new Runnable() {
             @Override
             public void run() {
                 try {
-                    processCancerStudy(task, code, cancerStudy, cancerStudyProcess, map);
+                    processCancerStudy(user,task, code, cancerStudy, cancerStudyProcess, map);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -147,14 +148,14 @@ public class AsyncServiceImpl implements IAsyncService {
     }
     @Override
     @Async("taskExecutor")
-    public void processCancerStudy2(Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
-        processCancerStudy(task,code,cancerStudy,cancerStudyProcess,map);
+    public void processCancerStudy2(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
+        processCancerStudy(user,task,code,cancerStudy,cancerStudyProcess,map);
     }
 
 
 
 
-    public void processCancerStudy(Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
+    public void processCancerStudy(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
         /***************************************************************/
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
 //        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
@@ -193,7 +194,7 @@ public class AsyncServiceImpl implements IAsyncService {
         task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
         taskRepository.save(task);
         log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        springWebSocketHandler.sendMessageToUsers(new TextMessage(JSONObject.toJSON(task).toString()));
+        springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
         /*****************************************************************/
     }
 

@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.interceptor;
+package com.wangyang.bioinfo.websocket;
 
 import org.springframework.http.server.ServerHttpRequest;
 import org.springframework.http.server.ServerHttpResponse;

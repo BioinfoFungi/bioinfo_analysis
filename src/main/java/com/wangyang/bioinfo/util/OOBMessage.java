@@ -1,14 +1,8 @@
 package com.wangyang.bioinfo.util;
 
-import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
-import org.rosuda.REngine.REXP;
-import org.rosuda.REngine.REXPMismatchException;
-import org.rosuda.REngine.REXPString;
-import org.rosuda.REngine.RList;
+import com.wangyang.bioinfo.websocket.WebSocketServer;
 //import org.rosuda.REngine.Rserve.OOBInterface;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.web.socket.TextMessage;
+
 
 /**
  * @author wangyang
@@ -16,10 +10,10 @@ import org.springframework.web.socket.TextMessage;
  */
 public class OOBMessage {// implements OOBInterface {
 
-    SpringWebSocketHandler springWebSocketHandler;
+    WebSocketServer springWebSocketHandler;
 
 
-    public OOBMessage(SpringWebSocketHandler springWebSocketHandler){
+    public OOBMessage(WebSocketServer springWebSocketHandler){
         this.springWebSocketHandler=springWebSocketHandler;
     }
 

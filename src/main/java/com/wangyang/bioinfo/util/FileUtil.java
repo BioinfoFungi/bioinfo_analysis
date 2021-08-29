@@ -1,8 +1,10 @@
 package com.wangyang.bioinfo.util;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.dto.FileDTO;
 import com.wangyang.bioinfo.pojo.dto.term.BaseFileDTO;
 import org.apache.commons.io.FileUtils;
+import org.apache.tomcat.util.buf.StringCache;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -10,6 +12,11 @@ import org.springframework.http.ResponseEntity;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 /**
  * @author wangyang
@@ -92,5 +99,30 @@ public class FileUtil {
         return file;
     }
 
+    public static  List<FileDTO> listPath(String strPath){
+        String bashPtah = CacheStore.getValue("workDir");
+        Path path = Paths.get(bashPtah, strPath);
+        List<FileDTO> list = new ArrayList<>();
+        findFileList(path.toFile(),list);
+        return list;
+    }
+
+    public static void findFileList(File dir, List<FileDTO> fileNames) {
+        if (!dir.exists() || !dir.isDirectory()) {// 判断是否存在目录
+            return;
+        }
+        String[] files = dir.list();// 读取目录下的所有目录文件信息
+        for (int i = 0; i < files.length; i++) {// 循环，添加文件名或回调自身
+            File file = new File(dir, files[i]);
+            if (file.isFile()) {// 如果文件
+                FileDTO fileDTO = new FileDTO();
+                fileDTO.setAbsolutePath(dir + File.separator + file.getName());
+                fileDTO.setFileName(file.getName());
+                fileNames.add(fileDTO);// 添加文件全路径名
+            } else {// 如果是目录
+                findFileList(file, fileNames);// 回调自身继续查询
+            }
+        }
+    }
 
 }

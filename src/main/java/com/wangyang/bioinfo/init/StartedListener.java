@@ -7,9 +7,11 @@ import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.RoleUrl;
+import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import com.wangyang.bioinfo.util.CacheStore;
+import com.wangyang.bioinfo.util.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -91,6 +93,12 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     //添加数据库中的任务到队列
     public void addQueue(){
         List<Task> tasks = taskService.addTas2Queue();
+        tasks.forEach(task->{
+            if(!task.getTaskStatus().equals(TaskStatus.FINISH)){
+                task.setTaskStatus(TaskStatus.INTERRUPT);
+                taskService.save(task);
+            }
+        });
         int size = executor.getThreadPoolExecutor().getQueue().size();
         int activeCount = executor.getActiveCount();
         int corePoolSize = executor.getCorePoolSize();

@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
@@ -41,6 +42,7 @@ public class CancerStudyController {
     IOrganizeFileService organizeFileService;
 
     @GetMapping
+    @Anonymous
     public Page<? extends TermMapping> page(CancerStudyQuery cancerStudyQuery,
                                             @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
                                             @RequestParam(value = "more", defaultValue = "false") Boolean more){

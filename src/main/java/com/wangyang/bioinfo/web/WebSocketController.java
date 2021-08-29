@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
+import com.wangyang.bioinfo.websocket.WebSocketServer;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -18,7 +18,7 @@ import javax.servlet.http.HttpSession;
 @Controller
 public class WebSocketController {
     @Autowired
-    SpringWebSocketHandler springWebSocketHandler;
+    WebSocketServer springWebSocketHandler;
 
 
 
@@ -36,7 +36,7 @@ public class WebSocketController {
     @ResponseBody
     public String send(HttpServletRequest request) {
         String username = request.getParameter("username");
-        springWebSocketHandler.sendMessageToUser(username, new TextMessage("你好，测试！！！！"));
+//        springWebSocketHandler.sendMessageToUser(username, new TextMessage("你好，测试！！！！"));
         return null;
     }
 
@@ -44,7 +44,7 @@ public class WebSocketController {
     @RequestMapping("/websocket/broad")
     @ResponseBody
     public  String broad() {
-        springWebSocketHandler.sendMessageToUsers(new TextMessage("发送一条小Broad"));
+//        springWebSocketHandler.sendMessageToUsers(new TextMessage("发送一条小Broad"));
         System.out.println("群发成功");
         return "broad";
     }

@@ -6,19 +6,7 @@ import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.ser.std.ToStringSerializer;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.wangyang.bioinfo.interceptor.BioInterceptor;
-import com.wangyang.bioinfo.interceptor.SpringWebSocketHandlerInterceptor;
-import com.wangyang.bioinfo.handle.SpringWebSocketHandler;
-import org.apache.catalina.Context;
-import org.apache.catalina.connector.Connector;
-import org.apache.tomcat.util.descriptor.web.SecurityCollection;
-import org.apache.tomcat.util.descriptor.web.SecurityConstraint;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.embedded.tomcat.TomcatServletWebServerFactory;
-import org.springframework.boot.web.servlet.server.ServletWebServerFactory;
-import org.springframework.cache.Cache;
-import org.springframework.cache.CacheManager;
-import org.springframework.cache.concurrent.ConcurrentMapCache;
-import org.springframework.cache.support.SimpleCacheManager;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.web.PageableHandlerMethodArgumentResolver;
@@ -30,14 +18,9 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurationSupport;
 import org.springframework.web.socket.config.annotation.EnableWebSocket;
-import org.springframework.web.socket.config.annotation.WebSocketConfigurer;
-import org.springframework.web.socket.config.annotation.WebSocketHandlerRegistry;
-import org.springframework.web.socket.handler.TextWebSocketHandler;
-
 
 
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -46,8 +29,7 @@ import java.util.List;
  * @date 2021/4/24
  */
 @Configuration
-@EnableWebSocket
-public class MvcConfig   extends WebMvcConfigurationSupport implements WebSocketConfigurer {
+public class MvcConfig   extends WebMvcConfigurationSupport  {
     @Value("${bioinfo.workDir}")
     private String workDir;
 
@@ -165,21 +147,24 @@ public class MvcConfig   extends WebMvcConfigurationSupport implements WebSocket
                     allowedHeaders("*"). //允许任何请求头
                     allowCredentials(true); //带上cookie信息
     }
-    @Override
-    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
-        //springwebsocket 4.1.5版本前默认支持跨域访问，之后的版本默认不支持跨域，需要设置.setAllowedOrigins("*")
-        registry.addHandler(webSocketHandler(),"/websocket/socketServer.do").setAllowedOrigins("*")
-                .addInterceptors(new SpringWebSocketHandlerInterceptor());
+
+
+//    @Override
+//    public void registerWebSocketHandlers(WebSocketHandlerRegistry registry) {
+//        //springwebsocket 4.1.5版本前默认支持跨域访问，之后的版本默认不支持跨域，需要设置.setAllowedOrigins("*")
+//        registry.addHandler(webSocketHandler(),"/websocket/socketServer.do")
+//                .setAllowedOrigins("*")
+//                .addInterceptors(new SpringWebSocketHandlerInterceptor());
+////
+////        registry.addHandler(webSocketHandler(), "/sockjs/socketServer.do")
+////                .addInterceptors(new SpringWebSocketHandlerInterceptor()).withSockJS();
+//    }
 //
-//        registry.addHandler(webSocketHandler(), "/sockjs/socketServer.do")
-//                .addInterceptors(new SpringWebSocketHandlerInterceptor()).withSockJS();
-    }
-
-    @Bean
-    public TextWebSocketHandler webSocketHandler() {
-        return new SpringWebSocketHandler();
-    }
-
+//    @Bean
+//    public TextWebSocketHandler webSocketHandler() {
+//        return new SpringWebSocketHandler();
+//    }
+//
 
 
 }
