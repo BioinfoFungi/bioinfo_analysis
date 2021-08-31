@@ -24,7 +24,7 @@ public interface IBaseFileService<FILE extends BaseFile> extends ICrudService<FI
 
     FILE findByUUID(String uuid);
 
-    Page<FILE> pageBy(FILE baseFileQuery, String keyWard,Pageable pageable);
+    Page<FILE> pageBy(FILE baseFileQuery, String keywords,Pageable pageable);
 
     FILE download(String uuid,FileLocation fileLocation, HttpServletResponse response);
 

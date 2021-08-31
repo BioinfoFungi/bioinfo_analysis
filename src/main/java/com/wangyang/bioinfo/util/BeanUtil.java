@@ -2,12 +2,9 @@ package com.wangyang.bioinfo.util;
 
 
 import com.google.common.collect.Lists;
-import com.wangyang.bioinfo.pojo.base.BaseRNA;
-import com.wangyang.bioinfo.pojo.txt.Annotation;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.BeanWrapper;
 import org.springframework.beans.BeanWrapperImpl;
-import org.springframework.beans.BeansException;
 
 import java.util.*;
 import java.util.stream.Collectors;

@@ -12,13 +12,11 @@ import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CancerStudyRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
-import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
-import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
+import com.wangyang.bioinfo.service.base.TermMappingServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -38,7 +36,7 @@ import java.util.stream.Collectors;
  */
 @Service
 public class CancerStudyServiceImpl
-        extends BaseDataCategoryServiceImpl<CancerStudy>
+        extends TermMappingServiceImpl<CancerStudy>
         implements ICancerStudyService {
 
     private  final CancerStudyRepository cancerStudyRepository;

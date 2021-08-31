@@ -5,7 +5,7 @@ import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
-import com.wangyang.bioinfo.service.base.IBaseDataCategoryService;
+import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
@@ -18,7 +18,7 @@ import java.util.List;
  * @author wangyang
  * @date 2021/6/26
  */
-public interface ICancerStudyService extends IBaseDataCategoryService<CancerStudy> {
+public interface ICancerStudyService extends ITermMappingService<CancerStudy> {
 
     CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam, User user);
     CancerStudy updateCancerStudy(Integer id,CancerStudyParam cancerStudyParam, User user);

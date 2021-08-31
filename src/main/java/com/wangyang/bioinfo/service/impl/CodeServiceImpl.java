@@ -9,27 +9,22 @@ import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
-import com.wangyang.bioinfo.repository.CancerStudyRepository;
 import com.wangyang.bioinfo.repository.CodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
-import com.wangyang.bioinfo.service.base.BaseDataCategoryServiceImpl;
-import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.service.base.TermMappingServiceImpl;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.lang.reflect.Field;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -40,7 +35,7 @@ import java.util.List;
 @Service
 @Slf4j
 @Transactional
-public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
+public class CodeServiceImpl extends TermMappingServiceImpl<Code>
         implements ICodeService {
 
 
@@ -71,22 +66,6 @@ public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
         this.cancerStudyService=cancerStudyService;
         this.taskRepository=taskRepository;
     }
-    @Override
-    public Code findBy(String dataCategory,String analysisSoftware){
-        List<Code> codes = codeRepository.findAll(new Specification<Code>() {
-            @Override
-            public Predicate toPredicate(Root<Code> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(
-                        criteriaBuilder.equal(root.get("dataCategory"),dataCategory),
-                        criteriaBuilder.equal(root.get("analysisSoftware"),analysisSoftware)
-                ).getRestriction();
-            }
-        });
-        if(codes.size()==0){
-            throw new BioinfoException("查找的code不存在！");
-        }
-        return codes.get(0);
-    }
 
     @Override
     public Page<Code> pageBy(CodeQuery codeQuery, Pageable pageable) {
@@ -112,15 +91,21 @@ public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
         Code code = super.convert(codeParam);
         return  update(id,code,user);
     }
+
+    /**
+     * 使用Term匹配Code
+     * @param termMapping
+     * @param keyWard
+     * @return
+     */
     public Specification<Code> buildSpecBy(Code termMapping,String keyWard) {
         return (Specification<Code>) (root, query, criteriaBuilder) ->{
-            List<Predicate> predicates = new LinkedList<>();
+            List<Predicate> predicates = new ArrayList<>();
             try {
                 List<Field> fields = ObjectToCollection.setConditionFieldList(termMapping);
                 for(Field field : fields){
                     boolean fieldAnnotationPresent = field.isAnnotationPresent(QueryField.class);
                     if(fieldAnnotationPresent){
-                        QueryField queryField = field.getDeclaredAnnotation(QueryField.class);
                         field.setAccessible(true);
                         String fieldName = field.getName();
                         Object value = field.get(termMapping);
@@ -130,13 +115,6 @@ public class CodeServiceImpl extends BaseDataCategoryServiceImpl<Code>
                                     criteriaBuilder.isNull(root.get(fieldName))
                             ));
                         }
-//                        if(baseTermMappingDTO.getKeyword()!=null && !baseTermMappingDTO.getKeyword().equals("") && queryField.keyWards()){
-//                            String likeCondition = String
-//                                    .format("%%%s%%", StringUtils.strip(baseTermMappingDTO.getKeyword()));
-//                            Predicate fileName = criteriaBuilder.like(root.get("fileName"), likeCondition);
-//
-//                            predicates.add(criteriaBuilder.or(fileName));
-//                        }
                     }
                 }
             } catch (IllegalAccessException e) {

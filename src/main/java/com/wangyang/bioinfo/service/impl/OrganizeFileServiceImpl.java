@@ -4,13 +4,14 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
+import com.wangyang.bioinfo.pojo.param.OrganizeFileQuery;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.OrganizeFileRepository;
-import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -19,7 +20,9 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author wangyang
@@ -74,5 +77,13 @@ public class OrganizeFileServiceImpl
         return super.upload(uploadResult,organizeFile);
     }
 
+    @Override
+    public Page<OrganizeFile> pageBy(OrganizeFileQuery organizeFileQuery, Pageable pageable) {
+        OrganizeFile organizeFile = new OrganizeFile();
+        Set<String> sets = new HashSet<>();
+        sets.add("enName");
+        Specification<OrganizeFile> specification = buildSpecByQuery(organizeFile, organizeFileQuery.getKeywords(), sets);
+        return organizeFileRepository.findAll(specification,pageable);
+    }
 
 }

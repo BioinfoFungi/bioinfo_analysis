@@ -4,7 +4,9 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.rcaller.FunctionCall;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
+import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.websocket.WebSocketServer;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
@@ -20,11 +22,17 @@ import com.wangyang.bioinfo.util.BeanUtil;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeansException;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.ApplicationContextAware;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.context.WebApplicationContext;
 import org.springframework.web.socket.TextMessage;
 
+import javax.swing.text.html.parser.Entity;
 import java.io.*;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -36,7 +44,7 @@ import java.util.*;
 
 @Service
 @Slf4j
-public class AsyncServiceImpl implements IAsyncService {
+public class AsyncServiceImpl implements IAsyncService  {
 
 
     private final TaskRepository taskRepository;
@@ -44,17 +52,21 @@ public class AsyncServiceImpl implements IAsyncService {
     private final WebSocketServer springWebSocketHandler;
     private final ThreadPoolTaskExecutor executorService;
     private final Map<Integer, TaskProcess> processMap;
+    private final ApplicationContext applicationContext;
 
     public AsyncServiceImpl(TaskRepository taskRepository,
                             ICancerStudyService cancerStudyService,
                             WebSocketServer springWebSocketHandler,
-                            ThreadPoolTaskExecutor executorService){
+                            ThreadPoolTaskExecutor executorService,
+                            ApplicationContext applicationContext){
         processMap= new HashMap<>();
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
         this.springWebSocketHandler=springWebSocketHandler;
         this.executorService=executorService;
+        this.applicationContext=applicationContext;
     }
+
 
 
 
@@ -153,7 +165,10 @@ public class AsyncServiceImpl implements IAsyncService {
     }
 
 
-
+    interface A{
+        void a(CodeMsg codeMsg);
+        CodeType b();
+    }
 
     public void processCancerStudy(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
         /***************************************************************/
@@ -166,26 +181,35 @@ public class AsyncServiceImpl implements IAsyncService {
         /*****************************************************************/
 
 //        CodeMsg codeMsg = rCall(code, map);
-        CodeMsg codeMsg  = processBuilder(task,code, map);;
-        try {
-            if(codeMsg.getCancerStudyParam()!=null){
-                CancerStudy covertCancerStudy = cancerStudyService.convert(codeMsg.getCancerStudyParam());
-                if(codeMsg.getIsUpdate()){
-                    BeanUtil.copyProperties(covertCancerStudy,cancerStudy);
-                    cancerStudyService.saveCancerStudy(cancerStudy);
-                }else {
-                    BeanUtil.copyProperties(covertCancerStudy,cancerStudyProcess);
-                    cancerStudyService.saveCancerStudy(cancerStudyProcess);
-                }
+        CodeMsg codeMsg  = processBuilder(task,code, map);
+        A a = new A() {
+            @Override
+            public void a(CodeMsg codeMsg) {
+
             }
-            if(codeMsg.getStatus()){
-                task.setIsSuccess(true);
+
+            @Override
+            public CodeType b() {
+                return CodeType.SHELL;
             }
-        } catch (Exception e) {
-            task.setIsSuccess(false);
-            e.printStackTrace();
-            codeMsg.setRunMsg(codeMsg.getRunMsg()+e.getMessage());
+        };
+
+        Map<String, ICodeResult> beans = applicationContext.getBeansOfType(ICodeResult.class);
+        for (Map.Entry<String,ICodeResult> entry :beans.entrySet()){
+            ICodeResult codeResult = entry.getValue();
+            if(codeResult.getType().equals(codeResult.getType())){
+//                codeResult.call(codeMsg,cancerStudy,cancerStudyProcess);
+            }
         }
+
+//        try {
+//
+//
+//        } catch (Exception e) {
+//            task.setIsSuccess(false);
+//            e.printStackTrace();
+//            codeMsg.setRunMsg(codeMsg.getRunMsg()+e.getMessage());
+//        }
 
         /*****************************************************************/
         task.setResult(codeMsg.getResult());
@@ -224,26 +248,21 @@ public class AsyncServiceImpl implements IAsyncService {
         throw new BioinfoException("不能结束该进程！");
     }
 
-    private CodeMsg processBuilder(Task task,Code code, Map<String,Object> maps){
+    private CodeMsg processBuilder(Task task, Code code, Map<String,Object> maps){
         CodeMsg codeMsg = new CodeMsg();
         File  tempFile=null;
         FileOutputStream outputStream =null;
         try {
             String workDir = CacheStore.getValue("workDir");
             Path path = Paths.get(workDir, "data");
-            Files.createDirectories(path);
-            tempFile = File.createTempFile("bioinfo-", ".R");
             maps.put("workDir",path.toString());
+            Files.createDirectories(path);
+            tempFile = File.createTempFile("bioinfo-",".run");
+            List<String> command = new ArrayList<>();
             StringBuffer stringBuffer = new StringBuffer();
-            for (String key: maps.keySet()){
-                Object obj = maps.get(key);
-                if(obj instanceof String && obj!=null){
-                    stringBuffer.append(key+" <- \""+ obj+"\"\n");
-                }else if (obj instanceof Cancer){
-                    stringBuffer.append(key+" <- \""+ ((Cancer) obj).getEnName()+"\"\n");
-                }
-            }
-            stringBuffer.append("\n");
+            buildFile(code,stringBuffer,command,maps);
+            command.add(tempFile.getAbsolutePath());
+
             if(code.getAbsolutePath()!=null){
                 byte[] bytes = Files.readAllBytes(Paths.get(code.getAbsolutePath()));
                 String content = new String(bytes, StandardCharsets.UTF_8);
@@ -256,11 +275,7 @@ public class AsyncServiceImpl implements IAsyncService {
 
 
             ProcessBuilder processBuilder = new ProcessBuilder();
-
             processBuilder.directory(path.toFile());
-            List<String> command = new ArrayList<>();
-            command.add("Rscript");
-            command.add(tempFile.getAbsolutePath());
             processBuilder.command(command);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
@@ -354,6 +369,24 @@ public class AsyncServiceImpl implements IAsyncService {
         }
 
         return codeMsg;
+    }
+
+    private void buildFile(Code code,StringBuffer stringBuffer,List<String> command,Map<String, Object> maps) {
+        if(code.getCodeType().equals(CodeType.R)){
+            for (String key: maps.keySet()){
+                Object obj = maps.get(key);
+                if(obj instanceof String && obj!=null){
+                    stringBuffer.append(key+" <- \""+ obj+"\"\n");
+                }else if (obj instanceof Cancer){
+                    stringBuffer.append(key+" <- \""+ ((Cancer) obj).getEnName()+"\"\n");
+                }
+            }
+            stringBuffer.append("\n");
+            command.add("Rscript");
+        }else {
+
+        }
+
     }
 
 

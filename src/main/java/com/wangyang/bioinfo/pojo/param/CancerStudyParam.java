@@ -11,7 +11,7 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class CancerStudyParam extends TermMappingParam {
-
+    private Integer annotationId;
     @Parsed
     private Integer parentId;
     @Parsed

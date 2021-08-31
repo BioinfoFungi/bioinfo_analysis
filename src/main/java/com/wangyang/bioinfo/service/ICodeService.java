@@ -4,7 +4,7 @@ import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
-import com.wangyang.bioinfo.service.base.IBaseDataCategoryService;
+import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
@@ -15,8 +15,7 @@ import java.util.List;
  * @date 2021/7/22
  */
 
-public interface ICodeService extends IBaseDataCategoryService<Code> {
-    Code findBy(String dataCategory,String analysisSoftware);
+public interface ICodeService extends ITermMappingService<Code> {
 
     Page<Code> pageBy(CodeQuery codeQuery, Pageable pageable);
 

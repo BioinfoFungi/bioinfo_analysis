@@ -3,23 +3,31 @@ package com.wangyang.bioinfo.service.base;
 import com.univocity.parsers.common.processor.BeanWriterProcessor;
 import com.univocity.parsers.tsv.TsvWriter;
 import com.univocity.parsers.tsv.TsvWriterSettings;
+import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.CacheStore;
+import com.wangyang.bioinfo.util.ObjectToCollection;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.Assert;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
+import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * @author wangyang
@@ -35,6 +43,47 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
         domainName = domainClass.getSimpleName();
     }
 
+
+    protected Specification<DOMAIN> buildSpecByQuery(DOMAIN baseFileQuery, String keywords, Set<String> sets) {
+        return (Specification<DOMAIN>) (root, query, criteriaBuilder) ->{
+            List<Predicate> predicates = toPredicate(baseFileQuery,root, query, criteriaBuilder);
+            if(sets!=null && sets.size()!=0 && keywords!=null ){
+                String likeCondition = String
+                        .format("%%%s%%", StringUtils.strip(keywords));
+                List<Predicate> orPredicates = new ArrayList<>();
+                for (String filed : sets){
+                    Predicate name = criteriaBuilder.like(root.get(filed), likeCondition);
+                    Predicate predicate = criteriaBuilder
+                            .like(root.get(filed), likeCondition);
+                    orPredicates.add(predicate);
+                }
+                predicates.add(criteriaBuilder.or(orPredicates.toArray(new Predicate[0])));
+            }
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        };
+    }
+
+    protected List<Predicate> toPredicate(DOMAIN domain,Root<DOMAIN> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+        List<Predicate> predicates = new LinkedList<>();
+        try {
+            List<Field> fields = ObjectToCollection.setConditionFieldList(domain);
+            for(Field field : fields){
+                boolean fieldAnnotationPresent = field.isAnnotationPresent(QueryField.class);
+                if(fieldAnnotationPresent){
+                    QueryField queryField = field.getDeclaredAnnotation(QueryField.class);
+                    field.setAccessible(true);
+                    String fieldName = field.getName();
+                    Object value = field.get(domain);
+                    if(value!=null){
+                        predicates.add(criteriaBuilder.equal(root.get(fieldName),value));
+                    }
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return predicates;
+    }
 
     //    @Autowired
 //    ConcurrentMapCacheManager concurrentMapCacheManager;

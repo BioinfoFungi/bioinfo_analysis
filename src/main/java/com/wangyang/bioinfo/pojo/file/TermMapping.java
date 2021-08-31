@@ -19,6 +19,10 @@ import javax.persistence.MappedSuperclass;
 @Entity(name = "t_data_category")
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.INTEGER, columnDefinition = "int default 0")
 public class TermMapping extends BaseFile {
+
+    @Parsed
+    @QueryField
+    private Integer annotationId;
     @Parsed
     @QueryField
     private Integer cancerId;

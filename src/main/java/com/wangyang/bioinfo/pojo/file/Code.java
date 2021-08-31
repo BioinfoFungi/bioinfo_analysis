@@ -20,7 +20,7 @@ public class Code extends TermMapping {
     @Column(columnDefinition = "longtext")
     private String code;
     private String name;
-    private CodeType codeType= CodeType.DEFAULT;
+    private CodeType codeType= CodeType.R;
 //    private Integer changeCancerId;
 //    private Integer changeStudyId;
 //    private Integer changeDataOriginId;

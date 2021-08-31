@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.pojo.vo;
 
+import com.wangyang.bioinfo.pojo.file.Annotation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import lombok.Data;
 
@@ -10,4 +11,5 @@ public class CancerStudyVO extends TermMappingVo {
     private String gse;
     private String description;
     private Integer parentId;
+    private Annotation annotation;
 }

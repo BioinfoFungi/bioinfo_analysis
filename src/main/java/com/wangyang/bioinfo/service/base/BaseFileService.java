@@ -9,6 +9,7 @@ import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -95,31 +96,28 @@ public class BaseFileService<FILE extends BaseFile>
         }
         return files.get(0);
     }
+
     @Override
-    public Page<FILE> pageBy(FILE baseFileQuery, String keyWard,Pageable pageable) {
-        Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery),pageable);
+    public Page<FILE> pageBy(FILE baseFileQuery, String keywords,Pageable pageable) {
+        Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery,keywords,null),pageable);
         return page;
     }
 
-    private Specification<FILE> buildSpecByQuery(FILE baseFileQuery) {
-        return (Specification<FILE>) (root, query, criteriaBuilder) ->{
-            List<Predicate> predicates = new LinkedList<>();
-//            if(baseFileQuery.getEnName()!=null){
-//                predicates.add(criteriaBuilder.equal(root.get("fileName"),baseFileQuery.getFileName()));
-//            }
-//            if(baseFileQuery.getKeyword()!=null){
+//    private Specification<FILE> buildSpecByQuery(FILE baseFileQuery,String keywords) {
+//        return (Specification<FILE>) (root, query, criteriaBuilder) ->{
+//            List<Predicate> predicates = toPredicate(baseFileQuery,root, query, criteriaBuilder);
+//            if(keywords!=null){
 //                String likeCondition = String
-//                        .format("%%%s%%", StringUtils.strip(baseFileQuery.getKeyword()));
+//                        .format("%%%s%%", StringUtils.strip(keywords));
+//
 //                Predicate name = criteriaBuilder.like(root.get("enName"), likeCondition);
 //                Predicate fileName = criteriaBuilder
 //                        .like(root.get("fileName"), likeCondition);
-//
 //                predicates.add(criteriaBuilder.or(name, fileName));
-//
 //            }
-            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
-        };
-    }
+//            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+//        };
+//    }
 
 
     @Override

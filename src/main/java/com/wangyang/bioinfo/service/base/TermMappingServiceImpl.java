@@ -2,30 +2,24 @@ package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
-import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.File2Tsv;
-import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.ServiceUtil;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.CacheConfig;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
-import java.lang.reflect.Field;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -35,9 +29,9 @@ import java.util.stream.Collectors;
  * @author wangyang
  * @date 2021/7/25
  */
-public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
+public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
         extends BaseFileService<TERMMAPPING>
-        implements IBaseDataCategoryService<TERMMAPPING>{
+        implements ITermMappingService<TERMMAPPING> {
 
     private  final BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository;
     private  final ICancerService cancerService;
@@ -47,13 +41,13 @@ public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
     private  final IAnalysisSoftwareService analysisSoftwareService;
     private  final FileHandlers fileHandlers;
 
-    public BaseDataCategoryServiceImpl(FileHandlers fileHandlers,
-                                       BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository,
-                                       ICancerService cancerService,
-                                       IStudyService studyService,
-                                       IDataOriginService dataOriginService,
-                                       IDataCategoryService dataCategoryService,
-                                       IAnalysisSoftwareService analysisSoftwareService) {
+    public TermMappingServiceImpl(FileHandlers fileHandlers,
+                                  BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository,
+                                  ICancerService cancerService,
+                                  IStudyService studyService,
+                                  IDataOriginService dataOriginService,
+                                  IDataCategoryService dataCategoryService,
+                                  IAnalysisSoftwareService analysisSoftwareService) {
         super(fileHandlers, baseTermMappingRepository);
         this.fileHandlers=fileHandlers;
         this.baseTermMappingRepository=baseTermMappingRepository;
@@ -66,52 +60,9 @@ public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
     }
 
 
-    public Specification<TERMMAPPING> buildSpecBy(TERMMAPPING termMapping,String keyWard) {
-        return (Specification<TERMMAPPING>) (root, query, criteriaBuilder) ->{
-            List<Predicate> predicates = new LinkedList<>();
-            try {
-                List<Field> fields = ObjectToCollection.setConditionFieldList(termMapping);
-                for(Field field : fields){
-                    boolean fieldAnnotationPresent = field.isAnnotationPresent(QueryField.class);
-                    if(fieldAnnotationPresent){
-                        QueryField queryField = field.getDeclaredAnnotation(QueryField.class);
-                        field.setAccessible(true);
-                        String fieldName = field.getName();
-                        Object value = field.get(termMapping);
-                        if(value!=null){
-                            predicates.add(criteriaBuilder.equal(root.get(fieldName),value));
-                        }
-//                        if(baseTermMappingDTO.getKeyword()!=null && !baseTermMappingDTO.getKeyword().equals("") && queryField.keyWards()){
-//                            String likeCondition = String
-//                                    .format("%%%s%%", StringUtils.strip(baseTermMappingDTO.getKeyword()));
-//                            Predicate fileName = criteriaBuilder.like(root.get("fileName"), likeCondition);
-//
-//                            predicates.add(criteriaBuilder.or(fileName));
-//                        }
-                    }
-                }
-            } catch (IllegalAccessException e) {
-                e.printStackTrace();
-            }
-
-
-
-
-//            Field[] fields = termMappingSpecDTO.getClass().getDeclaredFields();
-//            Map<String, Object> map = ObjectToMap.setConditionObjMap(termMappingSpecDTO);
-//            map.forEach((key,value)->{
-//                if(value!=null){
-//                    predicates.add(criteriaBuilder.equal(root.get(key),value));
-//                }
-////                if(keywords!=null){
-////                    String likeCondition = String
-////                            .format("%%%s%%", StringUtils.strip(keywords));
-////                    Predicate fileName = criteriaBuilder.like(root.get(key), likeCondition);
-////
-////                    predicates.add(criteriaBuilder.or(fileName));
-////                }
-//            });
-
+//    protected Specification<TERMMAPPING> buildSpecBy(TERMMAPPING termMapping,String keywords) {
+//        return (Specification<TERMMAPPING>) (root, query, criteriaBuilder) ->{
+//            List<Predicate> predicates = toPredicate(termMapping, root, query, criteriaBuilder);
 //            if(keywords!=null){
 //                String likeCondition = String
 //                        .format("%%%s%%", StringUtils.strip(keywords));
@@ -119,21 +70,17 @@ public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
 //
 //                predicates.add(criteriaBuilder.or(fileName));
 //            }
-
-//            if(cancerStudy.getGse()!=null){
-//                predicates.add(criteriaBuilder.equal(root.get("gse"),cancerStudy.getGse()));
-//            }
-            return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
-        };
-    }
-
-
-
-    @Override
-    public Page<TERMMAPPING> pageBy(TERMMAPPING termMapping, String keyWard,Pageable pageable) {
-        Page<TERMMAPPING> categories = baseTermMappingRepository.findAll(buildSpecBy(termMapping,keyWard), pageable);
-        return categories;
-    }
+//            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+//        };
+//    }
+//
+//
+//
+//    @Override
+//    public Page<TERMMAPPING> pageBy(TERMMAPPING termMapping, String keyWard,Pageable pageable) {
+//        Page<TERMMAPPING> categories = baseTermMappingRepository.findAll(buildSpecBy(termMapping,keyWard), pageable);
+//        return categories;
+//    }
 
 
 
@@ -144,11 +91,11 @@ public class BaseDataCategoryServiceImpl<TERMMAPPING extends TermMapping>
 ////        Page<TERMMAPPING> cancerStudyPage = pageBy(mappingDTO, pageable);
 //        return cancerStudyPage;
 //    }
-    @Override
-    public List<TERMMAPPING> listBy(TERMMAPPING termMapping,String keyWard) {
-        List<TERMMAPPING> categories = baseTermMappingRepository.findAll(buildSpecBy(termMapping,keyWard));
-        return categories;
-    }
+//    @Override
+//    public List<TERMMAPPING> listBy(TERMMAPPING termMapping,String keyWard) {
+//        List<TERMMAPPING> categories = baseTermMappingRepository.findAll(buildSpecBy(termMapping,keyWard));
+//        return categories;
+//    }
 //    public TermMappingDTO convert2Id(TermMappingDTO termMappingDTO){
 //        Cancer cancer = cancerService.findAndCheckByEnName(termMappingDTO.getCancer());
 //        Study study = studyService.findAndCheckByEnName(termMappingDTO.getStudy());
