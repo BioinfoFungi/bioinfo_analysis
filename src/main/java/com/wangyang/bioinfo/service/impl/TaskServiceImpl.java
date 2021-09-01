@@ -97,7 +97,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             @Override
             public Predicate toPredicate(Root<Task> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 return criteriaQuery.where(
-                        criteriaBuilder.equal(root.get("cancerStudyId"),cancerStudyId),
+                        criteriaBuilder.equal(root.get("objId"),cancerStudyId),
                         criteriaBuilder.equal(root.get("codeId"),codeId),
                         criteriaBuilder.equal(root.get("taskType"),taskType)
                 ).getRestriction();
@@ -119,7 +119,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return taskRepository.findAll(new Specification<Task>() {
             @Override
             public Predicate toPredicate(Root<Task> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-                return criteriaQuery.where(criteriaBuilder.equal(root.get("cancerStudyId"),canSId)).getRestriction();
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("objId"),canSId)).getRestriction();
             }
         });
     }
@@ -135,7 +135,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return (Specification<Task>) (root, query, criteriaBuilder) ->{
             List<Predicate> predicates = new LinkedList<>();
             if(taskQuery.getCancerStudyId()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("cancerStudyId"),taskQuery.getCancerStudyId()));
+                predicates.add(criteriaBuilder.equal(root.get("objId"),taskQuery.getCancerStudyId()));
             }
 
             return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
@@ -190,7 +190,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         }
         @Override
         public CancerStudy getObj(int id) {
-            this.cancerStudy = cancerStudyService.findById(taskParam.getObjId());
+            this.cancerStudy = cancerStudyService.findById(id);
             return cancerStudy;
         }
         @Override
@@ -236,7 +236,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
     @Override
     public Task runTask(Integer id, User user) {
-        return taskInit(user,taskParam,codeResult);
+        return runTask(id,user,codeResult);
     }
 
     public Task runTask(Integer id, User user,ICodeResult codeResult) {
@@ -245,6 +245,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
         }
         Code code = codeService.findById(task.getCodeId());
+        codeResult.getObj(task.getObjId());
         task.setTaskStatus(TaskStatus.UNTRACKING);
         task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
         task= super.save(task);
@@ -266,7 +267,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         if (task == null) {
             task = new Task();
         }
-        task.setCancerStudyId(baseFile.getId());
+        task.setObjId(baseFile.getId());
         task.setTaskType(taskType);
         task.setCodeId(code.getId());
         task.setTaskStatus(TaskStatus.UNTRACKING);

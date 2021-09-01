@@ -13,6 +13,6 @@ import java.util.List;
 public interface TaskRepository extends BaseRepository<Task,Integer> ,
         JpaSpecificationExecutor<Task> {
 
-    List<Task> findByCancerStudyId(int cancerStudyId);
+    List<Task> findByObjId(int objId);
     List<Task> findByCodeId(int codeId);
 }

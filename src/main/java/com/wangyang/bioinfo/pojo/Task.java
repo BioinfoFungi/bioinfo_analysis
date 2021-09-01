@@ -21,7 +21,7 @@ public class Task extends BaseEntity {
     private Integer id;
     private Integer codeId;
     private String name;
-    private Integer cancerStudyId;
+    private Integer objId;
     private  TaskStatus taskStatus;
 //    private String[] param;
     @Column(columnDefinition = "longtext")

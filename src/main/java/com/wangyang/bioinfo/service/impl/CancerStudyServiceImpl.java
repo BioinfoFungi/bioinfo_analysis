@@ -296,7 +296,7 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy delBy(Integer id) {
-        List<Task> tasks = taskRepository.findByCancerStudyId(id);
+        List<Task> tasks = taskRepository.findByObjId(id);
         taskRepository.deleteAll(tasks);
         return super.delBy(id);
     }

@@ -152,9 +152,8 @@ public class AsyncServiceImpl implements IAsyncService  {
             }
         };
         executorService.submit(runnable);
-////        ControlSubThread controlSubThread = new ControlSubThread(task, code, cancerStudy, cancerStudyProcess, map);
-//        executorService.submit(controlSubThread);
-        //        controlSubThread.stop();
+        processMap.put(task.getId(),new TaskProcess(task,runnable,null));
+
     }
     @Override
     @Async("taskExecutor")
@@ -202,21 +201,26 @@ public class AsyncServiceImpl implements IAsyncService  {
         Task task = optionalTask.get();
         if(processMap.containsKey(task.getId())){
             TaskProcess taskProcess = processMap.get(task.getId());
-            if(taskProcess.getProcess().isAlive()){
+
+            if(taskProcess.getProcess() !=null && taskProcess.getProcess().isAlive()){
                 taskProcess.getProcess().destroy();
-                processMap.remove(task.getId());
                 log.info("结束 {}",taskProcess.getTask().getName());
                 taskProcess.getTask().setRunMsg(taskProcess.getTask().getRunMsg()+"\nshutdownProcess by user");
             }
+            executorService.getThreadPoolExecutor().getQueue().remove(taskProcess.getRunnable());
+            processMap.remove(task.getId());
+            task.setTaskStatus(TaskStatus.INTERRUPT);
+            taskRepository.save(task);
             return taskProcess.getTask();
         }
-        if(executorService.getActiveCount()==0 && !task.getTaskStatus().equals(TaskStatus.FINISH)){
 
-            task.setTaskStatus(TaskStatus.FINISH);
-            taskRepository.save(task);
-            throw new BioinfoException("出错了，线程已经结束，状态没有更改！");
-        }
-        throw new BioinfoException("不能结束该进程！");
+//        if(executorService.getActiveCount()==0 && !task.getTaskStatus().equals(TaskStatus.FINISH)){
+//
+//            task.setTaskStatus(TaskStatus.FINISH);
+//            taskRepository.save(task);
+//            throw new BioinfoException("出错了，线程已经结束，状态没有更改！");
+//        }
+        throw new BioinfoException("该任务已经结束！");
     }
 
     private CodeMsg processBuilder(Task task, Code code, Map<String,Object> maps){
@@ -250,7 +254,10 @@ public class AsyncServiceImpl implements IAsyncService  {
             processBuilder.command(command);
             processBuilder.redirectErrorStream(true);
             Process process = processBuilder.start();
-            processMap.put(task.getId(),new TaskProcess(task,process));
+            // 添加Process
+            TaskProcess taskProcess = processMap.get(task.getId());
+            taskProcess.setProcess(process);
+
             StringBuilder result = new StringBuilder();
             Map<String,String> resultMap = new HashMap<>();
 
