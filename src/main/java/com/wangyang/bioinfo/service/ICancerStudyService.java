@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
+import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
@@ -33,7 +34,7 @@ public interface ICancerStudyService extends ITermMappingService<CancerStudy> {
     CancerStudy findCancerStudyById(int id);
 //    Page<CancerStudyVo> pageCancerStudyVo(CancerStudyQuery findCancer, Pageable pageable);
 
-
+    CancerStudyVO convertVo(CancerStudy cancerStudy);
     CancerStudy findByParACodeId(Integer parentId, Integer codeId);
 
     List<CancerStudy> findAllById(Collection<Integer> id);

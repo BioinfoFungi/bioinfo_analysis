@@ -1,17 +1,25 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.dto.CodeMsg;
+import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
+import com.wangyang.bioinfo.pojo.file.Annotation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
+import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
+import com.wangyang.bioinfo.util.BeanUtil;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.CacheStore;
@@ -41,14 +49,14 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
-                implements  ITaskService{
+        implements  ITaskService{
 
     private final TaskRepository taskRepository;
     private final ICancerStudyService cancerStudyService;
     private final ICodeService codeService;
     private final IAsyncService asyncService;
     private final IOrganizeFileService organizeFileService;
-
+    private final IAnnotationService annotationService;
     //TUDO
     private int QUEUE_CAPACITY= 300;
 
@@ -56,13 +64,15 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
                            ICancerStudyService cancerStudyService,
                            ICodeService codeService,
                            IAsyncService asyncService,
-                           IOrganizeFileService organizeFileService) {
+                           IOrganizeFileService organizeFileService,
+                           IAnnotationService annotationService) {
         super(taskRepository);
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
         this.codeService=codeService;
         this.asyncService=asyncService;
         this.organizeFileService=organizeFileService;
+        this.annotationService=annotationService;
     }
 
 
@@ -82,13 +92,14 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         });
     }
 
-    public Task findByCanSIdACodeId(Integer cancerStudyId,Integer codeId){
+    public Task findByCanSIdACodeId(Integer cancerStudyId,Integer codeId,TaskType taskType){
         List<Task> tasks = taskRepository.findAll(new Specification<Task>() {
             @Override
             public Predicate toPredicate(Root<Task> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 return criteriaQuery.where(
                         criteriaBuilder.equal(root.get("cancerStudyId"),cancerStudyId),
-                        criteriaBuilder.equal(root.get("codeId"),codeId)
+                        criteriaBuilder.equal(root.get("codeId"),codeId),
+                        criteriaBuilder.equal(root.get("taskType"),taskType)
                 ).getRestriction();
             }
         });
@@ -139,49 +150,133 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         }
     }
 
+    //    @Override
+    public Task addAnnotationTask(TaskParam taskParam, User user) {
+        ICodeResult<Annotation> annotationICodeResult  = new ICodeResult<Annotation>() {
+            private Annotation annotation;
+            @Override
+            public void call(Code code, User user, CodeMsg codeMsg) {
+                annotation.setAbsolutePath(codeMsg.getCancerStudyParam().getAbsolutePath());
+                annotationService.save(annotation);
+            }
+
+            @Override
+            public Map<String, Object> getMap() {
+                Map<String, Object> map = new HashMap<>();
+                map.putAll(ObjectToCollection.setConditionObjMap(annotation));
+                return map;
+            }
+
+            @Override
+            public TaskType getTaskType() {
+                return TaskType.ANNOTATION;
+            }
+
+            @Override
+            public Annotation getObj(int id){
+                this.annotation = annotationService.findById(id);
+                return this.annotation;
+            }
+
+        };
+        return taskInit(user,taskParam,annotationICodeResult);
+    }
+
+    ICodeResult<CancerStudy> codeResult = new ICodeResult<CancerStudy>() {
+        private CancerStudy cancerStudy;
+        @Override
+        public TaskType getTaskType() {
+            return TaskType.CANCER_STUDY;
+        }
+        @Override
+        public CancerStudy getObj(int id) {
+            this.cancerStudy = cancerStudyService.findById(taskParam.getObjId());
+            return cancerStudy;
+        }
+        @Override
+        public Map<String, Object> getMap() {
+            CancerStudyVO mappingVo = cancerStudyService.convertVo(cancerStudy);
+            List<OrganizeFile> organizeFiles = organizeFileService.listAll();
+            Map<String, Object> map = new HashMap<>();
+            map.putAll(ObjectToCollection.setConditionObjMap(mappingVo));
+            map.putAll(organizeFiles.stream().collect(Collectors.toMap(OrganizeFile::getEnName, OrganizeFile::getAbsolutePath)));
+            return map;
+        }
+        @Override
+        public void call(Code code, User user, CodeMsg codeMsg) {
+            if (codeMsg.getCancerStudyParam() != null) {
+                CancerStudy covertCancerStudy = cancerStudyService.convert(codeMsg.getCancerStudyParam());
+                if (codeMsg.getIsUpdate()) {
+                    BeanUtil.copyProperties(covertCancerStudy, cancerStudy);
+                    cancerStudyService.saveCancerStudy(cancerStudy);
+                } else {
+                    CancerStudy cancerStudyProcess = cancerStudyService.findByParACodeId(cancerStudy.getId(), code.getId());
+                    if (cancerStudyProcess == null) {
+                        cancerStudyProcess = new CancerStudy();
+                    }
+                    cancerStudyProcess.setCancerId(cancerStudy.getCancerId());
+                    cancerStudyProcess.setStudyId(cancerStudy.getStudyId());
+                    cancerStudyProcess.setDataOriginId(cancerStudy.getDataOriginId());
+                    cancerStudyProcess.setDataCategoryId(cancerStudy.getDataCategoryId());
+                    cancerStudyProcess.setAnalysisSoftwareId(cancerStudy.getAnalysisSoftwareId());
+                    cancerStudyProcess.setUserId(user.getId());
+                    cancerStudyProcess.setCodeId(code.getId());
+                    cancerStudyProcess.setParentId(cancerStudy.getId());
+                    BeanUtil.copyProperties(covertCancerStudy, cancerStudyProcess);
+                    cancerStudyService.saveCancerStudy(cancerStudyProcess);
+                }
+            }
+        }
+    };
     @Override
     public Task addTask(TaskParam taskParam, User user) {
 
-        CancerStudy cancerStudy = cancerStudyService.findById(taskParam.getCancerStudyId());
-        TermMappingVo mappingVo = cancerStudyService.convertVo(cancerStudy);
-        List<OrganizeFile> organizeFiles = organizeFileService.listAll();
-        Code code =codeService.findById(taskParam.getCodeId());
+        return taskInit(user,taskParam,codeResult);
+    }
 
-        Task task = findByCanSIdACodeId(cancerStudy.getId(), code.getId());
+    @Override
+    public Task runTask(Integer id, User user) {
+        return taskInit(user,taskParam,codeResult);
+    }
+
+    public Task runTask(Integer id, User user,ICodeResult codeResult) {
+        Task task = findById(id);
         if(runCheck(task)){
             throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
         }
-        if(task==null){
+        Code code = codeService.findById(task.getCodeId());
+        task.setTaskStatus(TaskStatus.UNTRACKING);
+        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
+        task= super.save(task);
+        asyncService.processCancerStudy1(user,task,code,codeResult);
+        return task;
+    }
+
+
+    private Task taskInit(User user,TaskParam taskParam, ICodeResult codeResult) {
+        BaseFile baseFile = codeResult.getObj(taskParam.getObjId());
+        Code code = codeService.findById(taskParam.getCodeId());
+        TaskType taskType = codeResult.getTaskType();
+
+        Task task = findByCanSIdACodeId(baseFile.getId(), code.getId(),taskType);
+
+        if (runCheck(task)) {
+            throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
+        }
+        if (task == null) {
             task = new Task();
         }
-        task.setCancerStudyId(cancerStudy.getId());
+        task.setCancerStudyId(baseFile.getId());
+        task.setTaskType(taskType);
         task.setCodeId(code.getId());
         task.setTaskStatus(TaskStatus.UNTRACKING);
-        task.setName(code.getName()+"-"+mappingVo.getCancer().getName());
         task.setUserId(user.getId());
-        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
-
-        task= super.save(task);
-
-        Map<String, Object> map = new HashMap<>();
-        map.putAll(ObjectToCollection.setConditionObjMap(mappingVo));
-        map.putAll(organizeFiles.stream().collect(Collectors.toMap(OrganizeFile::getEnName, OrganizeFile::getAbsolutePath)));
-
-        CancerStudy  cancerStudyProcess = cancerStudyService.findByParACodeId(cancerStudy.getId(), code.getId());
-        if(cancerStudyProcess==null){
-            cancerStudyProcess = new CancerStudy();
-        }
-        cancerStudyProcess.setCancerId(cancerStudy.getCancerId());
-        cancerStudyProcess.setStudyId(cancerStudy.getStudyId());
-        cancerStudyProcess.setDataOriginId(cancerStudy.getDataOriginId());
-        cancerStudyProcess.setDataCategoryId(cancerStudy.getDataCategoryId());
-        cancerStudyProcess.setAnalysisSoftwareId(cancerStudy.getAnalysisSoftwareId());
-        cancerStudyProcess.setUserId(user.getId());
-        cancerStudyProcess.setCodeId(code.getId());
-        cancerStudyProcess.setParentId(cancerStudy.getId());
+        task.setName(baseFile.getFileName()+code.getName());
+        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
+        task=taskRepository.save(task);
 
         //交给thread
-        asyncService.processCancerStudy1(user,task,code,cancerStudy,cancerStudyProcess,map);
+        asyncService.processCancerStudy1(user,task,code,codeResult);
         return task;
     }
 
@@ -191,41 +286,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return task;
     }
 
-    @Override
-    public Task runTask(Integer id, User user) {
-        Task task = findById(id);
-        if(runCheck(task)){
-            throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
-        }
-        task.setTaskStatus(TaskStatus.UNTRACKING);
-        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
-        task= super.save(task);
 
-        CancerStudy cancerStudy = cancerStudyService.findById(task.getCancerStudyId());
-        TermMappingVo mappingVo = cancerStudyService.convertVo(cancerStudy);
-        List<OrganizeFile> organizeFiles = organizeFileService.listAll();
-        Code code =codeService.findById(task.getCodeId());
-
-        Map<String, Object> map = new HashMap<>();
-        map.putAll(ObjectToCollection.setConditionObjMap(mappingVo));
-        map.putAll(organizeFiles.stream().collect(Collectors.toMap(OrganizeFile::getEnName, OrganizeFile::getAbsolutePath)));
-
-        CancerStudy  cancerStudyProcess = cancerStudyService.findByParACodeId(cancerStudy.getId(), code.getId());
-        if(cancerStudyProcess==null){
-            cancerStudyProcess = new CancerStudy();
-        }
-        cancerStudyProcess.setCancerId(cancerStudy.getCancerId());
-        cancerStudyProcess.setStudyId(cancerStudy.getStudyId());
-        cancerStudyProcess.setDataOriginId(cancerStudy.getDataOriginId());
-        cancerStudyProcess.setDataCategoryId(cancerStudy.getDataCategoryId());
-        cancerStudyProcess.setAnalysisSoftwareId(cancerStudy.getAnalysisSoftwareId());
-        cancerStudyProcess.setUserId(user.getId());
-        cancerStudyProcess.setCodeId(code.getId());
-        cancerStudyProcess.setParentId(cancerStudy.getId());
-
-        asyncService.processCancerStudy1(user,task,code,cancerStudy,cancerStudyProcess,map);
-        return task;
-    }
 
     @Override
     public String getLogFiles(@NonNull Integer taskId,@NonNull  Integer lines){

@@ -6,6 +6,7 @@ import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.websocket.WebSocketServer;
 import com.wangyang.bioinfo.pojo.Task;
@@ -142,15 +143,12 @@ public class AsyncServiceImpl implements IAsyncService  {
 //    }
 
     @Override
-    public void processCancerStudy1(User user, Task task, Code code, CancerStudy cancerStudy, CancerStudy cancerStudyProcess, Map<String, Object> map)  {
-        Runnable runnable = new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    processCancerStudy(user,task, code, cancerStudy, cancerStudyProcess, map);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+    public void processCancerStudy1(User user, Task task, Code code, ICodeResult<? extends BaseFile> codeResult)  {
+        Runnable runnable = () -> {
+            try {
+                processCancerStudy(user,task, code, codeResult);
+            } catch (Exception e) {
+                e.printStackTrace();
             }
         };
         executorService.submit(runnable);
@@ -161,7 +159,7 @@ public class AsyncServiceImpl implements IAsyncService  {
     @Override
     @Async("taskExecutor")
     public void processCancerStudy2(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
-        processCancerStudy(user,task,code,cancerStudy,cancerStudyProcess,map);
+//        processCancerStudy(user,task,code,cancerStudy,cancerStudyProcess,map);
     }
 
 
@@ -170,7 +168,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         CodeType b();
     }
 
-    public void processCancerStudy(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
+    public void processCancerStudy(User user,Task task, Code code,ICodeResult  codeResult)  {
         /***************************************************************/
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
 //        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
@@ -180,36 +178,9 @@ public class AsyncServiceImpl implements IAsyncService  {
         taskRepository.save(task);
         /*****************************************************************/
 
-//        CodeMsg codeMsg = rCall(code, map);
+        Map map = codeResult.getMap();
         CodeMsg codeMsg  = processBuilder(task,code, map);
-        A a = new A() {
-            @Override
-            public void a(CodeMsg codeMsg) {
-
-            }
-
-            @Override
-            public CodeType b() {
-                return CodeType.SHELL;
-            }
-        };
-
-        Map<String, ICodeResult> beans = applicationContext.getBeansOfType(ICodeResult.class);
-        for (Map.Entry<String,ICodeResult> entry :beans.entrySet()){
-            ICodeResult codeResult = entry.getValue();
-            if(codeResult.getType().equals(codeResult.getType())){
-//                codeResult.call(codeMsg,cancerStudy,cancerStudyProcess);
-            }
-        }
-
-//        try {
-//
-//
-//        } catch (Exception e) {
-//            task.setIsSuccess(false);
-//            e.printStackTrace();
-//            codeMsg.setRunMsg(codeMsg.getRunMsg()+e.getMessage());
-//        }
+        codeResult.call(code,user,codeMsg);
 
         /*****************************************************************/
         task.setResult(codeMsg.getResult());

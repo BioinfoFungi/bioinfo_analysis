@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class TaskParam {
-    private Integer cancerStudyId;
+    private Integer objId;
     private Integer codeId;
 }
