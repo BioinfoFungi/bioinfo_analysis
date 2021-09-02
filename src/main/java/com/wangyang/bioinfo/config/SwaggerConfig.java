@@ -29,7 +29,7 @@ import java.util.List;
  * http://localhost:8080/swagger-ui.html
  */
 @Configuration
-@EnableSwagger2//开启Swagger
+//@EnableSwagger2//开启Swagger
 public class SwaggerConfig {
 //    @Bean
 //    public Docket webApiConfig(){
@@ -52,27 +52,27 @@ public class SwaggerConfig {
 //                .contact(new Contact("java", "http://atguigu.com", "1123@qq.com"))
 //                .build();
 //    }
-@Bean
-public Docket createRestApi() {
-    return new Docket(DocumentationType.SWAGGER_2)
-            .apiInfo(apiInfo())
-            .select()
-            //为controller包路径
-            .apis(RequestHandlerSelectors.basePackage("com.wangyang.bioinfo.web"))
-            .paths(PathSelectors.any())
-            .build();
-}
+    @Bean
+    public Docket createRestApi() {
+        return new Docket(DocumentationType.SWAGGER_2)
+                .apiInfo(apiInfo())
+                .select()
+                //为controller包路径
+                .apis(RequestHandlerSelectors.basePackage("com.wangyang.bioinfo.web"))
+                .paths(PathSelectors.any())
+                .build();
+    }
     //构建 api文档的详细信息函数
     private ApiInfo apiInfo() {
         return new ApiInfoBuilder()
                 //页面标题
-                .title("Spring Boot使用 Swagger2 构建RestFul API")
+                .title("生物信息在线分析系统")
                 //创建人
-                .contact(new Contact("小川", "http://localhost:8764/swagger-ui.html", "1598078574@qq.com"))
+                .contact(new Contact("YangWang", "http://localhost:8080/swagger-ui.html", "1749748955@qq.com"))
                 //版本号
                 .version("1.0")
                 //描述
-                .description("跑圈模块接口文档")
+                .description("接口文档")
                 .build();
     }
 

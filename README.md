@@ -23,6 +23,9 @@
 
 ![](vignettes/cancer.png)
 
+#### Swagger
++ <http://localhost:8080/swagger-ui.html>
++ <http://localhost:8080/doc.html>
 
 #### 测试
 + <https://bioinfofungi.gitee.io/bioinfo_web_ui/>
