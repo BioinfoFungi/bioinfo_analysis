@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.core.KeyLock;
 import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -39,6 +40,8 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 import java.util.stream.Collectors;
 
 /**
@@ -57,7 +60,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     private final IOrganizeFileService organizeFileService;
     private final IAnnotationService annotationService;
     private final ApplicationContext applicationContext;
-
+    private final KeyLock<String> lock;
     //TUDO
     private int QUEUE_CAPACITY= 300;
 
@@ -67,7 +70,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
                            IAsyncService asyncService,
                            IOrganizeFileService organizeFileService,
                            IAnnotationService annotationService,
-                           ApplicationContext applicationContext) {
+                           ApplicationContext applicationContext,
+                           KeyLock<String> lock) {
         super(taskRepository);
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
@@ -76,12 +80,14 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         this.organizeFileService=organizeFileService;
         this.annotationService=annotationService;
         this.applicationContext=applicationContext;
+        this.lock=lock;
+
     }
 
 
     @Override
     public Page<Task> page(TaskQuery taskQuery, Pageable pageable) {
-        return taskRepository.findAll(buildSpec(taskQuery),pageable);
+        return taskRepository.findAll(buildSpecByQuery(taskQuery,null,null),pageable);
     }
 
 
@@ -95,13 +101,14 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         });
     }
 
-    public Task findByCanSIdACodeId(Integer cancerStudyId,Integer codeId){
+    public Task findByCanSIdACodeId(Integer cancerStudyId,Integer codeId,TaskType taskType){
         List<Task> tasks = taskRepository.findAll(new Specification<Task>() {
             @Override
             public Predicate toPredicate(Root<Task> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 return criteriaQuery.where(
                         criteriaBuilder.equal(root.get("objId"),cancerStudyId),
-                        criteriaBuilder.equal(root.get("codeId"),codeId)
+                        criteriaBuilder.equal(root.get("codeId"),codeId),
+                        criteriaBuilder.equal(root.get("taskType"),taskType)
                 ).getRestriction();
             }
         });
@@ -133,16 +140,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return taskList;
     }
 
-    private Specification<Task> buildSpec(TaskQuery taskQuery) {
-        return (Specification<Task>) (root, query, criteriaBuilder) ->{
-            List<Predicate> predicates = new LinkedList<>();
-            if(taskQuery.getCancerStudyId()!=null){
-                predicates.add(criteriaBuilder.equal(root.get("objId"),taskQuery.getCancerStudyId()));
-            }
 
-            return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
-        };
-    }
 
     public  boolean runCheck(Task task){
         if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH) && !task.getTaskStatus().equals(TaskStatus.INTERRUPT) ){
@@ -169,18 +167,25 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
     @Override
     public Task runTask(Integer id, User user) {
+
         Task task = findById(id);
         if(runCheck(task)){
             throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
         }
-        Code code = codeService.findById(task.getCodeId());
-
-        ICodeResult codeResult = getCodeResult(code.getTaskType());
-        BaseFile baseFile = codeResult.getObj(task.getObjId());
-        task.setTaskStatus(TaskStatus.UNTRACKING);
-        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
-        task= super.save(task);
-        asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+        try {
+            lock.lock("task"+task.getId());
+            log.debug(">>>>>>>>>>>>>>>>>>>>runTask task{} 加锁",task.getId());
+            Code code = codeService.findById(task.getCodeId());
+            ICodeResult codeResult = getCodeResult(code.getTaskType());
+            BaseFile baseFile = codeResult.getObj(task.getObjId());
+            task.setTaskStatus(TaskStatus.UNTRACKING);
+            task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
+            task= super.save(task);
+            asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+        } finally {
+            lock.unlock("task"+task.getId());
+            log.debug("<<<<<<<<<<<<<<<<<<<<<<< runTask task{} 解锁",task.getId());
+        }
         return task;
     }
 
@@ -189,24 +194,30 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         Code code = codeService.findById(taskParam.getCodeId());
         ICodeResult codeResult = getCodeResult(code.getTaskType());
         BaseFile baseFile = codeResult.getObj(taskParam.getObjId());
-        Task task = findByCanSIdACodeId(taskParam.getObjId(), code.getId());
+        Task task = findByCanSIdACodeId(taskParam.getObjId(), code.getId(),code.getTaskType());
 
-        if (runCheck(task)) {
-            throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
-        }
-        if (task == null) {
-            task = new Task();
-        }
-        task.setObjId(baseFile.getId());
-        task.setCodeId(code.getId());
-        task.setTaskStatus(TaskStatus.UNTRACKING);
-        task.setUserId(user.getId());
-        task.setName(baseFile.getFileName()+code.getName());
-        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
-        task=taskRepository.save(task);
+        try {
+            lock.lock("task"+task.getId());
+            if (runCheck(task)) {
+                throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
+            }
+            if (task == null) {
+                task = new Task();
+            }
+            task.setObjId(baseFile.getId());
+            task.setCodeId(code.getId());
+            task.setTaskStatus(TaskStatus.UNTRACKING);
+            task.setTaskType(code.getTaskType());
+            task.setUserId(user.getId());
+            task.setName(baseFile.getFileName()+code.getName());
+            task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
+            task=taskRepository.save(task);
 
-        //交给thread
-        asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+            //交给thread
+            asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+        } finally {
+            lock.unlock("task"+task.getId());
+        }
         return task;
     }
 
@@ -272,7 +283,17 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return result.toString();
     }
 
-
+    @Override
+    public Task delBy(Integer id) {
+        Task task = findById(id);
+        try {
+            lock.lock("task"+task.getId());
+            taskRepository.delete(task);
+        } finally {
+            lock.unlock("task"+task.getId());
+        }
+        return task;
+    }
 
     //    @Override
 //    public Task addTaskByCancerStudyId(Integer cancerStudyId){

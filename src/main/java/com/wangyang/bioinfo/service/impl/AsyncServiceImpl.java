@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.rcaller.FunctionCall;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
+import com.wangyang.bioinfo.core.KeyLock;
 import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
@@ -42,6 +43,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Service
 @Slf4j
@@ -53,18 +56,19 @@ public class AsyncServiceImpl implements IAsyncService  {
     private final WebSocketServer springWebSocketHandler;
     private final ThreadPoolTaskExecutor executorService;
     private final Map<Integer, TaskProcess> processMap;
-
+    private final KeyLock<String> lock;
     public AsyncServiceImpl(TaskRepository taskRepository,
                             ICancerStudyService cancerStudyService,
                             WebSocketServer springWebSocketHandler,
-                            ThreadPoolTaskExecutor executorService){
+                            ThreadPoolTaskExecutor executorService,
+                            KeyLock<String> lock){
         processMap= new HashMap<>();
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
         this.springWebSocketHandler=springWebSocketHandler;
         this.executorService=executorService;
+        this.lock=lock;
     }
-
 
 
 
@@ -165,32 +169,37 @@ public class AsyncServiceImpl implements IAsyncService  {
     }
 
     public void processCancerStudy(User user,Task task, Code code,BaseFile baseFile,ICodeResult  codeResult)  {
-        /***************************************************************/
-        log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
-//        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
-        task.setThreadName(Thread.currentThread().getName());
-        task.setTaskStatus(TaskStatus.RUNNING);
-        task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"开始分析！"+ new Date());
-        taskRepository.save(task);
-        /*****************************************************************/
+        try {
+            lock.lock("task"+task.getId());
+            log.debug(">>>>>>>>>>>>>>>>>>>>>>processCancerStudy task{} 加锁",task.getId());
+            log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
+            task.setThreadName(Thread.currentThread().getName());
+            task.setTaskStatus(TaskStatus.RUNNING);
+            task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"开始分析！"+ new Date());
+            taskRepository.save(task);
+            /*****************************************************************/
 
-        Map map = codeResult.getMap(baseFile);
-        CodeMsg codeMsg  = processBuilder(task,code, map);
-        codeResult.call(code,user,codeMsg,baseFile);
+            Map map = codeResult.getMap(baseFile);
+            CodeMsg codeMsg  = processBuilder(task,code, map);
+            codeResult.call(code,user,codeMsg,baseFile);
 
-        /*****************************************************************/
-        task.setResult(codeMsg.getResult());
-        task.setRunMsg(codeMsg.getRunMsg());
-        task.setTaskStatus(TaskStatus.FINISH);
-        task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
-        taskRepository.save(task);
-        log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-        springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
-        /*****************************************************************/
+            /*****************************************************************/
+            task.setResult(codeMsg.getResult());
+            task.setRunMsg(codeMsg.getRunMsg());
+            task.setTaskStatus(TaskStatus.FINISH);
+            task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
+            taskRepository.save(task);
+            log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
+        } finally {
+            lock.unlock("task"+task.getId());
+            log.debug(">>>>>>>>>>>>>>>>>>>>>>processCancerStudy task{} 解锁",task.getId());
+        }
     }
 
     @Override
     public Task shutdownProcess(int taskId){
+
         Optional<Task> optionalTask = taskRepository.findById(taskId);
         if(!optionalTask.isPresent()){
             throw new BioinfoException("Task is not found!");
@@ -199,24 +208,26 @@ public class AsyncServiceImpl implements IAsyncService  {
         if(processMap.containsKey(task.getId())){
             TaskProcess taskProcess = processMap.get(task.getId());
 
-            if(taskProcess.getProcess() !=null && taskProcess.getProcess().isAlive()){
-                taskProcess.getProcess().destroy();
-                log.info("结束 {}",taskProcess.getTask().getName());
-                taskProcess.getTask().setRunMsg(taskProcess.getTask().getRunMsg()+"\nshutdownProcess by user");
+            try {
+                lock.lock("task-finish"+task.getId());
+                log.debug("<<<<<<<<<<<<<<<<<<<<<<<shutdownProcess task{} 加锁",task.getId());
+                if(taskProcess.getProcess() !=null && taskProcess.getProcess().isAlive()){
+//                    taskProcess.getProcess().destroyForcibly();
+//                    taskProcess.getProcess().destroy();
+                    taskProcess.setFlag(false);
+                    log.info("结束 {}",taskProcess.getTask().getName());
+                    taskProcess.getTask().setRunMsg(taskProcess.getTask().getRunMsg()+"\nshutdownProcess by user");
+                }
+                executorService.getThreadPoolExecutor().getQueue().remove(taskProcess.getRunnable());
+                processMap.remove(task.getId());
+                task.setTaskStatus(TaskStatus.INTERRUPT);
+                taskRepository.save(task);
+            } finally {
+                lock.unlock("task-finish"+task.getId());
+                log.debug("<<<<<<<<<<<<<<<<<<<<<<<shutdownProcess task{} 解锁",task.getId());
             }
-            executorService.getThreadPoolExecutor().getQueue().remove(taskProcess.getRunnable());
-            processMap.remove(task.getId());
-            task.setTaskStatus(TaskStatus.INTERRUPT);
-            taskRepository.save(task);
             return taskProcess.getTask();
         }
-
-//        if(executorService.getActiveCount()==0 && !task.getTaskStatus().equals(TaskStatus.FINISH)){
-//
-//            task.setTaskStatus(TaskStatus.FINISH);
-//            taskRepository.save(task);
-//            throw new BioinfoException("出错了，线程已经结束，状态没有更改！");
-//        }
         throw new BioinfoException("该任务已经结束！");
     }
 
@@ -267,6 +278,10 @@ public class AsyncServiceImpl implements IAsyncService  {
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
                 String line;
                 while ((line = reader.readLine()) != null) {
+                    if(!taskProcess.getFlag()){
+                        process.destroy();
+                        break;
+                    }
                     if(line.startsWith("$")) {
                         String[] strings = line.split(":");
                         String key = strings[0].substring(1);
@@ -278,6 +293,8 @@ public class AsyncServiceImpl implements IAsyncService  {
                     }
                     outputStream.write((Thread.currentThread().getName()+": "+line+"\n").getBytes());
                     log.debug(line);
+
+
                 }
             }
             process.waitFor();

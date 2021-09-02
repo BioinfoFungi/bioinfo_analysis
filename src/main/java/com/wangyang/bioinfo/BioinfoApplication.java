@@ -34,7 +34,7 @@ import java.io.IOException;
 @EnableJpaRepositories(basePackages = {"com.wangyang.bioinfo.repository"},
 		repositoryFactoryBeanClass = BaseRepositoryFactoryBean.class//指定自己的工厂类
 )
-//@EnableTransactionManagement
+@EnableTransactionManagement
 //@EnableSwagger2
 //@ComponentScan("com.wangyang.bioinfo.a")
 public class BioinfoApplication {
