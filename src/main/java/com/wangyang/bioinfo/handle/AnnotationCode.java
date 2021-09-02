@@ -22,7 +22,7 @@ public class AnnotationCode implements ICodeResult<Annotation>{
     public void call(Code code, User user, CodeMsg codeMsg,Annotation annotation) {
         Annotation ann = Map2Obj.convert(codeMsg.getResultMap(), Annotation.class);
         annotation.setAbsolutePath(ann.getAbsolutePath());
-        annotationService.save(annotation);
+        annotationService.saveAndCheckFile(annotation);
     }
 
     @Override

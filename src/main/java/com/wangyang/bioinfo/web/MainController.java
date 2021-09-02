@@ -13,6 +13,7 @@ import org.rosuda.REngine.REngineException;
 import org.rosuda.REngine.Rserve.RConnection;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Controller;
@@ -51,6 +52,8 @@ public class MainController {
 
     @Autowired
     WebSocketServer webSocketHandler;
+    @Value("${bioinfo.download_url}")
+    private  String download_url;
 
     @GetMapping("/testExecutor")
     @ResponseBody
@@ -72,6 +75,7 @@ public class MainController {
         map.put("attachment", CacheStore.getValue("workDir")+"/upload");
         map.put("cancerStudy", CacheStore.getValue("workDir")+"/data");
         map.put("Attachment_base_url", CacheStore.getValue("Attachment_base_url"));
+        map.put("download_url", download_url);
         return map;
     }
 

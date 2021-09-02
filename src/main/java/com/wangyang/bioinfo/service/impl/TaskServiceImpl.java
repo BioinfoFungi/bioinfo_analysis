@@ -196,28 +196,25 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         BaseFile baseFile = codeResult.getObj(taskParam.getObjId());
         Task task = findByCanSIdACodeId(taskParam.getObjId(), code.getId(),code.getTaskType());
 
-        try {
-            lock.lock("task"+task.getId());
-            if (runCheck(task)) {
-                throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
-            }
-            if (task == null) {
-                task = new Task();
-            }
-            task.setObjId(baseFile.getId());
-            task.setCodeId(code.getId());
-            task.setTaskStatus(TaskStatus.UNTRACKING);
-            task.setTaskType(code.getTaskType());
-            task.setUserId(user.getId());
-            task.setName(baseFile.getFileName()+code.getName());
-            task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
-            task=taskRepository.save(task);
 
-            //交给thread
-            asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
-        } finally {
-            lock.unlock("task"+task.getId());
+        if (runCheck(task)) {
+            throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
         }
+        if (task == null) {
+            task = new Task();
+        }
+        task.setObjId(baseFile.getId());
+        task.setCodeId(code.getId());
+        task.setTaskStatus(TaskStatus.UNTRACKING);
+        task.setTaskType(code.getTaskType());
+        task.setUserId(user.getId());
+        task.setName(baseFile.getFileName()+code.getName());
+        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
+        task=taskRepository.save(task);
+
+        //交给thread
+        asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+
         return task;
     }
 

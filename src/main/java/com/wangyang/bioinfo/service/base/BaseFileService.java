@@ -176,10 +176,10 @@ public class BaseFileService<FILE extends BaseFile>
                 String basename = FilenameUtils.getBasename(file.getAbsolutePath());
                 file.setFileName(basename);
             }
-            if(file.getRelativePath()==null){
-                String relativePath = FilenameUtils.relativePath(file.getAbsolutePath());
-                file.setRelativePath(relativePath);
-            }
+//            if(file.getRelativePath()==null){
+            String relativePath = FilenameUtils.relativePath(file.getAbsolutePath());
+            file.setRelativePath(relativePath);
+//            }
             String extension = FilenameUtils.getExtension(file.getAbsolutePath());
             file.setFileType(extension);
             if(file.getFileType().endsWith(".gz")){

@@ -86,6 +86,7 @@ jwt:
 bioinfo:
     workDir: ${user.home}/.bioinfo
     authorizeInit: true
+    download_url: http://localhost:8080
 
 #https://www.jianshu.com/p/35878d4ec130
 server:
