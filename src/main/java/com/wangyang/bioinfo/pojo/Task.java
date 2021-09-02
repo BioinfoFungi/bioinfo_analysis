@@ -32,6 +32,5 @@ public class Task extends BaseEntity {
     private String result;
     private String threadName;
     private Boolean isSuccess=false;
-    private TaskType taskType;
     private Integer userId;
 }

@@ -6,4 +6,5 @@ import lombok.Data;
 public class AnnotationParam {
     private String enName;
     private String absolutePath;
+    private Integer codeId;
 }

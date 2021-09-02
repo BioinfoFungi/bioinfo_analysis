@@ -47,4 +47,10 @@ public class AnnotationFileServiceImpl
             return annotationSimpleVO;
         });
     }
+
+    @Override
+    public Annotation saveAndCheckFile(Annotation file) {
+        file.setFileName(file.getEnName());
+        return super.saveAndCheckFile(file);
+    }
 }

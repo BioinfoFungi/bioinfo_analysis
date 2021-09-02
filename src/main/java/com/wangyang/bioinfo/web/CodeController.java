@@ -42,6 +42,13 @@ public class CodeController {
         }
         return cancerStudies;
     }
+
+    @GetMapping("listAllAnnTask")
+    public List<Code>  listAllAnnTask(){
+        List<Code> codes = codeService.listAllAnnTask();
+        return codes;
+    }
+
     @PostMapping
     public Code add(@RequestBody  CodeParam codeParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");

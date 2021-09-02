@@ -11,7 +11,7 @@ import org.springframework.scheduling.annotation.Async;
 import java.util.Map;
 
 public interface IAsyncService  {
-    void processCancerStudy1(User user,Task task, Code code, ICodeResult<? extends BaseFile> codeResult);
+    void processCancerStudy1(User user,Task task, Code code,BaseFile baseFile, ICodeResult<? extends BaseFile> codeResult);
 
     @Async("taskExecutor")
     void processCancerStudy2(User user,Task task, Code code,CancerStudy cancerStudy, CancerStudy cancerStudyProcess ,Map<String, Object> map);

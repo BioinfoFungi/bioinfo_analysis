@@ -25,6 +25,8 @@ public interface ICodeService extends ITermMappingService<Code> {
 
     List<Code> findByCan(Integer id);
 
+    List<Code> listAllAnnTask();
+
 //    void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream);
 
 //    void processAsyncByCancerStudy(Task task,CancerStudy cancerStudy);

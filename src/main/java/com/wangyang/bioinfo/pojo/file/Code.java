@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.pojo.file;
 import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -21,6 +22,8 @@ public class Code extends TermMapping {
     private String code;
     private String name;
     private CodeType codeType= CodeType.R;
+    private TaskType taskType=TaskType.CANCER_STUDY;
+
 //    private Integer changeCancerId;
 //    private Integer changeStudyId;
 //    private Integer changeDataOriginId;

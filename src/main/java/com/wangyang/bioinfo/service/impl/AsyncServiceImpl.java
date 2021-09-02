@@ -53,19 +53,16 @@ public class AsyncServiceImpl implements IAsyncService  {
     private final WebSocketServer springWebSocketHandler;
     private final ThreadPoolTaskExecutor executorService;
     private final Map<Integer, TaskProcess> processMap;
-    private final ApplicationContext applicationContext;
 
     public AsyncServiceImpl(TaskRepository taskRepository,
                             ICancerStudyService cancerStudyService,
                             WebSocketServer springWebSocketHandler,
-                            ThreadPoolTaskExecutor executorService,
-                            ApplicationContext applicationContext){
+                            ThreadPoolTaskExecutor executorService){
         processMap= new HashMap<>();
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
         this.springWebSocketHandler=springWebSocketHandler;
         this.executorService=executorService;
-        this.applicationContext=applicationContext;
     }
 
 
@@ -143,10 +140,10 @@ public class AsyncServiceImpl implements IAsyncService  {
 //    }
 
     @Override
-    public void processCancerStudy1(User user, Task task, Code code, ICodeResult<? extends BaseFile> codeResult)  {
+    public void processCancerStudy1(User user, Task task, Code code, BaseFile baseFile,ICodeResult<? extends BaseFile> codeResult)  {
         Runnable runnable = () -> {
             try {
-                processCancerStudy(user,task, code, codeResult);
+                processCancerStudy(user,task, code,baseFile, codeResult);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -167,7 +164,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         CodeType b();
     }
 
-    public void processCancerStudy(User user,Task task, Code code,ICodeResult  codeResult)  {
+    public void processCancerStudy(User user,Task task, Code code,BaseFile baseFile,ICodeResult  codeResult)  {
         /***************************************************************/
         log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
 //        springWebSocketHandler.sendMessageToUsers(new TextMessage(Thread.currentThread().getName()+": start! >>>>>>>>>>>>>>>>>>>"));
@@ -177,9 +174,9 @@ public class AsyncServiceImpl implements IAsyncService  {
         taskRepository.save(task);
         /*****************************************************************/
 
-        Map map = codeResult.getMap();
+        Map map = codeResult.getMap(baseFile);
         CodeMsg codeMsg  = processBuilder(task,code, map);
-        codeResult.call(code,user,codeMsg);
+        codeResult.call(code,user,codeMsg,baseFile);
 
         /*****************************************************************/
         task.setResult(codeMsg.getResult());
@@ -259,15 +256,14 @@ public class AsyncServiceImpl implements IAsyncService  {
             taskProcess.setProcess(process);
 
             StringBuilder result = new StringBuilder();
-            Map<String,String> resultMap = new HashMap<>();
 
             Path logPath = Paths.get(workDir, "log",task.getId()+".log");
             Files.createDirectories(logPath.getParent());
             if(!logPath.toFile().exists()){
                 Files.createFile(logPath);
             }
+            Map<String,String> resultMap = new HashMap<>();
             outputStream = new FileOutputStream(logPath.toFile());
-
             try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
                 String line;
                 while ((line = reader.readLine()) != null) {
@@ -288,23 +284,6 @@ public class AsyncServiceImpl implements IAsyncService  {
             if(resultMap.containsKey("update")){
                 codeMsg.setIsUpdate(true);
             }
-            CancerStudyParam cancerStudyParam =null;
-            Method[] methods = CancerStudyParam.class.getMethods();
-            for (Method method :methods){
-                String name = method.getName();
-                if(name.startsWith("set")){
-                    int length = name.length();
-                    String basename = name.substring(3,length);
-                    String preName = basename.substring(0, 1).toLowerCase();
-                    String var = preName+basename.substring(1);
-                    if(resultMap.containsKey(var)){
-                        if(cancerStudyParam==null){
-                            cancerStudyParam= new CancerStudyParam();
-                        }
-                        method.invoke(cancerStudyParam,resultMap.get(var).replaceAll(" ",""));
-                    }
-                }
-            }
 
             int exit = process.exitValue();
             if (exit != 0) {
@@ -315,18 +294,13 @@ public class AsyncServiceImpl implements IAsyncService  {
                 codeMsg.setStatus(true);
                 codeMsg.setResult("");
                 codeMsg.setRunMsg(result.toString());
-                codeMsg.setCancerStudyParam(cancerStudyParam);
+                // 获取结果 cat("$absolutePath:",paste0(workDir,"/",filename,".gz"))
+                codeMsg.setResultMap(resultMap);
             }
         } catch (IOException | InterruptedException e) {
             e.printStackTrace();
             codeMsg.setStatus(false);
-        } catch (InvocationTargetException e) {
-            e.printStackTrace();
-            codeMsg.setStatus(false);
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-            codeMsg.setStatus(false);
-        }finally {
+        } finally {
             if(tempFile!=null){
                 tempFile.delete();
             }
@@ -349,6 +323,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         return codeMsg;
     }
 
+
     private void buildFile(Code code,StringBuffer stringBuffer,List<String> command,Map<String, Object> maps) {
         if(code.getCodeType().equals(CodeType.R)){
             for (String key: maps.keySet()){
@@ -361,11 +336,22 @@ public class AsyncServiceImpl implements IAsyncService  {
             }
             stringBuffer.append("\n");
             command.add("Rscript");
-        }else {
+        }else if (code.getCodeType().equals(CodeType.SHELL)){
+            for (String key: maps.keySet()){
+                Object obj = maps.get(key);
+                if(obj instanceof String && obj!=null){
+                    stringBuffer.append(key+"=\""+ obj+"\"\n");
+                }else if (obj instanceof Cancer){
+                    stringBuffer.append(key+"=\""+ ((Cancer) obj).getEnName()+"\"\n");
+                }
+            }
+            stringBuffer.append("\n");
+            command.add("bash");
+        }else if (code.getCodeType().equals(CodeType.PYTHON)){
 
         }
-
     }
+
 
 
     private CodeMsg rCall(Code code, Map<String,Object> maps){
@@ -423,7 +409,7 @@ public class AsyncServiceImpl implements IAsyncService  {
 
             });
             codeMsg.setResult(jsonObject.toString());
-            codeMsg.setCancerStudyParam(cancerStudyParam);
+//            codeMsg.setCancerStudyParam(cancerStudyParam);
             codeMsg.setRunMsg(byteArrayOutputStream.toString());
             codeMsg.setStatus(true);
 

@@ -4,6 +4,8 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
+import com.wangyang.bioinfo.pojo.file.Annotation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
@@ -21,7 +23,10 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
@@ -120,6 +125,7 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+            predicates.add(criteriaBuilder.equal(root.get("taskType"), TaskType.CANCER_STUDY));
             return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
         };
     }
@@ -129,6 +135,17 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
         Code code = new Code();
         BeanUtils.copyProperties(cancerStudy,code);
         List<Code> codes = codeRepository.findAll(buildSpecBy(code,null));
+        return codes;
+    }
+
+    @Override
+    public List<Code> listAllAnnTask() {
+        List<Code> codes = codeRepository.findAll(new Specification<Code>() {
+            @Override
+            public Predicate toPredicate(Root<Code> root, CriteriaQuery<?> query, CriteriaBuilder criteriaBuilder) {
+                return criteriaBuilder.equal(root.get("taskType"),TaskType.ANNOTATION);
+            }
+        });
         return codes;
     }
 

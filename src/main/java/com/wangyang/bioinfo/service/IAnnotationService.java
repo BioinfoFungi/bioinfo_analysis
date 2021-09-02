@@ -12,4 +12,5 @@ public interface IAnnotationService extends IBaseFileService<Annotation> {
     Page<Annotation> pageBy(AnnotationQuery annotationQuery, Pageable pageable);
 
     Page<AnnotationSimpleVO> convert(Page<Annotation> annotations);
+    Annotation saveAndCheckFile(Annotation file);
 }

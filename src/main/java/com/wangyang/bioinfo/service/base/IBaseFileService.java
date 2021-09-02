@@ -30,5 +30,6 @@ public interface IBaseFileService<FILE extends BaseFile> extends ICrudService<FI
 
     FILE download(Integer id, FileLocation fileLocation, HttpServletResponse response);
 
+
     FILE checkFileExist(int id);
 }

@@ -13,8 +13,8 @@ import com.wangyang.bioinfo.pojo.file.Code;
 import java.util.Map;
 
 public interface ICodeResult<T extends BaseFile>{
-    void call(Code code, User user, CodeMsg codeMsg);
-    Map<String, Object>  getMap();
+    void call(Code code, User user, CodeMsg codeMsg, T t);
+    Map<String, Object>  getMap(T t);
     T getObj(int id);
     TaskType getTaskType();
 }
