@@ -1,5 +1,5 @@
-#!/usr/bin/bash
-git pull
+#!bash
+#git pull
 ./mvnw clean
  ./mvnw install -Dmaven.test.skip=true
 dir=`pwd`
