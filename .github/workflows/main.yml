@@ -34,12 +34,10 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
-      - name: ls -a via ssh
-        uses: tarunjangra/ssh-remote-cmd@v1
+      - name: executing remote ssh commands using password
+        uses: appleboy/ssh-action@master
         with:
-          command: |
-            cd /tmp
-            ls -a
-          host: bioinfo.online
-          user: wangyang
-          key: ${{ secrets.SERVER_SSH_KEY}}
+          host: ${{ secrets.REMOTE_HOST }}
+          username: ${{ secrets.REMOTE_USER }}
+          password: ${{ secrets.PASSWORD }}
+          script: whoami
