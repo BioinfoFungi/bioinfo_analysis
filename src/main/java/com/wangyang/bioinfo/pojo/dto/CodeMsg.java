@@ -14,4 +14,5 @@ public class CodeMsg {
     private Map<String,String> resultMap;
     private String result;
     private Boolean isUpdate=false;
+    private String sourceCode;
 }

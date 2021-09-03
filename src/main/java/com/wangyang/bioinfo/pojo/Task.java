@@ -33,9 +33,12 @@ public class Task extends BaseEntity {
     private String exception;
     @Column(columnDefinition = "longtext")
     private String result;
+    @Column(columnDefinition = "longtext")
+    private String sourceCode;
     private String threadName;
     private Boolean isSuccess=false;
     private Integer userId;
+
     @QueryField
     private TaskType taskType;
 }

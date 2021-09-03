@@ -4,6 +4,7 @@ package com.wangyang.bioinfo.service.impl;
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
@@ -15,6 +16,8 @@ import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.TermMappingServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.FileMd5Utils;
+import com.wangyang.bioinfo.util.FilenameUtils;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -27,6 +30,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.io.File;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -96,6 +100,31 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy saveCancerStudy(CancerStudy cancerStudy) {
+        if(cancerStudy.getLocation().equals(FileLocation.LOCAL)){
+            if(cancerStudy.getExpr()!=null){
+                File f = new File(cancerStudy.getExpr());
+                if(f.exists()&& f.isFile()){
+                    cancerStudy.setExprStatus(true);
+                    cancerStudy.setExprSize(f.length());
+                    String md5String = FileMd5Utils.getFileMD5String(f);
+                    cancerStudy.setExprMd5(md5String);
+                }
+                String relativePath = FilenameUtils.relativePath(cancerStudy.getExpr());
+                cancerStudy.setExprRelative(relativePath);
+            }
+            if(cancerStudy.getMetadata()!=null){
+                File f = new File(cancerStudy.getMetadata());
+                if(f.exists()&& f.isFile()){
+                    cancerStudy.setMetadataStatus(true);
+                    cancerStudy.setMetadataSize(f.length());
+                    String md5String = FileMd5Utils.getFileMD5String(f);
+                    cancerStudy.setMetadataMd5(md5String);
+                }
+                String relativePath = FilenameUtils.relativePath(cancerStudy.getMetadata());
+                cancerStudy.setMetadataRelative(relativePath);
+            }
+        }
+
         return saveAndCheckFile(cancerStudy);
     }
 //    @Override

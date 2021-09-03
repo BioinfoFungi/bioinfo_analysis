@@ -64,11 +64,12 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
                 cancerStudyProcess.setDataOriginId(cancerStudy.getDataOriginId());
                 cancerStudyProcess.setDataCategoryId(cancerStudy.getDataCategoryId());
                 cancerStudyProcess.setAnalysisSoftwareId(cancerStudy.getAnalysisSoftwareId());
-                cancerStudyProcess.setUserId(user.getId());
-                cancerStudyProcess.setCodeId(code.getId());
-                cancerStudyProcess.setParentId(cancerStudy.getId());
                 cancerStudyProcess.setGse(cancerStudy.getGse());
                 BeanUtil.copyProperties(covertCancerStudy, cancerStudyProcess);
+
+                cancerStudyProcess.setParentId(cancerStudy.getId());
+                cancerStudyProcess.setUserId(user.getId());
+                cancerStudyProcess.setCodeId(code.getId());
                 cancerStudyService.saveCancerStudy(cancerStudyProcess);
             }
         }

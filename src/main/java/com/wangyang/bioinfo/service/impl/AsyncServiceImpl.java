@@ -181,6 +181,7 @@ public class AsyncServiceImpl implements IAsyncService  {
 
             /*****************************************************************/
             task.setResult(codeMsg.getResult());
+            task.setSourceCode(codeMsg.getSourceCode());
             task.setRunMsg(codeMsg.getRunMsg());
             task.setTaskStatus(TaskStatus.FINISH);
             task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
@@ -264,7 +265,7 @@ public class AsyncServiceImpl implements IAsyncService  {
                     fop.flush();
                 }
             }
-
+            codeMsg.setSourceCode(stringBuffer.toString());
 
             ProcessBuilder processBuilder = new ProcessBuilder();
             processBuilder.directory(path.toFile());
