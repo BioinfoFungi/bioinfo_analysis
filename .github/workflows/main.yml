@@ -40,4 +40,6 @@ jobs:
           host: ${{ secrets.REMOTE_HOST }}
           username: ${{ secrets.REMOTE_USER }}
           password: ${{ secrets.PASSWORD }}
-          script: whoami
+          script: |
+            cd /home/wangyang/application/bioinfo_server
+            ./install_1.sh
