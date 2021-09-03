@@ -13,4 +13,6 @@ public interface IAnnotationService extends IBaseFileService<Annotation> {
 
     Page<AnnotationSimpleVO> convert(Page<Annotation> annotations);
     Annotation saveAndCheckFile(Annotation file);
+
+    Annotation findByParACodeId(Integer parentId, Integer codeId);
 }

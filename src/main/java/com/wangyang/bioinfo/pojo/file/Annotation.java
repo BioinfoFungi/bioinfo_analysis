@@ -12,4 +12,7 @@ import javax.persistence.Entity;
 public class Annotation extends BaseFile {
     private String enName;
     private Integer codeId;
+    private String probeId;
+    private String symbol;
+    private Integer parentId;
 }

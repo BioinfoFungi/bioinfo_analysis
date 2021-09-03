@@ -146,11 +146,7 @@ public class AsyncServiceImpl implements IAsyncService  {
     @Override
     public void processCancerStudy1(User user, Task task, Code code, BaseFile baseFile,ICodeResult<? extends BaseFile> codeResult)  {
         Runnable runnable = () -> {
-            try {
-                processCancerStudy(user,task, code,baseFile, codeResult);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
+            processCancerStudy(user,task, code,baseFile, codeResult);
         };
         executorService.submit(runnable);
         processMap.put(task.getId(),new TaskProcess(task,runnable,null));
@@ -191,7 +187,16 @@ public class AsyncServiceImpl implements IAsyncService  {
             taskRepository.save(task);
             log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
-        } finally {
+        } catch (Exception e){
+            e.printStackTrace();
+//            task.setResult(codeMsg.getResult());
+//            task.setRunMsg(codeMsg.getRunMsg());
+            task.setTaskStatus(TaskStatus.ERROR);
+            task.setRunMsg(task.getRunMsg()+"\n"+e.getMessage()+"分析结束！"+ new Date());
+            taskRepository.save(task);
+            log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
+            springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
+        }finally {
             lock.unlock("task"+task.getId());
             log.debug(">>>>>>>>>>>>>>>>>>>>>>processCancerStudy task{} 解锁",task.getId());
         }
@@ -247,7 +252,11 @@ public class AsyncServiceImpl implements IAsyncService  {
             command.add(tempFile.getAbsolutePath());
 
             if(code.getAbsolutePath()!=null){
-                byte[] bytes = Files.readAllBytes(Paths.get(code.getAbsolutePath()));
+                Path codePath = Paths.get(code.getAbsolutePath());
+                if(!codePath.toFile().exists()){
+                    throw new BioinfoException("code不存在！！");
+                }
+                byte[] bytes = Files.readAllBytes(codePath);
                 String content = new String(bytes, StandardCharsets.UTF_8);
                 stringBuffer.append(content);
                 try (FileOutputStream fop = new FileOutputStream(tempFile)) {
@@ -314,7 +323,7 @@ public class AsyncServiceImpl implements IAsyncService  {
                 // 获取结果 cat("$absolutePath:",paste0(workDir,"/",filename,".gz"))
                 codeMsg.setResultMap(resultMap);
             }
-        } catch (IOException | InterruptedException e) {
+        } catch (IOException  |InterruptedException e) {
             e.printStackTrace();
             codeMsg.setStatus(false);
         } finally {
@@ -323,7 +332,7 @@ public class AsyncServiceImpl implements IAsyncService  {
             }
             TaskProcess taskProcess = processMap.get(task.getId());
             if(taskProcess!=null){
-                if(taskProcess.getProcess().isAlive()){
+                if(taskProcess.getProcess()!=null &&taskProcess.getProcess().isAlive()){
                     taskProcess.getProcess().destroy();
                 }
                 processMap.remove(task.getId());

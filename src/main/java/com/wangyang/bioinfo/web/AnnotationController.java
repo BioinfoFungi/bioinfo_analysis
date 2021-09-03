@@ -39,6 +39,13 @@ public class AnnotationController {
         BeanUtils.copyProperties(annotationParam,annotation);
         return annotationService.saveAndCheckFile(annotation);
     }
+    @PostMapping("/update/{id}")
+    public Annotation update(@PathVariable("id") Integer id,@RequestBody AnnotationParam annotationParam){
+        Annotation annotation = annotationService.findById(id);
+        BeanUtils.copyProperties(annotationParam,annotation,"id");
+        return annotationService.saveAndCheckFile(annotation);
+    }
+
     @GetMapping("/del/{id}")
     public Annotation del(@PathVariable("id") int id){
         return annotationService.delBy(id);

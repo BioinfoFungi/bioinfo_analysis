@@ -143,7 +143,9 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
 
     public  boolean runCheck(Task task){
-        if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH) && !task.getTaskStatus().equals(TaskStatus.INTERRUPT) ){
+        if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH) &&
+                !task.getTaskStatus().equals(TaskStatus.INTERRUPT) &&
+                !task.getTaskStatus().equals(TaskStatus.ERROR)){
             return true;
         }else{
             return false;

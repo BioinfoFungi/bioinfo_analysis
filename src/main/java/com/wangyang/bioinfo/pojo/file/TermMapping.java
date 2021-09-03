@@ -39,5 +39,4 @@ public class TermMapping extends BaseFile {
     @Parsed
     @QueryField
     private Integer dataCategoryId;
-
 }
