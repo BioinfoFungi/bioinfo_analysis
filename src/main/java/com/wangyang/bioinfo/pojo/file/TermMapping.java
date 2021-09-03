@@ -20,23 +20,21 @@ import javax.persistence.MappedSuperclass;
 @DiscriminatorColumn(name = "type", discriminatorType = DiscriminatorType.INTEGER, columnDefinition = "int default 0")
 public class TermMapping extends BaseFile {
 
-    @Parsed
-    @QueryField
-    private Integer annotationId;
-    @Parsed
+
+    @Parsed(field = "cancer")
     @QueryField
     private Integer cancerId;
-    @Parsed
+    @Parsed(field = "study")
     @QueryField
     private Integer studyId;
-    @Parsed
+    @Parsed(field = "dataOrigin")
     @QueryField
     private Integer dataOriginId;
 
-    @Parsed
+    @Parsed(field = "analysisSoftware")
     @QueryField
     private Integer analysisSoftwareId;
-    @Parsed
+    @Parsed(field = "dataCategory")
     @QueryField
     private Integer dataCategoryId;
 }

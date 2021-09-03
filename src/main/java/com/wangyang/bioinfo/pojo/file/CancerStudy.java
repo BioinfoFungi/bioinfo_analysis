@@ -26,11 +26,13 @@ public class CancerStudy extends TermMapping {
     private Integer codeId;
 //    private Boolean isProcessed;
     private Integer parentId=-1;
+    @Parsed
     private Integer annotationId;
-
+    @Parsed
     private String metadata;
     private String metadataMd5;
     private Long metadataSize;
+    @Parsed
     private String expr;
     private String exprMd5;
     private Long exprSize;

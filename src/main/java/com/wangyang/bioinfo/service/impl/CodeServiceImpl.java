@@ -133,6 +133,21 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
     public List<Code> findByCan(Integer id) {
         CancerStudy cancerStudy = cancerStudyService.findById(id);
         Code code = new Code();
+        if(cancerStudy.getParentId()!=null &&  cancerStudy.getParentId()!=-1){
+            code.setHaveParentId(true);
+        }else {
+            code.setHaveParentId(false);
+        }
+        if(cancerStudy.getExprStatus()!=null&& cancerStudy.getExprStatus()){
+            code.setHaveExpr(true);
+        }else {
+            code.setHaveExpr(false);
+        }
+        if(cancerStudy.getMetadataStatus()!=null && cancerStudy.getMetadataStatus()){
+            code.setHaveExpr(true);
+        }else {
+            code.setHaveExpr(false);
+        }
         BeanUtils.copyProperties(cancerStudy,code);
         List<Code> codes = codeRepository.findAll(buildSpecBy(code,null));
         return codes;

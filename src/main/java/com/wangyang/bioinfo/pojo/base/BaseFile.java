@@ -32,9 +32,9 @@ public class BaseFile extends BaseEntity {
     private String fileType;
 
 
-    @Parsed(field = "absolute_path")
+    @Parsed
     private String absolutePath;
-    @Parsed(field = "relative_path")
+    @Parsed
     private String relativePath;
     private Long size=0L;
     /**

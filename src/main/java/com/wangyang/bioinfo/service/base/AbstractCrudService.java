@@ -162,7 +162,7 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
             outputStream = response.getOutputStream();
             byte[] bytes = FileUtils.readFileToByteArray(tsvFile);
             //写之前设置响应流以附件的形式打开返回值,这样可以保证前边打开文件出错时异常可以返回给前台
-            response.setHeader("Content-Disposition","attachment;filename="+tsvFile.getName());
+            response.setHeader("content-disposition","attachment;filename="+tsvFile.getName());
             outputStream.write(bytes);
             outputStream.flush();
         } catch (IOException e) {

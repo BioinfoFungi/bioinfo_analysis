@@ -20,9 +20,21 @@ import javax.persistence.Entity;
 public class Code extends TermMapping {
     @Column(columnDefinition = "longtext")
     private String code;
+    @Parsed
     private String name;
+    @Parsed
     private CodeType codeType= CodeType.R;
+    @Parsed
     private TaskType taskType=TaskType.CANCER_STUDY;
+    @QueryField
+    @Parsed
+    private Boolean haveParentId;
+    @QueryField
+    @Parsed
+    private Boolean haveExpr;
+    @QueryField
+    @Parsed
+    private Boolean haveMetadata;
 
 //    private Integer changeCancerId;
 //    private Integer changeStudyId;

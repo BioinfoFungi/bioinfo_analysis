@@ -9,6 +9,7 @@ import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.service.ICodeService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -16,6 +17,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
 import java.util.List;
@@ -95,8 +97,16 @@ public class CodeController {
     }
 
     @GetMapping("/init")
-    public BaseResponse initDataBy(@RequestParam("path") String path){
+    public BaseResponse initDataBy(@RequestParam(value = "path", defaultValue = "") String path){
+        if(path!=null && path.equals("")){
+            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data/Code.tsv";
+        }
         codeService.initData(path);
-        return BaseResponse.ok("初始化完成!");
+        return BaseResponse.ok("["+path+"]初始化完成!");
+    }
+
+    @PostMapping("/createTSVFile")
+    public void createTSVFile(HttpServletResponse response){
+        codeService.createTSVFile(response);
     }
 }

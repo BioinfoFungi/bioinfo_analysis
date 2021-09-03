@@ -91,7 +91,7 @@ public class CancerStudyController {
 //        return cancerStudyService.pageCancerStudyVo(findCancer,pageable);
 //    }
 
-    @GetMapping("/createTSVFile")
+    @PostMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
         cancerStudyService.createTSVFile(response);
     }
