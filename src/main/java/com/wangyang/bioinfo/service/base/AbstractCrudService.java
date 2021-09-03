@@ -52,7 +52,6 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
                         .format("%%%s%%", StringUtils.strip(keywords));
                 List<Predicate> orPredicates = new ArrayList<>();
                 for (String filed : sets){
-                    Predicate name = criteriaBuilder.like(root.get(filed), likeCondition);
                     Predicate predicate = criteriaBuilder
                             .like(root.get(filed), likeCondition);
                     orPredicates.add(predicate);

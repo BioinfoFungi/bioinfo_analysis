@@ -18,5 +18,5 @@ public class CancerStudyQuery extends TermMappingParam {
     private Integer analysisSoftwareId;
     private Integer dataCategoryId;
     private Integer annotationId;
-    private String keyWard;
+    private String keyword;
 }

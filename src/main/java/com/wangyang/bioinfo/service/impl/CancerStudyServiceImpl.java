@@ -212,7 +212,10 @@ public class CancerStudyServiceImpl
     @Override
     public Page<CancerStudy> pageBy(CancerStudyQuery cancerStudyQuery, Pageable pageable) {
         CancerStudy cancerStudy = super.convert(cancerStudyQuery);
-        Page<CancerStudy> cancerStudies = pageBy(cancerStudy, cancerStudyQuery.getKeyWard(), pageable);
+        Set<String> sets = new HashSet<>();
+        sets.add("gse");
+        sets.add("description");
+        Page<CancerStudy> cancerStudies = cancerStudyRepository.findAll(buildSpecByQuery(cancerStudy, cancerStudyQuery.getKeyword(), sets), pageable);
         return cancerStudies;
     }
 
