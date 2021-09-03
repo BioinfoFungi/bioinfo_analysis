@@ -10,6 +10,7 @@ import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
+import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.apache.commons.lang.StringUtils;
@@ -20,6 +21,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.Predicate;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -212,6 +214,9 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
     }
 
     public List<TERMMAPPING> initData(String filePath,Class<? extends TermMappingParam> clz) {
+        if (!Paths.get(filePath).toFile().exists()){
+            throw new BioinfoException("["+filePath+"]不存在！！");
+        }
         baseTermMappingRepository.deleteAll();
         List<? extends TermMappingParam> termMappingParamDTOS = File2Tsv.tsvToBean(clz, filePath);
         List<TERMMAPPING> cancerStudies = termMappingParamDTOS.stream().map(cancerStudyParam -> {
