@@ -2,11 +2,13 @@ package com.wangyang.bioinfo.service.impl;
 
 
 import com.wangyang.bioinfo.handle.FileHandlers;
+import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.file.Annotation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.AnnotationQuery;
 import com.wangyang.bioinfo.pojo.vo.AnnotationSimpleVO;
 import com.wangyang.bioinfo.repository.AnnotationRepository;
+import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.IAnnotationService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import org.springframework.beans.BeanUtils;
@@ -30,10 +32,14 @@ public class AnnotationFileServiceImpl
 
     private final AnnotationRepository annotationFileRepository;
     private final FileHandlers fileHandlers;
-    public AnnotationFileServiceImpl(FileHandlers fileHandlers, AnnotationRepository annotationFileRepository) {
+    private final TaskRepository taskRepository;
+    public AnnotationFileServiceImpl(FileHandlers fileHandlers,
+                                     AnnotationRepository annotationFileRepository,
+                                     TaskRepository taskRepository) {
         super(fileHandlers, annotationFileRepository);
         this.annotationFileRepository = annotationFileRepository;
         this.fileHandlers=fileHandlers;
+        this.taskRepository=taskRepository;
     }
 
     @Override
@@ -72,5 +78,19 @@ public class AnnotationFileServiceImpl
             }
         });
         return annotations.size()==0?null:annotations.get(0);
+    }
+
+    @Override
+    public Annotation delBy(Integer id) {
+        Annotation annotation = findById(id);
+        List<Task> tasks = taskRepository.findByObjId(annotation.getId());
+        taskRepository.deleteAll(tasks);
+        Integer parentId = annotation.getParentId();
+        if(parentId!=null && parentId!=-1){
+            List<Task> tasksP = taskRepository.findByObjId(parentId);
+            taskRepository.deleteAll(tasksP);
+        }
+        annotationFileRepository.delete(annotation);
+        return annotation;
     }
 }
