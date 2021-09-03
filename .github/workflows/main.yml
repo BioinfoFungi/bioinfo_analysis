@@ -34,9 +34,12 @@ jobs:
         run: |
           echo Add other actions to build,
           echo test, and deploy your project.
-      - name: Execute SSH commmands on remote server
-        uses: JimCronqvist/action-ssh@master
+      - name: ls -a via ssh
+        uses: tarunjangra/ssh-remote-cmd@v1
         with:
-          hosts: 'wangyang@bioinfo.online'
-          privateKey: ${{ secrets.SERVER_SSH_KEY }}
-          command: ls -lah
+          command: |
+            cd /tmp
+            ls -a
+          host: bioinfo.online
+          user: wangyang
+          key: ${{ secrets.SERVER_SSH_KEY}}
