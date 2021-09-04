@@ -4,7 +4,7 @@ package com.wangyang.bioinfo.pojo.enums;
 import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TaskType {
-    CANCER_STUDY(0,"CANCER_STUDY"),ANNOTATION(1,"ANNOTATION");
+    CANCER_STUDY(0,"CANCER_STUDY"),ANNOTATION(1,"ANOTHER");
     private final  String name;
     private final   int code;
 

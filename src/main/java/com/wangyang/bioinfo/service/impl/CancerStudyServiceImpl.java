@@ -74,18 +74,27 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy saveCancerStudy(CancerStudyParam cancerStudyParam, User user) {
-        if(cancerStudyParam.getCancer()==null | cancerStudyParam.getStudy()==null | cancerStudyParam.getDataOrigin()==null){
-            throw new BioinfoException("cancer，study，dataOrigin,AbsolutePath 不能为空！");
-        }
+        checkAtLeastNotNull(cancerStudyParam);
+//        if(cancerStudyParam.getCancer()==null | cancerStudyParam.getStudy()==null | cancerStudyParam.getDataOrigin()==null){
+//            throw new BioinfoException("cancer，study，dataOrigin,AbsolutePath 不能为空！");
+//        }
         CancerStudy cancerStudy = super.convert(cancerStudyParam);
         return  add(cancerStudy,user);
     }
 
+    private void checkAtLeastNotNull(CancerStudyParam cancerStudyParam) {
+        if(cancerStudyParam.getCancer()==null &&
+            cancerStudyParam.getStudy()==null&&
+            cancerStudyParam.getDataOrigin()==null&&
+            cancerStudyParam.getAnalysisSoftware()==null&&
+            cancerStudyParam.getDataCategory()==null){
+            throw new BioinfoException("CancerStudy Term应该至少有一项不为空！！！");
+        }
+    }
+
     @Override
     public CancerStudy updateCancerStudy(Integer id, CancerStudyParam cancerStudyParam, User user) {
-        if(cancerStudyParam.getCancer()==null | cancerStudyParam.getStudy()==null | cancerStudyParam.getDataOrigin()==null){
-            throw new BioinfoException("cancer，study，dataOrigin,AbsolutePath 不能为空！");
-        }
+        checkAtLeastNotNull(cancerStudyParam);
         CancerStudy cancerStudy = super.convert(cancerStudyParam);
         return  update(id,cancerStudy,user);
     }

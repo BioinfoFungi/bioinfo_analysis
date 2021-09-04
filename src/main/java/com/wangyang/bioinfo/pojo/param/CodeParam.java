@@ -15,7 +15,7 @@ public class CodeParam extends TermMappingParam{
     @Parsed
     private CodeType codeType;
     @Parsed
-    private TaskType taskType;
+    private TaskType taskType=TaskType.CANCER_STUDY;
     @Parsed
     private Boolean haveParentId;
     @Parsed

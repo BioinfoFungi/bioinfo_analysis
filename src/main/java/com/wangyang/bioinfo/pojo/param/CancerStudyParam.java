@@ -18,6 +18,7 @@ public class CancerStudyParam extends TermMappingParam {
     private String gse;
     private String metadata;
     private String expr;
+    private String description;
 //    private String processedAbsolutePath;
 //    @Parsed
 //    private String processedRelativePath;
