@@ -5,6 +5,7 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.file.Annotation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.param.AnnotationParam;
 import com.wangyang.bioinfo.pojo.param.AnnotationQuery;
 import com.wangyang.bioinfo.pojo.vo.AnnotationSimpleVO;
 import com.wangyang.bioinfo.repository.AnnotationRepository;
@@ -92,5 +93,16 @@ public class AnnotationFileServiceImpl
         }
         annotationFileRepository.delete(annotation);
         return annotation;
+    }
+
+    @Override
+    public Annotation add(AnnotationParam annotationParam){
+        Annotation annotation = new Annotation();
+        BeanUtils.copyProperties(annotationParam,annotation);
+        Annotation saveAndCheckFile = saveAndCheckFile(annotation);
+
+
+
+        return saveAndCheckFile;
     }
 }

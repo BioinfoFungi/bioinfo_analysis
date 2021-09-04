@@ -53,9 +53,20 @@ public class CancerStudyController {
         return cancerStudies;
     }
 
+    @GetMapping("list")
+    @Anonymous
+    public List<? extends TermMapping> list(CancerStudyQuery cancerStudyQuery,
+                                            @RequestParam(value = "more", defaultValue = "false") Boolean more){
+        List<CancerStudy> cancerStudies = cancerStudyService.listBy(cancerStudyQuery);
+        if(more){
+            return cancerStudyService.convertVo(cancerStudies);
+        }
+        return cancerStudies;
+    }
+
 
     @GetMapping("/listByCancerId/{id}")
-    public List<TermMappingVo> listByCancerId(@PathVariable("id") Integer id){
+    public List<? extends TermMapping> listByCancerId(@PathVariable("id") Integer id){
         List<CancerStudy> cancerStudies = cancerStudyService.listByCancerId(id);
         return cancerStudyService.convertVo(cancerStudies);
     }

@@ -39,6 +39,8 @@ public interface ICancerStudyService extends ITermMappingService<CancerStudy> {
 
     List<CancerStudy> findAllById(Collection<Integer> id);
 
+    List<CancerStudy> listBy(CancerStudyQuery cancerStudyQuery);
+
     Page<CancerStudy> pageCancerStudy(Pageable pageable);
 
     Page<CancerStudy>  pageBy(CancerStudyQuery cancerStudyQuery, Pageable pageable);
@@ -48,5 +50,7 @@ public interface ICancerStudyService extends ITermMappingService<CancerStudy> {
     List<CancerStudy> listByCancerId(Integer cancerId);
 
 
-    List<TermMappingVo> convertVo(List<CancerStudy> cancerStudies);
+    Page<CancerStudyVO> convertVo(Page<CancerStudy> fromCancerStudies);
+
+    List<CancerStudyVO> convertVo(List<CancerStudy> fromCancerStudies);
 }

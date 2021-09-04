@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
@@ -17,8 +18,6 @@ public interface ITermMappingService<TERMMAPPING extends TermMapping> extends IB
 //    List<TERMMAPPING> listBy(TERMMAPPING termMapping,String keyWard);
 
 //    Page<TERMMAPPING> pageDTOBy(TermMappingDTO termMappingDTO, Pageable pageable);
-
-    Page<? extends TermMappingVo> convertVo(Page<TERMMAPPING> fromCancerStudies);
 
     //    @Override
     TermMappingVo  convertVo(TERMMAPPING termmapping);

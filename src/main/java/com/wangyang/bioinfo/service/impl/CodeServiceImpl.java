@@ -10,7 +10,9 @@ import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
+import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
+import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
@@ -152,6 +154,8 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
         List<Code> codes = codeRepository.findAll(buildSpecBy(code,null));
         return codes;
     }
+
+
 
     @Override
     public List<Code> listAllAnnTask() {

@@ -13,7 +13,7 @@ public class NameTreadFactory implements ThreadFactory {
 
     @Override
     public Thread newThread(Runnable r) {
-        Thread t = new Thread(r, "######################my-thread-" + mThreadNum.getAndIncrement());
+        Thread t = new Thread(r, "[Thread-" + mThreadNum.getAndIncrement()+"]");
         System.out.println(t.getName() + " has been created");
         return t;
     }

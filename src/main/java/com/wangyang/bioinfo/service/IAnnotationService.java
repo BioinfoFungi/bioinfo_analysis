@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service;
 
 
 import com.wangyang.bioinfo.pojo.file.Annotation;
+import com.wangyang.bioinfo.pojo.param.AnnotationParam;
 import com.wangyang.bioinfo.pojo.param.AnnotationQuery;
 import com.wangyang.bioinfo.pojo.vo.AnnotationSimpleVO;
 import com.wangyang.bioinfo.service.base.IBaseFileService;
@@ -15,4 +16,6 @@ public interface IAnnotationService extends IBaseFileService<Annotation> {
     Annotation saveAndCheckFile(Annotation file);
 
     Annotation findByParACodeId(Integer parentId, Integer codeId);
+
+    Annotation add(AnnotationParam annotationParam);
 }

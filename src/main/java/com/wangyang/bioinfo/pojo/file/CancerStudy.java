@@ -25,6 +25,7 @@ public class CancerStudy extends TermMapping {
 //    private String processedRelativePath;
     private Integer codeId;
 //    private Boolean isProcessed;
+    @QueryField
     private Integer parentId=-1;
     @Parsed
     private Integer annotationId;

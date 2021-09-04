@@ -35,9 +35,7 @@ public class AnnotationController {
     }
     @PostMapping
     public Annotation add(@RequestBody AnnotationParam annotationParam){
-        Annotation annotation = new Annotation();
-        BeanUtils.copyProperties(annotationParam,annotation);
-        return annotationService.saveAndCheckFile(annotation);
+        return annotationService.add(annotationParam);
     }
     @PostMapping("/update/{id}")
     public Annotation update(@PathVariable("id") Integer id,@RequestBody AnnotationParam annotationParam){

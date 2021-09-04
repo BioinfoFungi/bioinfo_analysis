@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.base;
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
@@ -227,10 +228,49 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
     }
 
 
-    @Override
-    public Page<? extends TermMappingVo> convertVo(Page<TERMMAPPING> termmappings) {
-        return convertVo(termmappings, TermMappingVo.class);
-    }
+
+
+//    @Override
+//    public List<? extends TermMappingVo> convertVo(List<TERMMAPPING> cancerStudies) {
+//        Set<Integer> cancerIds = ServiceUtil.fetchProperty(cancerStudies, TERMMAPPING::getCancerId);
+//        List<Cancer> cancers = cancerService.findAllById(cancerIds);
+//        Map<Integer, Cancer> cancerMap = ServiceUtil.convertToMap(cancers, Cancer::getId);
+//
+//
+//        Set<Integer> studyIds = ServiceUtil.fetchProperty(cancerStudies, TERMMAPPING::getStudyId);
+//        List<Study> studies = studyService.findAllById(studyIds);
+//        Map<Integer, Study> studyMap = ServiceUtil.convertToMap(studies, Study::getId);
+//
+//
+//        Set<Integer> dataOriginIds = ServiceUtil.fetchProperty(cancerStudies, TERMMAPPING::getDataOriginId);
+//        List<DataOrigin> dataOrigins = dataOriginService.findAllById(dataOriginIds);
+//        Map<Integer, DataOrigin> dataOriginMap = ServiceUtil.convertToMap(dataOrigins, DataOrigin::getId);
+//
+//
+//        Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, TERMMAPPING::getDataCategoryId);
+//        List<DataCategory> experimentalStrategies = dataCategoryService.findAllById(experimentalStrategyIds);
+//        Map<Integer, DataCategory> strategyMap= ServiceUtil.convertToMap(experimentalStrategies, DataCategory::getId);
+//
+//
+//        Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, TERMMAPPING::getAnalysisSoftwareId);
+//        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
+//        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
+//
+//
+//        List<TermMappingVo> termMappingVos = cancerStudies.stream().map(cancerStudy -> {
+//            TermMappingVo termMappingVo = new TermMappingVo();
+//            termMappingVo.setCancer(cancerMap.get(cancerStudy.getCancerId()));
+//            termMappingVo.setStudy(studyMap.get(cancerStudy.getStudyId()));
+//            termMappingVo.setDataOrigin(dataOriginMap.get(cancerStudy.getDataOriginId()));
+//            BeanUtils.copyProperties(cancerStudy, termMappingVo);
+//            termMappingVo.setDataCategory(strategyMap.get(cancerStudy.getDataCategoryId()));
+//            termMappingVo.setAnalysisSoftware(analysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
+//            return termMappingVo;
+//        }).collect(Collectors.toList());
+//
+//        return termMappingVos;
+//    }
+
 //    @Override
     @Override
     public TermMappingVo  convertVo(TERMMAPPING termmapping) {
@@ -292,6 +332,52 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
         return cancerStudyVos;
     }
 
+
+    public <VO extends TermMappingVo> List<VO> convertVo(List<TERMMAPPING> termmappings,Class<VO> clz){
+        Set<Integer> cancerIds = ServiceUtil.fetchProperty(termmappings, TermMapping::getCancerId);
+        List<Cancer> cancers = cancerService.findAllById(cancerIds);
+        Map<Integer, Cancer> cancerMap = ServiceUtil.convertToMap(cancers, Cancer::getId);
+
+
+        Set<Integer> studyIds = ServiceUtil.fetchProperty(termmappings, TermMapping::getStudyId);
+        List<Study> studies = studyService.findAllById(studyIds);
+        Map<Integer, Study> studyMap = ServiceUtil.convertToMap(studies, Study::getId);
+
+
+        Set<Integer> dataOriginIds = ServiceUtil.fetchProperty(termmappings, TermMapping::getDataOriginId);
+        List<DataOrigin> dataOrigins = dataOriginService.findAllById(dataOriginIds);
+        Map<Integer, DataOrigin> dataOriginMap = ServiceUtil.convertToMap(dataOrigins, DataOrigin::getId);
+
+
+
+        Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(termmappings, TermMapping::getDataCategoryId);
+        List<DataCategory> experimentalStrategies = dataCategoryService.findAllById(experimentalStrategyIds);
+        Map<Integer, DataCategory> strategyMap= ServiceUtil.convertToMap(experimentalStrategies, DataCategory::getId);
+
+
+        Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(termmappings, TermMapping::getAnalysisSoftwareId);
+        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
+        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
+
+        List<VO> cancerStudyVos = termmappings.stream().map(cancerStudy -> {
+            try {
+                VO termMappingVo =  clz.newInstance();
+                termMappingVo.setCancer(cancerMap.get(cancerStudy.getCancerId()));
+                termMappingVo.setStudy(studyMap.get(cancerStudy.getStudyId()));
+                termMappingVo.setDataOrigin(dataOriginMap.get(cancerStudy.getDataOriginId()));
+                termMappingVo.setDataCategory(strategyMap.get(cancerStudy.getDataCategoryId()));
+                termMappingVo.setAnalysisSoftware(analysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
+                BeanUtils.copyProperties(cancerStudy, termMappingVo);
+                return termMappingVo;
+            } catch (InstantiationException e) {
+                e.printStackTrace();
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+            return null;
+        }).collect(Collectors.toList());
+        return cancerStudyVos;
+    }
 
     /**
      * obj -> id

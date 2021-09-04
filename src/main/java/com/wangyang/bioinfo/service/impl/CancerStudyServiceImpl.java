@@ -220,6 +220,16 @@ public class CancerStudyServiceImpl
     }
 
     @Override
+    public List<CancerStudy> listBy(CancerStudyQuery cancerStudyQuery){
+        CancerStudy cancerStudy = super.convert(cancerStudyQuery);
+        Set<String> sets = new HashSet<>();
+        sets.add("gse");
+        sets.add("description");
+        List<CancerStudy> cancerStudies = cancerStudyRepository.findAll(buildSpecByQuery(cancerStudy, cancerStudyQuery.getKeyword(), sets));
+        return cancerStudies;
+    }
+
+    @Override
     public Page<CancerStudy> pageCancerStudy(Pageable pageable) {
 
         return null;
@@ -240,46 +250,6 @@ public class CancerStudyServiceImpl
         return super.convertVo(cancerStudy, CancerStudyVO.class);
     }
 
-    @Override
-    public List<TermMappingVo> convertVo(List<CancerStudy> cancerStudies) {
-        Set<Integer> cancerIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getCancerId);
-        List<Cancer> cancers = cancerService.findAllById(cancerIds);
-        Map<Integer, Cancer> cancerMap = ServiceUtil.convertToMap(cancers, Cancer::getId);
-
-
-        Set<Integer> studyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getStudyId);
-        List<Study> studies = studyService.findAllById(studyIds);
-        Map<Integer, Study> studyMap = ServiceUtil.convertToMap(studies, Study::getId);
-
-
-        Set<Integer> dataOriginIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getDataOriginId);
-        List<DataOrigin> dataOrigins = dataOriginService.findAllById(dataOriginIds);
-        Map<Integer, DataOrigin> dataOriginMap = ServiceUtil.convertToMap(dataOrigins, DataOrigin::getId);
-
-
-        Set<Integer> experimentalStrategyIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getDataCategoryId);
-        List<DataCategory> experimentalStrategies = dataCategoryService.findAllById(experimentalStrategyIds);
-        Map<Integer, DataCategory> strategyMap= ServiceUtil.convertToMap(experimentalStrategies, DataCategory::getId);
-
-
-        Set<Integer> analysisSoftwareIds = ServiceUtil.fetchProperty(cancerStudies, CancerStudy::getAnalysisSoftwareId);
-        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftwareIds);
-        Map<Integer, AnalysisSoftware>  analysisSoftwareMap= ServiceUtil.convertToMap(analysisSoftwareList, AnalysisSoftware::getId);
-
-
-        List<TermMappingVo> termMappingVos = cancerStudies.stream().map(cancerStudy -> {
-            TermMappingVo termMappingVo = new TermMappingVo();
-            termMappingVo.setCancer(cancerMap.get(cancerStudy.getCancerId()));
-            termMappingVo.setStudy(studyMap.get(cancerStudy.getStudyId()));
-            termMappingVo.setDataOrigin(dataOriginMap.get(cancerStudy.getDataOriginId()));
-            BeanUtils.copyProperties(cancerStudy, termMappingVo);
-            termMappingVo.setDataCategory(strategyMap.get(cancerStudy.getDataCategoryId()));
-            termMappingVo.setAnalysisSoftware(analysisSoftwareMap.get(cancerStudy.getAnalysisSoftwareId()));
-            return termMappingVo;
-        }).collect(Collectors.toList());
-
-        return termMappingVos;
-    }
 
 //    private Page<CancerStudyVo> convertVo(Page<CancerStudy> cancerStudyPage, Cancer cancer, Study study, DataOrigin dataOrigin, AnalysisSoftware analysisSoftware, DataCategory dataCategory) {
 //        List<CancerStudy> cancerStudies = cancerStudyPage.getContent();
@@ -335,6 +305,11 @@ public class CancerStudyServiceImpl
 
     @Override
     public Page<CancerStudyVO> convertVo(Page<CancerStudy> fromCancerStudies) {
+        return super.convertVo(fromCancerStudies,CancerStudyVO.class);
+    }
+
+    @Override
+    public List<CancerStudyVO> convertVo(List<CancerStudy> fromCancerStudies) {
         return super.convertVo(fromCancerStudies,CancerStudyVO.class);
     }
 

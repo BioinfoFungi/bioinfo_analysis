@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
+import com.wangyang.bioinfo.pojo.vo.CodeVO;
 import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,13 +20,18 @@ public interface ICodeService extends ITermMappingService<Code> {
 
     Page<Code> pageBy(CodeQuery codeQuery, Pageable pageable);
 
+    Page<CodeVO> convertVo(Page<Code> codes);
+
     Code saveBy(CodeParam codeParam, User user);
 
     Code updateBy(Integer id, CodeParam codeParam, User user);
 
     List<Code> findByCan(Integer id);
 
+
     List<Code> listAllAnnTask();
+
+
 
 //    void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream);
 
