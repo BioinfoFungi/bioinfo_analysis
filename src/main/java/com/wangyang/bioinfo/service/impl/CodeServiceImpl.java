@@ -18,6 +18,7 @@ import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.TermMappingServiceImpl;
 import com.wangyang.bioinfo.util.ObjectToCollection;
+import com.wangyang.bioinfo.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
@@ -34,6 +35,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author wangyang
@@ -105,7 +107,7 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
      * @param keyWard
      * @return
      */
-    public Specification<Code> buildSpecBy(Code termMapping,String keyWard) {
+    public Specification<Code> buildSpecBy(Code termMapping,Set<Integer> codeIds,String keyWard) {
         return (Specification<Code>) (root, query, criteriaBuilder) ->{
             List<Predicate> predicates = new ArrayList<>();
             try {
@@ -127,6 +129,9 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
             } catch (IllegalAccessException e) {
                 e.printStackTrace();
             }
+            CriteriaBuilder.In<Object> objectIn = criteriaBuilder.in(root.get("id"));
+            objectIn.value(codeIds);
+            predicates.add(criteriaBuilder.and(criteriaBuilder.not(objectIn)));
             predicates.add(criteriaBuilder.equal(root.get("taskType"), TaskType.CANCER_STUDY));
             return query.where(criteriaBuilder.and(predicates.toArray(new Predicate[0]))).getRestriction();
         };
@@ -150,8 +155,11 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
         }else {
             code.setHaveExpr(false);
         }
+        List<Task> tasks = taskRepository.findByObjIdAndTaskType(cancerStudy.getId(), TaskType.CANCER_STUDY);
+        Set<Integer> codeIds = ServiceUtil.fetchProperty(tasks, Task::getCodeId);
+//        taskRepository.findByObjId()
         BeanUtils.copyProperties(cancerStudy,code);
-        List<Code> codes = codeRepository.findAll(buildSpecBy(code,null));
+        List<Code> codes = codeRepository.findAll(buildSpecBy(code,codeIds,null));
         return codes;
     }
 

@@ -5,6 +5,7 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
@@ -298,7 +299,7 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy delBy(Integer id) {
-        List<Task> tasks = taskRepository.findByObjId(id);
+        List<Task> tasks = taskRepository.findByObjIdAndTaskType(id, TaskType.CANCER_STUDY);
         taskRepository.deleteAll(tasks);
         return super.delBy(id);
     }
