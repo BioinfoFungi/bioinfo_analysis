@@ -1,5 +1,7 @@
 ## 生物信息资源管理
-+ 演示地址:<http://bioinfofungi.gitee.io/web>
++ <http://git.bioinfofungi.com/>
++ <http://bioinfofungi.gitee.io/web>
++ 
 #### 技术
 + SpringBoot
 + mysql
