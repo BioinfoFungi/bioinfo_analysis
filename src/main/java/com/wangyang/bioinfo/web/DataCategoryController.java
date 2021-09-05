@@ -1,8 +1,12 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
+import com.wangyang.bioinfo.pojo.param.AnalysisSoftwareParam;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
+import com.wangyang.bioinfo.pojo.param.DataCategoryParam;
+import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
 import com.wangyang.bioinfo.pojo.trem.DataCategory;
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.trem.Study;
@@ -15,6 +19,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 
@@ -42,10 +47,19 @@ public class DataCategoryController {
     }
 
     @PostMapping
-    public DataCategory add(@RequestBody BaseTermParam baseTermParam){
-        return  dataCategoryService.save(baseTermParam);
+    public DataCategory add(@RequestBody DataCategoryParam dataCategoryParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  dataCategoryService.add(dataCategoryParam,user);
     }
-
+    @PostMapping("/update/{id}")
+    public DataCategory update(@PathVariable("id") Integer id, @RequestBody DataCategoryParam dataCategoryParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  dataCategoryService.update(id,dataCategoryParam,user);
+    }
+    @GetMapping("/del/{id}")
+    public DataCategory delById(@PathVariable("id")Integer id){
+        return dataCategoryService.delBy(id);
+    }
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);

@@ -44,8 +44,19 @@ public class CancerController {
     @PostMapping
     public Cancer add(@RequestBody  CancerParam cancerParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        return  cancerService.addCancer(cancerParam,user);
+        return  cancerService.add(cancerParam,user);
     }
+    @PostMapping("/update/{id}")
+    public Cancer update(@PathVariable("id") Integer id,@RequestBody  CancerParam cancerParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  cancerService.update(id,cancerParam,user);
+    }
+    @GetMapping("/del/{id}")
+    public Cancer delById(@PathVariable("id")Integer id){
+        return cancerService.delBy(id);
+    }
+
+
     @GetMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
         cancerService.createTSVFile(response);

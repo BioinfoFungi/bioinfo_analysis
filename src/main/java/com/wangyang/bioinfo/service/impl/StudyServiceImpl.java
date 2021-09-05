@@ -10,6 +10,7 @@ import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,20 +38,21 @@ public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStu
     }
 
     @Override
-    public Study addStudy(StudyParam studyParam, User user) {
-        Study study = findStudyByEnName(studyParam.getEnName());
-        if(study==null){
-            study = new Study();
-        }
-        study.setUserId(user.getId());
+    public Study add(StudyParam studyParam, User user) {
+        Study study = new Study();
         BeanUtils.copyProperties(studyParam,study);
+        study.setUserId(user.getId());
         return studyRepository.save(study);
     }
 
     @Override
-    public Study delStudy(int id) {
-        return null;
+    public Study update(Integer id, StudyParam studyParam, User user) {
+        Study study = findById(id);
+        BeanUtils.copyProperties(studyParam,study);
+        study.setUserId(user.getId());
+        return studyRepository.save(study);
     }
+
 
     @Override
     public Study findStudyById(int id) {
@@ -75,8 +77,6 @@ public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStu
         }
         return studyList.get(0);
     }
-
-
 
 
 

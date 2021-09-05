@@ -14,8 +14,7 @@ import java.util.List;
  * @date 2021/6/26
  */
 public interface IStudyService extends IBaseTermService<Study> {
-    Study addStudy(StudyParam studyParam, User user);
-    Study delStudy(int id);
+    Study add(StudyParam studyParam, User user);
     Study findStudyById(int id);
     Study findStudyByEnName(String name);
 
@@ -23,4 +22,6 @@ public interface IStudyService extends IBaseTermService<Study> {
     @Override
     List<Study> listAll();
     Page<Study> pageStudy(Pageable pageable);
+
+    Study update(Integer id, StudyParam studyParam, User user);
 }

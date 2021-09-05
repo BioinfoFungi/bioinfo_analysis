@@ -14,12 +14,13 @@ import java.util.List;
  * @date 2021/6/26
  */
 public interface IDataOriginService extends IBaseTermService<DataOrigin> {
-    DataOrigin addDataOrigin(DataOriginParam dataOriginParam,User user);
-    DataOrigin delDataOrigin(int id);
+    DataOrigin add(DataOriginParam dataOriginParam,User user);
     DataOrigin findDataOriginById(int id);
     DataOrigin findDataOriginByEnName(String name);
 
     @Override
     List<DataOrigin> listAll();
     Page<DataOrigin> pageDataOrigin(Pageable pageable);
+
+    DataOrigin update(Integer id, DataOriginParam dataOriginParam, User user);
 }

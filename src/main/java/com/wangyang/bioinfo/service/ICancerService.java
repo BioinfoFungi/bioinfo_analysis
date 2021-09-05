@@ -15,12 +15,13 @@ import java.util.List;
  * @date 2021/6/26
  */
 public interface ICancerService extends IBaseTermService<Cancer> {
-    Cancer addCancer(CancerParam cancerParam, User user);
-    Cancer delCancer(int id);
+    Cancer add(CancerParam cancerParam, User user);
     Cancer findCancerById(int id);
     Cancer findCancerByEnName(String name);
     List<Cancer> findAllById(Collection<Integer> id);
     @Override
     List<Cancer> listAll();
     Page<Cancer> pageCancer(Pageable pageable);
+
+    Cancer update(Integer id, CancerParam cancerParam, User user);
 }

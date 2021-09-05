@@ -1,10 +1,13 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.param.AnalysisSoftwareParam;
 import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
 import com.wangyang.bioinfo.repository.AnalysisSoftwareRepository;
 import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.service.IAnalysisSoftwareService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
+import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 /**
@@ -20,7 +23,23 @@ public class AnalysisSoftwareServiceImpl extends BaseTermServiceImpl<AnalysisSof
         this.analysisSoftwareRepository = analysisSoftwareRepository;
     }
 
-//    private final AnalysisSoftwareRepository analysisSoftwareRepository;
+    @Override
+    public AnalysisSoftware add(AnalysisSoftwareParam analysisSoftwareParam, User user) {
+        AnalysisSoftware analysisSoftware = new AnalysisSoftware();
+        BeanUtils.copyProperties(analysisSoftwareParam,analysisSoftware);
+        analysisSoftware.setUserId(user.getId());
+        return analysisSoftwareRepository.save(analysisSoftware);
+    }
+
+    @Override
+    public AnalysisSoftware update(Integer id, AnalysisSoftwareParam analysisSoftwareParam, User user) {
+        AnalysisSoftware analysisSoftware = findById(id);
+        BeanUtils.copyProperties(analysisSoftwareParam,analysisSoftware);
+        analysisSoftware.setUserId(user.getId());
+        return analysisSoftwareRepository.save(analysisSoftware);
+    }
+
+    //    private final AnalysisSoftwareRepository analysisSoftwareRepository;
 //    public AnalysisSoftwareServiceImpl(AnalysisSoftwareRepository AnalysisSoftwareRepository) {
 //        super(analysisSoftwareRepository);
 //        this.AnalysisSoftwareRepository= analysisSoftwareRepository;

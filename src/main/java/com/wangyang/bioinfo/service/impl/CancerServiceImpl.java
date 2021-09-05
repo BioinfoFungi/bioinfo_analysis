@@ -38,21 +38,19 @@ public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements IC
     }
 
     @Override
-    public Cancer addCancer(CancerParam cancerParam, User user) {
-        Cancer cancer = findCancerByEnName(cancerParam.getEnName());
-        if(cancer==null){
-            cancer = new Cancer();
-        }
+    public Cancer add(CancerParam cancerParam, User user) {
+        Cancer cancer = new Cancer();
         cancer.setUserId(user.getId());
         BeanUtils.copyProperties(cancerParam,cancer);
         return cancerRepository.save(cancer);
     }
-
     @Override
-    public Cancer delCancer(int id) {
-        return null;
+    public Cancer update(Integer id, CancerParam cancerParam, User user) {
+        Cancer cancer = findById(id);
+        BeanUtils.copyProperties(cancerParam,cancer);
+        cancer.setUserId(user.getId());
+        return cancerRepository.save(cancer);
     }
-
     @Override
     public Cancer findCancerById(int id) {
         Optional<Cancer> cancerOptional = cancerRepository.findById(id);
@@ -94,4 +92,6 @@ public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements IC
         Page<Cancer> cancers = cancerRepository.findAll(pageable);
         return cancers;
     }
+
+
 }

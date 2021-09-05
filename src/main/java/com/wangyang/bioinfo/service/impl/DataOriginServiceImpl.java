@@ -9,6 +9,7 @@ import com.wangyang.bioinfo.service.IDataOriginService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -35,21 +36,21 @@ public class DataOriginServiceImpl extends BaseTermServiceImpl<DataOrigin> imple
     }
 
     @Override
-    public DataOrigin addDataOrigin(DataOriginParam dataOriginParam, User user) {
-        DataOrigin dataOrigin = findDataOriginByEnName(dataOriginParam.getEnName());
-        if(dataOrigin==null){
-            dataOrigin = new DataOrigin();
-        }
-        dataOrigin.setUserId(user.getId());
+    public DataOrigin add(DataOriginParam dataOriginParam, User user) {
+        DataOrigin dataOrigin = new DataOrigin();
         BeanUtils.copyProperties(dataOriginParam,dataOrigin);
-
+        dataOrigin.setUserId(user.getId());
         return dataOriginRepository.save(dataOrigin);
     }
 
     @Override
-    public DataOrigin delDataOrigin(int id) {
-        return null;
+    public DataOrigin update(Integer id, DataOriginParam dataOriginParam, User user) {
+        DataOrigin dataOrigin = findById(id);
+        BeanUtils.copyProperties(dataOriginParam,dataOrigin);
+        dataOrigin.setUserId(user.getId());
+        return dataOriginRepository.save(dataOrigin);
     }
+
 
     @Override
     public DataOrigin findDataOriginById(int id) {

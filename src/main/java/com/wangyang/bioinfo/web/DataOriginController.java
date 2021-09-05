@@ -2,6 +2,8 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
+import com.wangyang.bioinfo.pojo.param.CancerParam;
+import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
@@ -45,8 +47,18 @@ public class DataOriginController {
     @PostMapping
     public DataOrigin add(@RequestBody  DataOriginParam dataOriginParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        return  dataOriginService.addDataOrigin(dataOriginParam,user);
+        return  dataOriginService.add(dataOriginParam,user);
     }
+    @PostMapping("/update/{id}")
+    public DataOrigin update(@PathVariable("id") Integer id, @RequestBody DataOriginParam dataOriginParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  dataOriginService.update(id,dataOriginParam,user);
+    }
+    @GetMapping("/del/{id}")
+    public DataOrigin delById(@PathVariable("id")Integer id){
+        return dataOriginService.delBy(id);
+    }
+
     @GetMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
         dataOriginService.createTSVFile(response);

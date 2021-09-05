@@ -4,7 +4,9 @@ import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
+import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
+import com.wangyang.bioinfo.pojo.trem.DataOrigin;
 import com.wangyang.bioinfo.pojo.trem.Study;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.service.IStudyService;
@@ -43,7 +45,16 @@ public class StudyController {
     @PostMapping
     public Study add(@RequestBody  StudyParam studyParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        return  studyService.addStudy(studyParam,user);
+        return  studyService.add(studyParam,user);
+    }
+    @PostMapping("/update/{id}")
+    public Study update(@PathVariable("id") Integer id, @RequestBody StudyParam studyParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  studyService.update(id,studyParam,user);
+    }
+    @GetMapping("/del/{id}")
+    public Study delById(@PathVariable("id")Integer id){
+        return studyService.delBy(id);
     }
 
     @GetMapping("/createTSVFile")
