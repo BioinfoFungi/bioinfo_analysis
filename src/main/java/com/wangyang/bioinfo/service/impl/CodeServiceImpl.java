@@ -140,21 +140,21 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
     public List<Code> findByCan(Integer id) {
         CancerStudy cancerStudy = cancerStudyService.findById(id);
         Code code = new Code();
-        if(cancerStudy.getParentId()!=null &&  cancerStudy.getParentId()!=-1){
-            code.setHaveParentId(true);
-        }else {
-            code.setHaveParentId(false);
-        }
-        if(cancerStudy.getExprStatus()!=null&& cancerStudy.getExprStatus()){
-            code.setHaveExpr(true);
-        }else {
-            code.setHaveExpr(false);
-        }
-        if(cancerStudy.getMetadataStatus()!=null && cancerStudy.getMetadataStatus()){
-            code.setHaveExpr(true);
-        }else {
-            code.setHaveExpr(false);
-        }
+//        if(cancerStudy.getParentId()!=null &&  cancerStudy.getParentId()!=-1){
+//            code.setHaveParentId(true);
+//        }else {
+//            code.setHaveParentId(false);
+//        }
+//        if(cancerStudy.getExprStatus()!=null&& cancerStudy.getExprStatus()){
+//            code.setHaveExpr(true);
+//        }else {
+//            code.setHaveExpr(false);
+//        }
+//        if(cancerStudy.getMetadataStatus()!=null && cancerStudy.getMetadataStatus()){
+//            code.setHaveExpr(true);
+//        }else {
+//            code.setHaveExpr(false);
+//        }
         List<Task> tasks = taskRepository.findByObjIdAndTaskType(cancerStudy.getId(), TaskType.CANCER_STUDY);
         Set<Integer> codeIds = ServiceUtil.fetchProperty(tasks, Task::getCodeId);
 //        taskRepository.findByObjId()
