@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.base.ICrudService;
@@ -10,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangyang
@@ -28,6 +30,8 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
     List<Task> delByCanSId(Integer canSId);
 
     Task addTask(TaskParam taskParam, User user);
+
+    Map getObjMap(TaskType taskType, int objId);
 
     Task shutdownProcess(int taskId);
 

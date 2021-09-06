@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
@@ -33,6 +34,7 @@ public interface ICodeService extends ITermMappingService<Code> {
 
     List<Code> listAllAnnTask();
 
+    CodeType checkCodeType(String path);
 
 
 //    void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream);

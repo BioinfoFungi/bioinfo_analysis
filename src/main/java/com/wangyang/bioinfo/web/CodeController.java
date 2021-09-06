@@ -109,10 +109,12 @@ public class CodeController {
     @GetMapping("/file")
     public List<FileTree> listFiles(@RequestParam(value = "path", defaultValue = "")  String path){
         if(path!=null && path.equals("")){
-            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD";
+            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/R";
         }
         return codeService.listFiles(path);
     }
+
+
 
     @PostMapping("/file/save")
     public BaseResponse saveFileContent(@RequestBody FileContent fileContent){

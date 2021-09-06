@@ -4,11 +4,14 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.rcaller.FunctionCall;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
+import com.vladsch.flexmark.util.sequence.BasedUtils;
 import com.wangyang.bioinfo.core.KeyLock;
 import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
+import com.wangyang.bioinfo.util.BaseResponse;
 import com.wangyang.bioinfo.websocket.WebSocketServer;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
@@ -176,7 +179,7 @@ public class AsyncServiceImpl implements IAsyncService  {
             /*****************************************************************/
 
             Map map = codeResult.getMap(baseFile);
-            CodeMsg codeMsg  = processBuilder(task,code, map);
+            CodeMsg codeMsg  = processBuilder(task,code, map,user,codeResult);
             codeResult.call(code,user,codeMsg,baseFile);
 
             /*****************************************************************/
@@ -187,7 +190,7 @@ public class AsyncServiceImpl implements IAsyncService  {
             task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
             taskRepository.save(task);
             log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-            springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
+            springWebSocketHandler.sendMessageToUser(user.getUsername(), BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"成功运行任务！"));
         } catch (Exception e){
             e.printStackTrace();
 //            task.setResult(codeMsg.getResult());
@@ -196,7 +199,7 @@ public class AsyncServiceImpl implements IAsyncService  {
             task.setRunMsg(task.getRunMsg()+"\n"+e.getMessage()+"分析结束！"+ new Date());
             taskRepository.save(task);
             log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
-            springWebSocketHandler.sendMessageToUser(user.getUsername(),JSONObject.toJSON(task).toString());
+            springWebSocketHandler.sendMessageToUser(user.getUsername(),BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"任务运行失败！"));
         }finally {
             lock.unlock("task"+task.getId());
             log.debug(">>>>>>>>>>>>>>>>>>>>>>processCancerStudy task{} 解锁",task.getId());
@@ -237,7 +240,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         throw new BioinfoException("该任务已经结束！");
     }
 
-    private CodeMsg processBuilder(Task task, Code code, Map<String,Object> maps){
+    private CodeMsg processBuilder(Task task, Code code, Map<String,Object> maps,User user,ICodeResult  codeResult){
         CodeMsg codeMsg = new CodeMsg();
         File  tempFile=null;
         FileOutputStream outputStream =null;
@@ -301,10 +304,10 @@ public class AsyncServiceImpl implements IAsyncService  {
                     if(!line.startsWith("Downloading")){
                         result.append(line);
                     }
-                    outputStream.write((Thread.currentThread().getName()+": "+line+"\n").getBytes());
+                    String msg = Thread.currentThread().getName()+": "+line+"\n";
+                    codeResult.getRealTimeMsg(user,msg);
+                    outputStream.write(msg.getBytes());
                     log.debug(line);
-
-
                 }
             }
             process.waitFor();

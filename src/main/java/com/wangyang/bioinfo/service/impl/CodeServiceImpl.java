@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
@@ -15,6 +16,7 @@ import com.wangyang.bioinfo.repository.CodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.TermMappingServiceImpl;
+import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
@@ -183,9 +185,17 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
     }
 
 
-
-
-
+    @Override
+    public CodeType checkCodeType(String path) {
+        if(path.endsWith(".R")){
+            return CodeType.R;
+        }else if(path.endsWith(".sh")){
+            return CodeType.SHELL;
+        }else if(path.endsWith(".py")){
+            return CodeType.PYTHON;
+        }
+        throw new BioinfoException("文件类型不支持!");
+    }
 
     @Override
     public CodeVO convertVo(Code code) {

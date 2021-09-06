@@ -74,4 +74,9 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
             }
         }
     }
+
+    @Override
+    public void getRealTimeMsg(User user, String msg) {
+
+    }
 }

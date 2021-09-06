@@ -1,7 +1,9 @@
 package com.wangyang.bioinfo.websocket;
 
+import com.alibaba.fastjson.JSONObject;
 import com.wangyang.bioinfo.pojo.authorize.UserDetailDTO;
 import com.wangyang.bioinfo.service.IUserService;
+import com.wangyang.bioinfo.util.BaseResponse;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
@@ -110,6 +112,9 @@ public class WebSocketServer {
                 break;
             }
         }
+    }
+    public void sendMessageToUser(String toUser, BaseResponse<String> response){
+        sendMessageToUser(toUser, JSONObject.toJSON(response).toString());
     }
     public void sendMessageToUser(String toUser, String message) {
         for (String id : clients.keySet()) {

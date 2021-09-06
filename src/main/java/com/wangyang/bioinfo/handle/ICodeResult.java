@@ -17,4 +17,5 @@ public interface ICodeResult<T extends BaseFile>{
     Map<String, Object>  getMap(T t);
     T getObj(int id);
     TaskType getTaskType();
+    void getRealTimeMsg(User user, String msg);
 }

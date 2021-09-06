@@ -16,6 +16,9 @@ import org.springframework.lang.Nullable;
  */
 @Data
 public class BaseResponse<T> {
+    public enum MsgType{
+        NOTIFY,TEST_CODE
+    }
     /**
      * Response status.
      */
@@ -38,11 +41,16 @@ public class BaseResponse<T> {
     /**
      * Response data
      */
-
+    private MsgType msgType;
 
     public BaseResponse(Integer status, String message, T data) {
         this.status = status;
         this.message = message;
+        this.data = data;
+    }
+    public BaseResponse(Integer status, MsgType msgType, T data) {
+        this.status = status;
+        this.msgType = msgType;
         this.data = data;
     }
 
@@ -60,6 +68,9 @@ public class BaseResponse<T> {
     }
     public static <T> BaseResponse<T> error(String message){
         return new BaseResponse<>(HttpStatus.UNAUTHORIZED.value(),message,null);
+    }
+    public static <T> BaseResponse<T> ok(@Nullable MsgType msgType, @Nullable T data) {
+        return new BaseResponse<>(HttpStatus.OK.value(), msgType, data);
     }
 
     /**

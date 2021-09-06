@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.ITaskService;
@@ -15,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -66,9 +68,19 @@ public class TaskController {
         return logFiles;
     }
 
+    @GetMapping("/getObjMap/{id}")
+    public Map<String, Object> getObjMap(@PathVariable("id") Integer id){
+        return  taskService.getObjMap(TaskType.CANCER_STUDY,id);
+    }
+
     @GetMapping("/del/{id}")
     public Task del(@PathVariable("id") Integer id){
         return  taskService.delBy(id);
+    }
+
+    @GetMapping("/findById/{id}")
+    public Task findById(@PathVariable("id") Integer id){
+        return taskService.findById(id);
     }
 
 }

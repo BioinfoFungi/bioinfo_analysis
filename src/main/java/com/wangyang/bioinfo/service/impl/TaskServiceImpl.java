@@ -5,19 +5,12 @@ import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.base.BaseFile;
-import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.pojo.file.Annotation;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
-import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
@@ -31,18 +24,13 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
-import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -193,12 +181,33 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
     @Override
     public Task addTask(TaskParam taskParam,User user) {
-        Code code = codeService.findById(taskParam.getCodeId());
+        Code code;
+        if(taskParam.getCodeId()!=null){
+             code = codeService.findById(taskParam.getCodeId());
+        }else {
+            code = new Code();
+            code.setTaskType(TaskType.TEST);
+            code.setName( FilenameUtils.getBasename(taskParam.getPath()));
+            CodeType codeType = codeService.checkCodeType(taskParam.getPath());
+            code.setCodeType(codeType);
+            code.setAbsolutePath(taskParam.getPath());
+            code.setId(user.getId());
+        }
+        return addTask(code,taskParam.getObjId(),user);
+    }
+
+
+    @Override
+    public Map<String, Object> getObjMap(TaskType taskType, int objId){
+        ICodeResult codeResult = getCodeResult(taskType);
+        BaseFile baseFile = codeResult.getObj(objId);
+        return codeResult.getMap(baseFile);
+    }
+
+    public Task addTask(Code code,int objId,User user){
         ICodeResult codeResult = getCodeResult(code.getTaskType());
-        BaseFile baseFile = codeResult.getObj(taskParam.getObjId());
-        Task task = findByCanSIdACodeId(taskParam.getObjId(), code.getId(),code.getTaskType());
-
-
+        BaseFile baseFile = codeResult.getObj(objId);
+        Task task = findByCanSIdACodeId(objId, code.getId(),code.getTaskType());
         if (runCheck(task)) {
             throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
         }
@@ -219,7 +228,6 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
         return task;
     }
-
     @Override
     public Task shutdownProcess(int taskId){
         Task task = asyncService.shutdownProcess(taskId);

@@ -58,4 +58,8 @@ public class AnnotationCode implements ICodeResult<Annotation>{
        return annotationService.findById(id);
     }
 
+    @Override
+    public void getRealTimeMsg(User user, String msg) {
+
+    }
 }
