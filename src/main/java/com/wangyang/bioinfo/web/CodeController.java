@@ -6,6 +6,8 @@ import com.wangyang.bioinfo.pojo.file.OrganizeFile;
 import com.wangyang.bioinfo.pojo.file.TermMapping;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
+import com.wangyang.bioinfo.pojo.support.FileContent;
+import com.wangyang.bioinfo.pojo.support.FileTree;
 import com.wangyang.bioinfo.service.ICodeService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
@@ -104,7 +106,23 @@ public class CodeController {
         codeService.initData(path);
         return BaseResponse.ok("["+path+"]初始化完成!");
     }
+    @GetMapping("/file")
+    public List<FileTree> listFiles(@RequestParam(value = "path", defaultValue = "")  String path){
+        if(path!=null && path.equals("")){
+            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD";
+        }
+        return codeService.listFiles(path);
+    }
 
+    @PostMapping("/file/save")
+    public BaseResponse saveFileContent(@RequestBody FileContent fileContent){
+        codeService.saveContent(fileContent.getPath(),fileContent.getContent());
+        return BaseResponse.ok("保存文件成功！");
+    }
+    @GetMapping("/file/content")
+    public BaseResponse getFileContent(@RequestParam("path") String path){
+        return BaseResponse.ok("加载文件成功！",codeService.getFileContent(path));
+    }
     @PostMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
         codeService.createTSVFile(response);

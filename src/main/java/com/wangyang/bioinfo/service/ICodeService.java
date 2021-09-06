@@ -4,11 +4,13 @@ import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
+import com.wangyang.bioinfo.pojo.support.FileTree;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
 import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
+import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**

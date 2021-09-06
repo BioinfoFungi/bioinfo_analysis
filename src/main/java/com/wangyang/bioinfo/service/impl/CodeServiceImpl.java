@@ -5,14 +5,12 @@ import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.pojo.file.Annotation;
 import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import com.wangyang.bioinfo.pojo.file.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
+import com.wangyang.bioinfo.pojo.support.FileTree;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
@@ -25,17 +23,18 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
+import org.springframework.util.Assert;
 
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import javax.validation.constraints.NotNull;
 import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.*;
 
 /**
  * @author wangyang
@@ -182,6 +181,11 @@ public class CodeServiceImpl extends TermMappingServiceImpl<Code>
         taskRepository.deleteAll(tasks);
         return super.delBy(id);
     }
+
+
+
+
+
 
     @Override
     public CodeVO convertVo(Code code) {

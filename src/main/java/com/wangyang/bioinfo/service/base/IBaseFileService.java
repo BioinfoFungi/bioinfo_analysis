@@ -2,10 +2,13 @@ package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.pojo.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import com.wangyang.bioinfo.pojo.support.FileTree;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.lang.NonNull;
 
 import javax.servlet.http.HttpServletResponse;
+import javax.validation.constraints.NotNull;
 import java.util.List;
 import java.util.Set;
 
@@ -33,4 +36,10 @@ public interface IBaseFileService<FILE extends BaseFile> extends ICrudService<FI
 
 
     FILE checkFileExist(int id);
+
+    void saveContent(@NonNull String absolutePath, String content);
+
+    String getFileContent(@NonNull String absolutePath);
+
+    List<FileTree> listFiles(@NotNull String strPath);
 }
