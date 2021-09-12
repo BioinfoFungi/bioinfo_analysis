@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
+import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileQuery;
 import com.wangyang.bioinfo.service.base.IBaseFileService;

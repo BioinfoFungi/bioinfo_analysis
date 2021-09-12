@@ -1,11 +1,8 @@
 package com.wangyang.bioinfo.pojo.vo;
 
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.pojo.file.TermMapping;
-import com.wangyang.bioinfo.pojo.trem.*;
+import com.wangyang.bioinfo.pojo.entity.*;
+import com.wangyang.bioinfo.pojo.entity.base.TermMapping;
 import lombok.Data;
-
-import java.util.Date;
 
 /**
  * @author wangyang

@@ -17,7 +17,6 @@ public class TermMappingParam extends BaseFileDTO {
     private String dataOrigin;
     @Parsed
     private String dataCategory;
-
     @Parsed
     private String analysisSoftware;
 }

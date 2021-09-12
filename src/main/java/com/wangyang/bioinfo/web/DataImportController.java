@@ -37,7 +37,7 @@ public class DataImportController {
     ICodeService codeService;
 
 
-    private static String[] filenames = new String[]{"Cancer","Study","DataOrigin","DataCategory","AnalysisSoftware","CancerStudy","Code"};
+    private static String[] filenames = new String[]{"Cancer","Study","DataOrigin","DataCategory","AnalysisSoftware"};
 
     @GetMapping("/init")
     public  Map<String,String> importALl(@RequestParam(value = "path",defaultValue = "") String pathDir){
@@ -53,27 +53,27 @@ public class DataImportController {
             if(exists){
                 absolutePath = path.toAbsolutePath().toString();
                 if(filename.equals("Cancer")){
-                    cancerService.initData(absolutePath);
+                    cancerService.initData(absolutePath,true);
                 }
                 if(filename.equals("Study")){
-                    studyService.initData(absolutePath);
+                    studyService.initData(absolutePath,true);
                 }
                 if(filename.equals("DataOrigin")){
-                    dataOriginService.initData(absolutePath);
+                    dataOriginService.initData(absolutePath,true);
                 }
                 if(filename.equals("DataCategory")){
-                    dataCategoryService.initData(absolutePath);
+                    dataCategoryService.initData(absolutePath,true);
                 }
                 if(filename.equals("AnalysisSoftware")){
-                    analysisSoftwareService.initData(absolutePath);
+                    analysisSoftwareService.initData(absolutePath,true);
                 }
 
-                if(filename.equals("CancerStudy")){
-                    cancerStudyService.initData(absolutePath);
-                }
-                if(filename.equals("Code")){
-                    codeService.initData(absolutePath);
-                }
+//                if(filename.equals("CancerStudy")){
+//                    cancerStudyService.initData(absolutePath,true);
+//                }
+//                if(filename.equals("Code")){
+//                    codeService.initData(absolutePath,true);
+//                }
 
             }
             map.put(filename,absolutePath);

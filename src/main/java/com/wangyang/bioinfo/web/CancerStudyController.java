@@ -3,15 +3,15 @@ package com.wangyang.bioinfo.web;
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
-import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
+import com.wangyang.bioinfo.pojo.entity.base.TermMapping;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -53,6 +53,21 @@ public class CancerStudyController {
         return cancerStudies;
     }
 
+
+    @GetMapping("/pageByCodeId/{codeId}")
+    @Anonymous
+    public Page<? extends TermMapping> pageByCodeId(@PathVariable("codeId") Integer codeId,
+                                                    CancerStudyQuery cancerStudyQuery,
+                                            @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
+                                            @RequestParam(value = "more", defaultValue = "false") Boolean more){
+        Page<CancerStudy> cancerStudies = cancerStudyService.pageByCodeId(codeId,cancerStudyQuery,pageable);
+        if(more){
+            return cancerStudyService.convertVo(cancerStudies);
+        }
+        return cancerStudies;
+    }
+
+
     @GetMapping("list")
     @Anonymous
     public List<? extends TermMapping> list(CancerStudyQuery cancerStudyQuery,
@@ -91,6 +106,7 @@ public class CancerStudyController {
         User user = (User) request.getAttribute("user");
         return  cancerStudyService.upload(file,cancerStudyParam);
     }
+
 
 //    @GetMapping("/findByCategory")
 //    public Page<CancerStudy> findByCategory(@Valid CancerStudyQuery findCancer, @PageableDefault(sort = {"id"},direction = DESC,size = 3)Pageable pageable){
@@ -141,14 +157,18 @@ public class CancerStudyController {
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
-        cancerStudyService.initData(organizeFile.getAbsolutePath());
+        cancerStudyService.initData(organizeFile.getAbsolutePath(),false);
         return BaseResponse.ok("CancerStudy初始化完成!");
     }
 
     @GetMapping("/init")
-    public BaseResponse initDataBy(@RequestParam("path") String path){
-        cancerStudyService.initData(path);
-        return BaseResponse.ok("初始化完成!");
+    public BaseResponse initDataBy(@RequestParam(value = "path",defaultValue = "") String path,
+                                   @RequestParam(value = "isEmpty", defaultValue = "false") Boolean isEmpty){
+        if(path!=null && path.equals("")){
+            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data/CancerStudy.tsv";
+        }
+        List<CancerStudy> cancerStudyList = cancerStudyService.initData(path, isEmpty);
+        return BaseResponse.ok("导入["+cancerStudyList.size()+"]个对象！");
     }
 
     @GetMapping("/del/{id}")
@@ -157,6 +177,7 @@ public class CancerStudyController {
     }
 
     @GetMapping("/checkFile/{id}")
+    @Anonymous
     public CancerStudy checkFileExist(@PathVariable("id") Integer id){
         CancerStudy cancerStudy = cancerStudyService.checkFileExist(id);
         return cancerStudy;

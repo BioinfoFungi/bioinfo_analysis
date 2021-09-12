@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.support.FileTree;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
@@ -22,6 +22,7 @@ import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import javax.validation.constraints.NotNull;
 import java.io.File;
 import java.io.IOException;
@@ -30,6 +31,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -40,6 +42,7 @@ import java.util.stream.Stream;
 public class BaseFileService<FILE extends BaseFile>
         extends AbstractCrudService<FILE,Integer>
         implements IBaseFileService<FILE> {
+
 
     private final  BaseFileRepository<FILE> baseFileRepository;
     private final   FileHandlers fileHandlers;
@@ -102,8 +105,9 @@ public class BaseFileService<FILE extends BaseFile>
     }
 
     @Override
-    public Page<FILE> pageBy(FILE baseFileQuery, String keywords,Pageable pageable) {
-        Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery,keywords,null),pageable);
+    public Page<FILE> pageBy(FILE baseFileQuery, String keywords,Pageable pageable,String ... filed) {
+        Set<String> sets =Arrays.stream(filed).collect(Collectors.toSet());
+        Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery,keywords,sets),pageable);
         return page;
     }
 
@@ -123,6 +127,30 @@ public class BaseFileService<FILE extends BaseFile>
 //        };
 //    }
 
+
+    @Override
+    @Transactional
+    public List<FILE> initData(String filePath, Boolean isEmpty) {
+        if(isEmpty){
+            truncateTable();
+        }
+        List<FILE> beans = tsvToBean(filePath);
+
+        if(beans==null){
+            throw new BioinfoException(filePath+" 不存在！");
+        }
+        if(beans.size()!=0){
+            beans.forEach(bean->{
+                if(bean.getRelativePath()!=null && bean.getAbsolutePath()==null){
+                    String workDir = CacheStore.getValue("workDir");
+                    Path path = Paths.get(workDir, bean.getRelativePath());
+                    bean.setAbsolutePath(path.toString());
+                }
+                saveAndCheckFile(bean);
+            });
+        }
+        return beans;
+    }
 
     @Override
     public FILE download(String uuid, FileLocation fileLocation,HttpServletResponse response){
@@ -186,11 +214,6 @@ public class BaseFileService<FILE extends BaseFile>
 //            }
             String extension = FilenameUtils.getExtension(file.getAbsolutePath());
             file.setFileType(extension);
-            if(file.getFileType().endsWith(".gz")){
-                file.setIsCompress(true);
-            }else {
-                file.setIsCompress(false);
-            }
             FileLocation location= file.getLocation();
             if(location.equals(FileLocation.LOCAL)){
                 File f = new File(file.getAbsolutePath());

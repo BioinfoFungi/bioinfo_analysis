@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.support.FileTree;
 import org.springframework.data.domain.Page;
@@ -10,7 +10,6 @@ import org.springframework.lang.NonNull;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.constraints.NotNull;
 import java.util.List;
-import java.util.Set;
 
 /**
  * @author wangyang
@@ -28,7 +27,7 @@ public interface IBaseFileService<FILE extends BaseFile> extends ICrudService<FI
 
     FILE findByUUID(String uuid);
 
-    Page<FILE> pageBy(FILE baseFileQuery, String keywords, Pageable pageable);
+    Page<FILE> pageBy(FILE baseFileQuery, String keywords, Pageable pageable,String ... filed);
 
     FILE download(String uuid,FileLocation fileLocation, HttpServletResponse response);
 

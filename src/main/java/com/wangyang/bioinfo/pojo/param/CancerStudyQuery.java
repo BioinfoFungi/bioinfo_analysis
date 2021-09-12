@@ -1,9 +1,5 @@
 package com.wangyang.bioinfo.pojo.param;
 
-import com.univocity.parsers.annotations.Parsed;
-import com.wangyang.bioinfo.pojo.annotation.QueryField;
-import com.wangyang.bioinfo.pojo.dto.term.TermMappingDTO;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
 import lombok.Data;
 
 /**

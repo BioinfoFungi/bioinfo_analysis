@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.pojo.dto;
 
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import lombok.Data;
 
 @Data

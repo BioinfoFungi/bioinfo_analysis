@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.Option;
+import com.wangyang.bioinfo.pojo.entity.Option;
 import com.wangyang.bioinfo.repository.OptionRepository;
 import com.wangyang.bioinfo.service.IOptionService;
 import org.springframework.beans.factory.annotation.Autowired;

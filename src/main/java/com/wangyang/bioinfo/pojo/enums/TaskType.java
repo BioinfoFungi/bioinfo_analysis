@@ -5,8 +5,7 @@ import com.fasterxml.jackson.annotation.JsonValue;
 
 public enum TaskType {
     CANCER_STUDY(0,"CANCER_STUDY"),
-    ANNOTATION(1,"ANOTHER"),
-    TEST(2,"TEST");
+    TEST(1,"TEST");
     private final  String name;
     private final   int code;
 

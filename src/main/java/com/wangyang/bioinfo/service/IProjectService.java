@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service;
 
 
-import com.wangyang.bioinfo.pojo.Project;
+import com.wangyang.bioinfo.pojo.entity.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.ProjectQuery;
 import com.wangyang.bioinfo.pojo.param.ProjectSDK;

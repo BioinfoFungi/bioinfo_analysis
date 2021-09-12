@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.repository;
 
 
-import com.wangyang.bioinfo.pojo.ProjectUser;
+import com.wangyang.bioinfo.pojo.entity.ProjectUser;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

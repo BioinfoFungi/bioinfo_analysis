@@ -5,7 +5,7 @@ import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.UserDto;
 import com.wangyang.bioinfo.service.IRoleService;
 import com.wangyang.bioinfo.service.IUserService;
-import com.wangyang.bioinfo.util.Token;
+import com.wangyang.bioinfo.pojo.support.Token;
 import com.wangyang.bioinfo.util.TokenProvider;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;

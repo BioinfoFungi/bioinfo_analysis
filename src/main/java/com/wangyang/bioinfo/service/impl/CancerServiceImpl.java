@@ -1,15 +1,13 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.trem.Cancer;
+import com.wangyang.bioinfo.pojo.entity.Cancer;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.repository.CancerRepository;
-import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.service.ICancerService;
 import com.wangyang.bioinfo.service.base.BaseTermServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -19,6 +17,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -28,6 +27,7 @@ import java.util.Optional;
  * @date 2021/6/26
  */
 @Service
+@Transactional
 public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements ICancerService {
 
     private  final CancerRepository cancerRepository;

@@ -1,12 +1,10 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.authorize.UserDetailDTO;
 import com.wangyang.bioinfo.pojo.authorize.UserParam;
 import com.wangyang.bioinfo.pojo.dto.UserDto;
 import com.wangyang.bioinfo.service.base.IBaseAuthorizeService;
-import com.wangyang.bioinfo.service.base.ICrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 

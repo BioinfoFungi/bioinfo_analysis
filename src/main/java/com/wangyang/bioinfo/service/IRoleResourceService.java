@@ -1,7 +1,5 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.authorize.Resource;
 import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.service.base.ICrudService;
 

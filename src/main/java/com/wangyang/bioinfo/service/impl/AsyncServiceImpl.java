@@ -4,50 +4,39 @@ import com.alibaba.fastjson.JSONObject;
 import com.github.rcaller.FunctionCall;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
-import com.vladsch.flexmark.util.sequence.BasedUtils;
 import com.wangyang.bioinfo.core.KeyLock;
 import com.wangyang.bioinfo.handle.ICodeResult;
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
-import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.util.*;
 import com.wangyang.bioinfo.websocket.WebSocketServer;
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.dto.TaskProcess;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.pojo.file.Code;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
-import com.wangyang.bioinfo.pojo.trem.Cancer;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
-import com.wangyang.bioinfo.util.BeanUtil;
-import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.CacheStore;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeansException;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.ApplicationContext;
-import org.springframework.context.ApplicationContextAware;
+import org.springframework.beans.BeanUtils;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.socket.TextMessage;
 
-import javax.swing.text.html.parser.Entity;
 import java.io.*;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
-import java.util.concurrent.locks.Lock;
-import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -65,14 +54,14 @@ public class AsyncServiceImpl implements IAsyncService  {
                             WebSocketServer springWebSocketHandler,
                             ThreadPoolTaskExecutor executorService,
                             KeyLock<String> lock){
-        processMap= new HashMap<>();
+        processMap= new ConcurrentHashMap<Integer, TaskProcess>();
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
         this.springWebSocketHandler=springWebSocketHandler;
         this.executorService=executorService;
         this.lock=lock;
     }
-
+    private final Pattern patternVar = Pattern.compile("\\$\\{(.*?)\\}");
 
 
 //
@@ -145,14 +134,41 @@ public class AsyncServiceImpl implements IAsyncService  {
 //            }
 //        }
 //    }
+    class TestRun implements Runnable{
+        private User user;
+        private Task task;
+        private Code code;
+        private BaseFile baseFile;
+        private ICodeResult codeResult;
+
+    public TestRun(User user, Task task, Code code, BaseFile baseFile, ICodeResult codeResult) {
+        this.user = user;
+        this.task = task;
+        this.code = code;
+        this.baseFile = baseFile;
+        this.codeResult = codeResult;
+    }
 
     @Override
+        public void run() {
+            processCancerStudy(user,task, code,baseFile,codeResult);
+        }
+        public Integer getCodeId(){
+            return code.getId();
+        }
+        public Integer getObjId(){
+            return baseFile.getId();
+        }
+    }
+    @Override
     public void processCancerStudy1(User user, Task task, Code code, BaseFile baseFile,ICodeResult<? extends BaseFile> codeResult)  {
-        Runnable runnable = () -> {
-            processCancerStudy(user,task, code,baseFile, codeResult);
-        };
-        executorService.submit(runnable);
-        processMap.put(task.getId(),new TaskProcess(task,runnable,null));
+//        Runnable runnable = () -> {
+//            processCancerStudy(user,task, code,baseFile, codeResult);
+//        };
+
+        TestRun testRun = new TestRun(user,task,code,baseFile,codeResult);
+        executorService.submit(testRun);
+        processMap.put(task.getId(),new TaskProcess(task,testRun,null));
 
     }
     @Override
@@ -161,30 +177,57 @@ public class AsyncServiceImpl implements IAsyncService  {
 //        processCancerStudy(user,task,code,cancerStudy,cancerStudyProcess,map);
     }
 
-
-    interface A{
-        void a(CodeMsg codeMsg);
-        CodeType b();
-    }
-
     public void processCancerStudy(User user,Task task, Code code,BaseFile baseFile,ICodeResult  codeResult)  {
+        FileOutputStream outputStream=null;
         try {
             lock.lock("task"+task.getId());
             log.debug(">>>>>>>>>>>>>>>>>>>>>>processCancerStudy task{} 加锁",task.getId());
             log.info(">>>>>>>>>>>>>>>>>>>>>>>>>>start>>>>>>>>>>>>>>>>>>>>>>>>>>>>>.");
+
+            Integer prerequisites = code.getPrerequisites();
+            CancerStudy perCancerStudy = cancerStudyService.findByParentIdAndCodeId(baseFile.getId(), prerequisites);
+            // 该任务运行之前的任务没有运行需要先运行之前任务
+            if(prerequisites!=-1 && perCancerStudy ==null){
+                throw new BioinfoException("请先运行code："+prerequisites);
+            }
+            if(prerequisites!=-1){
+                Task preTask = taskRepository.findByObjIdAndCodeIdAndTaskType(baseFile.getId(),prerequisites, codeResult.getTaskType());
+                if(preTask!=null && !preTask.getTaskStatus().equals(TaskStatus.FINISH)){
+                    throw new BioinfoException("请先确保code["+prerequisites+"]处于Finish状态");
+                }
+            }
+
+
             task.setThreadName(Thread.currentThread().getName());
             task.setTaskStatus(TaskStatus.RUNNING);
             task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"开始分析！"+ new Date());
-            taskRepository.save(task);
+
             /*****************************************************************/
 
-            Map map = codeResult.getMap(baseFile);
-            CodeMsg codeMsg  = processBuilder(task,code, map,user,codeResult);
-            codeResult.call(code,user,codeMsg,baseFile);
+            String workDir = CacheStore.getValue("workDir");
+            Path logPath = Paths.get(workDir, "log",task.getId()+".log");
+            Files.createDirectories(logPath.getParent());
+            if(!logPath.toFile().exists()){
+                Files.createFile(logPath);
+            }
+            outputStream= new FileOutputStream(logPath.toFile());
+
+
+
+            Map<String,String> map = codeResult.getMap(baseFile);
+            CodeMsg codeMsg  = processBuilder(task,code, map,user,outputStream,codeResult);
+
+            if (codeMsg.getResult()!=null){
+                List<BaseFile> baseFiles = codeResult.getProcessObj(baseFile,code,codeMsg.getResult());
+                codeResult.call(user,baseFile,baseFiles);
+            }
+
+
+//            codeResult.call(code,user,codeMsg,baseFile);
 
             /*****************************************************************/
             task.setResult(codeMsg.getResult());
-            task.setSourceCode(codeMsg.getSourceCode());
+//            task.setSourceCode(codeMsg.getSourceCode());
             task.setRunMsg(codeMsg.getRunMsg());
             task.setTaskStatus(TaskStatus.FINISH);
             task.setRunMsg(task.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
@@ -193,17 +236,242 @@ public class AsyncServiceImpl implements IAsyncService  {
             springWebSocketHandler.sendMessageToUser(user.getUsername(), BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"成功运行任务！"));
         } catch (Exception e){
             e.printStackTrace();
-//            task.setResult(codeMsg.getResult());
-//            task.setRunMsg(codeMsg.getRunMsg());
             task.setTaskStatus(TaskStatus.ERROR);
             task.setRunMsg(task.getRunMsg()+"\n"+e.getMessage()+"分析结束！"+ new Date());
             taskRepository.save(task);
             log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
             springWebSocketHandler.sendMessageToUser(user.getUsername(),BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"任务运行失败！"));
+            try {
+                outputStream.write(showErrorMsg(e.getMessage()).getBytes());
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }finally {
             lock.unlock("task"+task.getId());
             log.debug(">>>>>>>>>>>>>>>>>>>>>>processCancerStudy task{} 解锁",task.getId());
+            if(outputStream!=null){
+                try {
+                    outputStream.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
         }
+    }
+
+
+    private CodeMsg processBuilder(Task task,
+                                   Code code,
+                                   Map<String,String> maps,
+                                   User user,
+                                   OutputStream outputStream,
+                                   ICodeResult  codeResult) throws Exception {
+
+        CodeMsg codeMsg = new CodeMsg();
+        File  tempFile=null;
+        File tempOutputFile = null;
+
+        try {
+            String workDir = CacheStore.getValue("workDir");
+            Path path = Paths.get(workDir, "data");
+            maps.put("workDir",path.toString());
+            Files.createDirectories(path);
+            tempFile = File.createTempFile("bioinfo-",".run");
+            tempOutputFile = File.createTempFile("bioinfo-",".output");
+
+
+
+            List<String> command = new ArrayList<>();
+            StringBuffer stringBuffer = new StringBuffer();
+            buildFile(code,stringBuffer,command,maps,tempFile,tempOutputFile.getAbsolutePath());
+            task.setSourceCode(stringBuffer.toString());
+            taskRepository.save(task);
+
+//            codeMsg.setSourceCode(stringBuffer.toString());
+
+
+            ProcessBuilder processBuilder = new ProcessBuilder();
+            processBuilder.directory(path.toFile());
+            processBuilder.command(command);
+            processBuilder.redirectErrorStream(true);
+            Process process = processBuilder.start();
+            // 添加Process
+            TaskProcess taskProcess = processMap.get(task.getId());
+            taskProcess.setProcess(process);
+
+            StringBuilder result = new StringBuilder();
+
+
+            /**
+             * result storage
+             */
+            Map<String,String> resultMap = new HashMap<>();
+            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    if(!taskProcess.getFlag()){
+                        process.destroy();
+                        break;
+                    }
+                    if(line.startsWith("$")) {
+                        String[] strings = line.split(":");
+                        String key = strings[0].substring(1);
+                        String value = strings[1];
+                        resultMap.put(key,value);
+                    }
+                    if(!line.startsWith("Downloading")){
+                        result.append(line);
+                    }
+                    String msg = Thread.currentThread().getName()+": "+line+"\n";
+                    codeResult.getRealTimeMsg(user,msg);
+                    outputStream.write(msg.getBytes());
+                    log.debug(line);
+                }
+            }
+            process.waitFor();
+
+
+//            Map<String,Map<String,String>> splitMap = new HashMap();
+//            for (String key:resultMap.keySet()){
+//                String subscript = key.substring(0, 3);
+//                if(splitMap.get(subscript)==null){
+//                    Map<String,String> midMap = new HashMap<>();
+//                    splitMap.put(subscript,midMap);
+//                }
+//                splitMap.get(subscript).put(key.substring(3),resultMap.get(key));
+//            }
+//            List<Map<String, String>> resultList = splitMap.values().stream().collect(Collectors.toList());
+
+
+
+            int exit = process.exitValue();
+            if (exit != 0) {
+                codeMsg.setStatus(false);
+//                codeMsg.setRunMsg("failed to execute:" + processBuilder.command() + " with result:" + result);
+                throw new BioinfoException("failed to execute:" + processBuilder.command());
+            }else {
+                codeMsg.setStatus(true);
+                codeMsg.setRunMsg(result.toString());
+                String outputJson = buildOutPut(code,tempOutputFile);
+                codeMsg.setResult(outputJson);
+//                codeMsg.setResultMap(resultList);
+            }
+        }  finally {
+            if(tempFile!=null){
+                tempFile.delete();
+            }
+            if(tempOutputFile!=null){
+                tempOutputFile.delete();
+            }
+            TaskProcess taskProcess = processMap.get(task.getId());
+            if(taskProcess!=null){
+                if(taskProcess.getProcess()!=null &&taskProcess.getProcess().isAlive()){
+                    taskProcess.getProcess().destroy();
+                }
+                processMap.remove(task.getId());
+            }
+
+        }
+
+        return codeMsg;
+    }
+
+    private String showErrorMsg(String msg){
+        return Thread.currentThread().getName()+"[Error]: "+msg+"\n";
+    }
+
+
+    private void buildFile(Code code,
+                           StringBuffer stringBuffer,
+                           List<String> command,
+                           Map<String, String> maps,
+                           File tempFile,
+                           String tempOutputFile) throws IOException {
+        String content=null;
+        if(code.getAbsolutePath()!=null){
+            Path codePath = Paths.get(code.getAbsolutePath());
+            if(!codePath.toFile().exists()){
+                throw new BioinfoException("code不存在！！");
+            }
+            byte[] bytes = Files.readAllBytes(codePath);
+            content = new String(bytes, StandardCharsets.UTF_8);
+        }
+
+        if(code.getCodeType().equals(CodeType.R)){
+            for (String key: maps.keySet()){
+                String value = maps.get(key);
+                stringBuffer.append(key+" <- \""+ value+"\"\n");
+            }
+            stringBuffer.append(content);
+            stringBuffer.append("\n");
+            List<String> vars = getVariable(code.getCodeOutput());
+            vars.forEach(var->{
+                stringBuffer.append("if(exists(\""+var+"\"))cat(paste0(\""+var+":\","+var+",\"\\n\"),append=T, file=\""+tempOutputFile+"\")\n");
+            });
+            command.add("Rscript");
+            command.add(tempFile.getAbsolutePath());
+        }else if (code.getCodeType().equals(CodeType.SHELL)){
+            for (String key: maps.keySet()){
+                String value = maps.get(key);
+                stringBuffer.append(key+"=\""+ value+"\"\n");
+            }
+            stringBuffer.append(content);
+            stringBuffer.append("\n");
+            List<String> vars = getVariable(code.getCodeOutput());
+            vars.forEach(var->{
+                stringBuffer.append("echo \""+var+":\"$"+var+" > "+tempOutputFile);
+            });
+
+            command.add("bash");
+            command.add(tempFile.getAbsolutePath());
+        }else if (code.getCodeType().equals(CodeType.PYTHON)){
+
+        }
+
+        try (FileOutputStream fop = new FileOutputStream(tempFile)) {
+            fop.write(stringBuffer.toString().getBytes());
+            fop.flush();
+        }
+    }
+
+    private String buildOutPut(Code code, File tempOutputFile) throws IOException {
+        List<String> variable = getVariable(code.getCodeOutput());
+        if (variable.size()==0)return null;
+        List<String> lines = Files.readAllLines(tempOutputFile.toPath());
+        if(variable.size()!=lines.size()){
+            String vars = variable.stream().collect(Collectors.joining(","));
+            throw new BioinfoException(vars+"必须输出！！");
+        }
+        Map<String,String> map = new HashMap<>();
+        lines.forEach(line->{
+            String[] split = line.split(":");
+            if (split.length<2){
+                throw new BioinfoException("split 参数错误！"+line);
+            }
+            map.put(split[0],split[1]);
+        });
+
+        List<String> keys = map.keySet().stream().collect(Collectors.toList());
+        if(!variable.equals(keys)){
+            String vars = lines.stream().collect(Collectors.joining(","));
+            throw new BioinfoException("变量输出错误"+vars);
+        }
+        String codeOutput = code.getCodeOutput();
+        Matcher m = patternVar.matcher(codeOutput);
+        while (m.find()) {
+            codeOutput = codeOutput.replace(m.group(0) ,map.get(m.group(1)));
+        }
+        return codeOutput;
+    }
+
+    private List<String> getVariable(String codeOutput) {
+        List<String> list = new ArrayList<>();
+        if(codeOutput==null)return list;
+        Matcher m = patternVar.matcher(codeOutput);
+        while (m.find()) {
+            list.add(m.group(1));
+        }
+        return list;
     }
 
     @Override
@@ -240,147 +508,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         throw new BioinfoException("该任务已经结束！");
     }
 
-    private CodeMsg processBuilder(Task task, Code code, Map<String,Object> maps,User user,ICodeResult  codeResult){
-        CodeMsg codeMsg = new CodeMsg();
-        File  tempFile=null;
-        FileOutputStream outputStream =null;
-        try {
-            String workDir = CacheStore.getValue("workDir");
-            Path path = Paths.get(workDir, "data");
-            maps.put("workDir",path.toString());
-            Files.createDirectories(path);
-            tempFile = File.createTempFile("bioinfo-",".run");
-            List<String> command = new ArrayList<>();
-            StringBuffer stringBuffer = new StringBuffer();
-            buildFile(code,stringBuffer,command,maps);
-            command.add(tempFile.getAbsolutePath());
 
-            if(code.getAbsolutePath()!=null){
-                Path codePath = Paths.get(code.getAbsolutePath());
-                if(!codePath.toFile().exists()){
-                    throw new BioinfoException("code不存在！！");
-                }
-                byte[] bytes = Files.readAllBytes(codePath);
-                String content = new String(bytes, StandardCharsets.UTF_8);
-                stringBuffer.append(content);
-                try (FileOutputStream fop = new FileOutputStream(tempFile)) {
-                    fop.write(stringBuffer.toString().getBytes());
-                    fop.flush();
-                }
-            }
-            codeMsg.setSourceCode(stringBuffer.toString());
-
-            ProcessBuilder processBuilder = new ProcessBuilder();
-            processBuilder.directory(path.toFile());
-            processBuilder.command(command);
-            processBuilder.redirectErrorStream(true);
-            Process process = processBuilder.start();
-            // 添加Process
-            TaskProcess taskProcess = processMap.get(task.getId());
-            taskProcess.setProcess(process);
-
-            StringBuilder result = new StringBuilder();
-
-            Path logPath = Paths.get(workDir, "log",task.getId()+".log");
-            Files.createDirectories(logPath.getParent());
-            if(!logPath.toFile().exists()){
-                Files.createFile(logPath);
-            }
-            Map<String,String> resultMap = new HashMap<>();
-            outputStream = new FileOutputStream(logPath.toFile());
-            try (final BufferedReader reader = new BufferedReader(new InputStreamReader(process.getInputStream()))){
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    if(!taskProcess.getFlag()){
-                        process.destroy();
-                        break;
-                    }
-                    if(line.startsWith("$")) {
-                        String[] strings = line.split(":");
-                        String key = strings[0].substring(1);
-                        String value = strings[1];
-                        resultMap.put(key,value);
-                    }
-                    if(!line.startsWith("Downloading")){
-                        result.append(line);
-                    }
-                    String msg = Thread.currentThread().getName()+": "+line+"\n";
-                    codeResult.getRealTimeMsg(user,msg);
-                    outputStream.write(msg.getBytes());
-                    log.debug(line);
-                }
-            }
-            process.waitFor();
-            if(resultMap.containsKey("update")){
-                codeMsg.setIsUpdate(true);
-            }
-
-            int exit = process.exitValue();
-            if (exit != 0) {
-                codeMsg.setStatus(false);
-                codeMsg.setRunMsg("failed to execute:" + processBuilder.command() + " with result:" + result);
-//                throw new IOException("failed to execute:" + processBuilder.command() + " with result:" + result);
-            }else {
-                codeMsg.setStatus(true);
-                codeMsg.setResult("");
-                codeMsg.setRunMsg(result.toString());
-                // 获取结果 cat("$absolutePath:",paste0(workDir,"/",filename,".gz"))
-                codeMsg.setResultMap(resultMap);
-            }
-        } catch (IOException  |InterruptedException e) {
-            e.printStackTrace();
-            codeMsg.setStatus(false);
-        } finally {
-            if(tempFile!=null){
-                tempFile.delete();
-            }
-            TaskProcess taskProcess = processMap.get(task.getId());
-            if(taskProcess!=null){
-                if(taskProcess.getProcess()!=null &&taskProcess.getProcess().isAlive()){
-                    taskProcess.getProcess().destroy();
-                }
-                processMap.remove(task.getId());
-            }
-            if(outputStream!=null){
-                try {
-                    outputStream.close();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return codeMsg;
-    }
-
-
-    private void buildFile(Code code,StringBuffer stringBuffer,List<String> command,Map<String, Object> maps) {
-        if(code.getCodeType().equals(CodeType.R)){
-            for (String key: maps.keySet()){
-                Object obj = maps.get(key);
-                if(obj instanceof String && obj!=null){
-                    stringBuffer.append(key+" <- \""+ obj+"\"\n");
-                }else if (obj instanceof Cancer){
-                    stringBuffer.append(key+" <- \""+ ((Cancer) obj).getEnName()+"\"\n");
-                }
-            }
-            stringBuffer.append("\n");
-            command.add("Rscript");
-        }else if (code.getCodeType().equals(CodeType.SHELL)){
-            for (String key: maps.keySet()){
-                Object obj = maps.get(key);
-                if(obj instanceof String && obj!=null){
-                    stringBuffer.append(key+"=\""+ obj+"\"\n");
-                }else if (obj instanceof Cancer){
-                    stringBuffer.append(key+"=\""+ ((Cancer) obj).getEnName()+"\"\n");
-                }
-            }
-            stringBuffer.append("\n");
-            command.add("bash");
-        }else if (code.getCodeType().equals(CodeType.PYTHON)){
-
-        }
-    }
 
 
 

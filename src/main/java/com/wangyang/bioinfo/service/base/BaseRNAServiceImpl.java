@@ -1,14 +1,11 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.repository.base.BaseRepository;
-import com.wangyang.bioinfo.txt.IDataInputService;
-import com.wangyang.bioinfo.pojo.base.BaseRNA;
+import com.wangyang.bioinfo.pojo.entity.base.BaseRNA;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.repository.base.BaseRNARepository;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

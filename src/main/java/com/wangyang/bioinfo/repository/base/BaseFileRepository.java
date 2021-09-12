@@ -1,7 +1,6 @@
 package com.wangyang.bioinfo.repository.base;
 
-import com.wangyang.bioinfo.pojo.base.BaseFile;
-import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.repository.NoRepositoryBean;
 

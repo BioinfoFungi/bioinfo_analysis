@@ -1,8 +1,8 @@
 package com.wangyang.bioinfo.util;
 
 import com.wangyang.bioinfo.pojo.authorize.Role;
-import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.authorize.UserDetailDTO;
+import com.wangyang.bioinfo.pojo.support.Token;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;

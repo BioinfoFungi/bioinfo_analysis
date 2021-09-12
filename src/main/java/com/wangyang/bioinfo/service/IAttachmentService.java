@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.file.Attachment;
+import com.wangyang.bioinfo.pojo.entity.Attachment;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.service.base.IBaseFileService;

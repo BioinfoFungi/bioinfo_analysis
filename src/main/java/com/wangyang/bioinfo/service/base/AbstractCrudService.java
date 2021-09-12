@@ -15,14 +15,20 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.util.Assert;
 
+import javax.persistence.Entity;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
+import javax.transaction.Transactional;
 import java.io.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.ParameterizedType;
@@ -35,6 +41,8 @@ import java.util.*;
  */
 public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> implements ICrudService<DOMAIN, ID> {
 
+    @PersistenceContext
+    private EntityManager em;
     private final String domainName;
     private final BaseRepository<DOMAIN, ID> repository;
     public AbstractCrudService(BaseRepository<DOMAIN, ID> repository) {
@@ -43,6 +51,17 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
         domainName = domainClass.getSimpleName();
     }
 
+
+    @Override
+    @Transactional
+    public void truncateTable(){
+        Entity entity = getInstance().getClass().getAnnotation(Entity.class);
+        String name = entity.name();
+        Query query = em.createNativeQuery("truncate table "+name);
+        query.executeUpdate();
+        Query resetQuery = em.createNativeQuery("ALTER TABLE "+name+" ALTER COLUMN ID RESTART WITH 1");
+        resetQuery.executeUpdate();
+    }
 
     protected Specification<DOMAIN> buildSpecByQuery(DOMAIN baseFileQuery, String keywords, Set<String> sets) {
         return (Specification<DOMAIN>) (root, query, criteriaBuilder) ->{
@@ -53,7 +72,7 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
                 List<Predicate> orPredicates = new ArrayList<>();
                 for (String filed : sets){
                     Predicate predicate = criteriaBuilder
-                            .like(root.get(filed), likeCondition);
+                            .equal(root.get(filed), keywords);
                     orPredicates.add(predicate);
                 }
                 predicates.add(criteriaBuilder.or(orPredicates.toArray(new Predicate[0])));
@@ -84,11 +103,8 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
         return predicates;
     }
 
-    //    @Autowired
-//    ConcurrentMapCacheManager concurrentMapCacheManager;
-//    public AbstractCrudService(){
-//
-//    }
+
+
     private Type fetchType(int index) {
         Assert.isTrue(index >= 0 && index <= 1, "type index must be between 0 to 1");
         return ((ParameterizedType) this.getClass().getGenericSuperclass()).getActualTypeArguments()[index];
@@ -139,6 +155,12 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
     public void deleteAll(){
         repository.deleteAll();
     }
+    @Override
+    public void delete(DOMAIN t){
+        repository.delete(t);
+    }
+
+
 
     @Override
     public Page<DOMAIN> pageBy(Pageable pageable){
@@ -249,10 +271,13 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
 
 
     @Override
-    public List<DOMAIN> initData(String filePath){
+    @Transactional
+    public List<DOMAIN> initData(String filePath,Boolean isEmpty){
 //        Cache cache = concurrentMapCacheManager.getCache("TERM");
 //        cache.clear();
-        repository.deleteAll();
+        if(isEmpty){
+            truncateTable();
+        }
         List<DOMAIN> beans = tsvToBean(filePath);
         if(beans==null){
             throw new BioinfoException(filePath+" 不存在！");

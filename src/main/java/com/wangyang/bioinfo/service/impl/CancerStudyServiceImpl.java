@@ -1,26 +1,25 @@
 package com.wangyang.bioinfo.service.impl;
 
 
+import com.alibaba.fastjson.JSONObject;
+import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.entity.Code;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
-import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.CancerStudyRepository;
+import com.wangyang.bioinfo.repository.CodeRepository;
 import com.wangyang.bioinfo.repository.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.TermMappingServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.FileMd5Utils;
-import com.wangyang.bioinfo.util.FilenameUtils;
-import com.wangyang.bioinfo.util.ServiceUtil;
-import org.springframework.beans.BeanUtils;
+import org.apache.commons.lang.StringUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -31,15 +30,15 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.io.File;
+import javax.transaction.Transactional;
 import java.util.*;
-import java.util.stream.Collectors;
 
 /**
  * @author wangyang
  * @date 2021/6/26
  */
 @Service
+@Transactional
 public class CancerStudyServiceImpl
         extends TermMappingServiceImpl<CancerStudy>
         implements ICancerStudyService {
@@ -51,14 +50,16 @@ public class CancerStudyServiceImpl
     private  final IDataCategoryService dataCategoryService;
     private  final IAnalysisSoftwareService analysisSoftwareService;
     private  final TaskRepository taskRepository;
+    private final CodeRepository codeRepository;
     public CancerStudyServiceImpl(FileHandlers fileHandlers,
-                                        CancerStudyRepository cancerStudyRepository,
-                                       ICancerService cancerService,
-                                       IStudyService studyService,
-                                       IDataOriginService dataOriginService,
-                                       IDataCategoryService dataCategoryService,
-                                       IAnalysisSoftwareService analysisSoftwareService,
-                                  TaskRepository taskRepository) {
+                                  CancerStudyRepository cancerStudyRepository,
+                                  ICancerService cancerService,
+                                  IStudyService studyService,
+                                  IDataOriginService dataOriginService,
+                                  IDataCategoryService dataCategoryService,
+                                  IAnalysisSoftwareService analysisSoftwareService,
+                                  TaskRepository taskRepository,
+                                  CodeRepository codeRepository) {
         super(fileHandlers, cancerStudyRepository,cancerService,studyService,dataOriginService,dataCategoryService,analysisSoftwareService);
         this.cancerStudyRepository=cancerStudyRepository;
         this.cancerService =cancerService;
@@ -67,6 +68,7 @@ public class CancerStudyServiceImpl
         this.dataCategoryService=dataCategoryService;
         this.analysisSoftwareService=analysisSoftwareService;
         this.taskRepository=taskRepository;
+        this.codeRepository = codeRepository;
     }
 
 
@@ -84,19 +86,30 @@ public class CancerStudyServiceImpl
 
     private void checkAtLeastNotNull(CancerStudyParam cancerStudyParam) {
         if(cancerStudyParam.getCancer()==null &&
-            cancerStudyParam.getStudy()==null&&
-            cancerStudyParam.getDataOrigin()==null&&
-            cancerStudyParam.getAnalysisSoftware()==null&&
-            cancerStudyParam.getDataCategory()==null){
+                cancerStudyParam.getStudy()==null&&
+                cancerStudyParam.getDataOrigin()==null&&
+                cancerStudyParam.getAnalysisSoftware()==null&&
+                cancerStudyParam.getDataCategory()==null){
             throw new BioinfoException("CancerStudy Term应该至少有一项不为空！！！");
+        }
+        if(cancerStudyParam.getParam()!=null && !cancerStudyParam.equals("")) {
+            try {
+                String param = cancerStudyParam.getParam();
+                param = param.replace("\""," ");
+                JSONObject.parseObject(param);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new BioinfoException(e.getMessage());
+            }
         }
     }
 
     @Override
     public CancerStudy updateCancerStudy(Integer id, CancerStudyParam cancerStudyParam, User user) {
         checkAtLeastNotNull(cancerStudyParam);
-        CancerStudy cancerStudy = super.convert(cancerStudyParam);
-        return  update(id,cancerStudy,user);
+        CancerStudy cancerStudy = findById(id);
+        CancerStudy convertCancerStudy = super.convert(cancerStudyParam,cancerStudy);
+        return   add(convertCancerStudy,user);
     }
 
 
@@ -110,31 +123,6 @@ public class CancerStudyServiceImpl
 
     @Override
     public CancerStudy saveCancerStudy(CancerStudy cancerStudy) {
-        if(cancerStudy.getLocation().equals(FileLocation.LOCAL)){
-            if(cancerStudy.getExpr()!=null){
-                File f = new File(cancerStudy.getExpr());
-                if(f.exists()&& f.isFile()){
-                    cancerStudy.setExprStatus(true);
-                    cancerStudy.setExprSize(f.length());
-                    String md5String = FileMd5Utils.getFileMD5String(f);
-                    cancerStudy.setExprMd5(md5String);
-                }
-                String relativePath = FilenameUtils.relativePath(cancerStudy.getExpr());
-                cancerStudy.setExprRelative(relativePath);
-            }
-            if(cancerStudy.getMetadata()!=null){
-                File f = new File(cancerStudy.getMetadata());
-                if(f.exists()&& f.isFile()){
-                    cancerStudy.setMetadataStatus(true);
-                    cancerStudy.setMetadataSize(f.length());
-                    String md5String = FileMd5Utils.getFileMD5String(f);
-                    cancerStudy.setMetadataMd5(md5String);
-                }
-                String relativePath = FilenameUtils.relativePath(cancerStudy.getMetadata());
-                cancerStudy.setMetadataRelative(relativePath);
-            }
-        }
-
         return saveAndCheckFile(cancerStudy);
     }
 //    @Override
@@ -165,13 +153,15 @@ public class CancerStudyServiceImpl
 
 
     @Override
-    public CancerStudy findByParACodeId(Integer parentId, Integer codeId){
+    public CancerStudy findByParACodeId(Integer parentId, Integer codeId,Integer analysisSoftwareId){
         List<CancerStudy> cancerStudies = cancerStudyRepository.findAll(new Specification<CancerStudy>() {
             @Override
             public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
                 return criteriaQuery.where(
                         criteriaBuilder.equal(root.get("parentId"),parentId),
-                        criteriaBuilder.equal(root.get("codeId"),codeId)
+                        criteriaBuilder.equal(root.get("codeId"),codeId),
+                        criteriaBuilder.equal(root.get("analysisSoftwareId"),analysisSoftwareId)
+
                 ).getRestriction();
             }
         });
@@ -208,7 +198,7 @@ public class CancerStudyServiceImpl
 //    }
 
 
-    
+
 
 
 
@@ -329,7 +319,99 @@ public class CancerStudyServiceImpl
      * @return
      */
     @Override
-    public List<CancerStudy> initData(String filePath) {
-        return super.initData(filePath,CancerStudyParam.class);
+    public List<CancerStudy> initData(String filePath,Boolean isEmpty) {
+        return super.initData(filePath,CancerStudyParam.class,isEmpty);
+    }
+
+
+
+    @Override
+    public CancerStudy findByParentIdAndCodeId(Integer id, Integer codeId) {
+        return cancerStudyRepository.findByParentIdAndCodeId(id,codeId);
+    }
+
+    public  Specification<CancerStudy> specification(Code code,CancerStudyQuery cancerStudyQuery){
+        Specification<CancerStudy> specification = new Specification<CancerStudy>() {
+            @Override
+            public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<>();
+                if (code.getCancer() != null) {
+                    predicates.add(criteriaBuilder.in(root.get("cancerId")).value(code.getCancer()));
+                }
+                if (code.getDataCategory() != null) {
+                    predicates.add(criteriaBuilder.in(root.get("dataCategoryId")).value(code.getDataCategory()));
+                }
+                if (code.getDataOrigin() != null) {
+                    predicates.add(criteriaBuilder.in(root.get("dataOriginId")).value(code.getDataOrigin()));
+                }
+                if (code.getStudy() != null) {
+                    predicates.add(criteriaBuilder.in(root.get("studyId")).value(code.getStudy()));
+                }
+                if (code.getAnalysisSoftware() != null) {
+                    predicates.add(criteriaBuilder.in(root.get("analysisSoftwareId")).value(code.getAnalysisSoftware()));
+                }
+
+                if(cancerStudyQuery!=null){
+                    if(cancerStudyQuery.getKeyword()!=null){
+                        String likeCondition = String
+                                .format("%%%s%%", StringUtils.strip(cancerStudyQuery.getKeyword()));
+
+                        Predicate predicate = criteriaBuilder.like(root.get("gse"), cancerStudyQuery.getKeyword());
+                        predicates.add(predicate);
+                    }
+                }
+                return criteriaQuery.where(predicates.toArray(new Predicate[0])).getRestriction();
+            }
+        };
+        return specification;
+    }
+    @Override
+    public List<CancerStudy> findByCode(Code code) {
+        return cancerStudyRepository.findAll(specification(code,null));
+    }
+
+    @Override
+    public Page<CancerStudy> pageByCodeId(Integer id,CancerStudyQuery cancerStudyQuery,Pageable pageable) {
+        Optional<Code> code = codeRepository.findById(id);
+        if(!code.isPresent()){
+            throw new BioinfoException("code is not exist！");
+        }
+        return cancerStudyRepository.findAll(specification(code.get(),cancerStudyQuery),pageable);
+    }
+
+    @Override
+    public CancerStudy checkExist(CancerStudy cancerStudy) {
+        List<CancerStudy> cancerStudies = cancerStudyRepository.findAll(new Specification<CancerStudy>() {
+            @Override
+            public Predicate toPredicate(Root<CancerStudy> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                List<Predicate> predicates = new ArrayList<>();
+                if (cancerStudy.getCancerId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("cancerId"),cancerStudy.getCancerId()));
+                }
+                if (cancerStudy.getDataCategoryId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("dataCategoryId"),cancerStudy.getDataCategoryId()));
+                }
+                if (cancerStudy.getDataOriginId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("dataOriginId"),cancerStudy.getDataOriginId()));
+                }
+                if (cancerStudy.getStudyId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("studyId"),cancerStudy.getStudyId()));
+                }
+                if (cancerStudy.getAnalysisSoftwareId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("analysisSoftwareId"),cancerStudy.getAnalysisSoftwareId()));
+                }
+                if (cancerStudy.getGse() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("gse"),cancerStudy.getGse()));
+                }
+                if (cancerStudy.getCodeId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("codeId"),cancerStudy.getCodeId()));
+                }
+                if (cancerStudy.getParentId() != null) {
+                    predicates.add(criteriaBuilder.equal(root.get("parentId"),cancerStudy.getParentId()));
+                }
+                return criteriaQuery.where(predicates.toArray(new Predicate[0])).getRestriction();
+            }
+        });
+        return cancerStudies.size()==0?null:cancerStudies.get(0);
     }
 }

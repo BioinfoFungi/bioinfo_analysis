@@ -1,16 +1,17 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.ITaskService;
+import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
-import org.springframework.lang.NonNull;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
@@ -45,6 +46,12 @@ public class TaskController {
         Task task = taskService.addTask(taskParam,user);
         return task;
     }
+    @GetMapping("/runByCodeId/{id}")
+    public BaseResponse runByCodeId(@PathVariable("id") Integer id, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        List<CancerStudy> cancerStudies = taskService.runByCodeId(id, user);
+        return BaseResponse.ok("success",+cancerStudies.size());
+    }
 
     @GetMapping("/run/{id}")
     public Task addTask(@PathVariable("id") Integer id, HttpServletRequest request){
@@ -62,6 +69,12 @@ public class TaskController {
         return taskService.page(taskQuery,pageable);
     }
 
+    @GetMapping("/removeALlTask")
+    public BaseResponse removeALlTask(){
+        taskService.truncateTable();
+        return BaseResponse.ok("清除成功！");
+    }
+
     @GetMapping("/log")
     public  String getLogFiles(@RequestParam Integer taskId, @RequestParam(defaultValue = "20") Integer lines) {
         String logFiles = taskService.getLogFiles(taskId, lines);
@@ -69,7 +82,7 @@ public class TaskController {
     }
 
     @GetMapping("/getObjMap/{id}")
-    public Map<String, Object> getObjMap(@PathVariable("id") Integer id){
+    public Map<String, String> getObjMap(@PathVariable("id") Integer id){
         return  taskService.getObjMap(TaskType.CANCER_STUDY,id);
     }
 

@@ -2,8 +2,7 @@ package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.AnalysisSoftwareParam;
-import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
-import com.wangyang.bioinfo.pojo.trem.Cancer;
+import com.wangyang.bioinfo.pojo.entity.AnalysisSoftware;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
 
 /**

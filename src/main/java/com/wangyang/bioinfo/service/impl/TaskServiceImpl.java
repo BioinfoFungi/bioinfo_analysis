@@ -1,14 +1,15 @@
 package com.wangyang.bioinfo.service.impl;
 
+import com.alibaba.fastjson.JSONArray;
 import com.wangyang.bioinfo.core.KeyLock;
 import com.wangyang.bioinfo.handle.ICodeResult;
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.base.BaseFile;
-import com.wangyang.bioinfo.pojo.enums.CodeType;
+import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.pojo.file.Code;
+import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.repository.TaskRepository;
@@ -29,6 +30,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
@@ -69,7 +71,6 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         this.annotationService=annotationService;
         this.applicationContext=applicationContext;
         this.lock=lock;
-
     }
 
 
@@ -168,6 +169,9 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             Code code = codeService.findById(task.getCodeId());
             ICodeResult codeResult = getCodeResult(code.getTaskType());
             BaseFile baseFile = codeResult.getObj(task.getObjId());
+            checkRun(codeResult,code,baseFile);
+
+
             task.setTaskStatus(TaskStatus.UNTRACKING);
             task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
             task= super.save(task);
@@ -179,20 +183,10 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return task;
     }
 
+
     @Override
     public Task addTask(TaskParam taskParam,User user) {
-        Code code;
-        if(taskParam.getCodeId()!=null){
-             code = codeService.findById(taskParam.getCodeId());
-        }else {
-            code = new Code();
-            code.setTaskType(TaskType.TEST);
-            code.setName( FilenameUtils.getBasename(taskParam.getPath()));
-            CodeType codeType = codeService.checkCodeType(taskParam.getPath());
-            code.setCodeType(codeType);
-            code.setAbsolutePath(taskParam.getPath());
-            code.setId(user.getId());
-        }
+        Code code = codeService.findById(taskParam.getCodeId());
         return addTask(code,taskParam.getObjId(),user);
     }
 
@@ -207,6 +201,9 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     public Task addTask(Code code,int objId,User user){
         ICodeResult codeResult = getCodeResult(code.getTaskType());
         BaseFile baseFile = codeResult.getObj(objId);
+
+        checkRun(codeResult,code,baseFile);
+
         Task task = findByCanSIdACodeId(objId, code.getId(),code.getTaskType());
         if (runCheck(task)) {
             throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
@@ -228,6 +225,33 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
         return task;
     }
+
+    private void checkRun( ICodeResult codeResult,Code code, BaseFile baseFile) {
+        Boolean checkRun =  codeResult.checkRun(code,baseFile);
+        if(!checkRun){
+            throw new BioinfoException(code.getName()+"不能执行"+baseFile.getId());
+        }
+    }
+
+    private Boolean checkExist(ICodeResult codeResult,List<BaseFile> baseFiles) {
+        Boolean aBoolean = codeResult.checkExist(baseFiles);
+        return aBoolean;
+    }
+
+
+    @Override
+    public List<CancerStudy> runByCodeId(Integer id, User user) {
+        Code code = codeService.findById(id);
+        List<CancerStudy> cancerStudies = cancerStudyService.findByCode(code);
+        cancerStudies.forEach(cancerStudy -> {
+            TaskParam taskParam = new TaskParam();
+            taskParam.setCodeId(code.getId());
+            taskParam.setObjId(cancerStudy.getId());
+            addTask(taskParam,user);
+        });
+        return cancerStudies;
+    }
+
     @Override
     public Task shutdownProcess(int taskId){
         Task task = asyncService.shutdownProcess(taskId);

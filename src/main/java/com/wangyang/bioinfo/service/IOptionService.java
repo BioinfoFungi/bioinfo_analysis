@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Option;
+import com.wangyang.bioinfo.pojo.entity.Option;
 
 import java.util.List;
 

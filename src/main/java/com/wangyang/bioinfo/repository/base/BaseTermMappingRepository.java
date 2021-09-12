@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.repository.base;
 
-import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.entity.base.TermMapping;
 import org.springframework.data.repository.NoRepositoryBean;
 
 /**

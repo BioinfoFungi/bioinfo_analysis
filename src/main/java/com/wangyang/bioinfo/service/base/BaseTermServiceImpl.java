@@ -1,8 +1,7 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.base.BaseTerm;
+import com.wangyang.bioinfo.pojo.entity.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
-import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 import com.wangyang.bioinfo.util.BioinfoException;
 import org.apache.commons.lang3.StringUtils;
@@ -35,6 +34,8 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
         super(baseTermRepository);
         this.baseTermRepository=baseTermRepository;
     }
+
+
 
 
     @Override
@@ -82,16 +83,24 @@ public class BaseTermServiceImpl<TERM extends BaseTerm>
         }
         return terms.get(0);
     }
-
-
     @Override
-    public TERM findById(Integer id) {
+    public TERM findById(Integer id){
         if(id==null){
             return null;
         }
-        Optional<TERM> optionalTERM = baseTermRepository.findById(id);
-        return optionalTERM.isPresent()?optionalTERM.get():null;
+        Optional<TERM> fileOptional = baseTermRepository.findById(id);
+        return fileOptional.isPresent()?fileOptional.get():null;
     }
+
+    @Override
+    public TERM findAndCheckById(Integer id) {
+        TERM term = findById(id);
+        if(term==null){
+            throw new BioinfoException("TERM中要查找的["+term.getName()+"]对象不存在！");
+        }
+        return term;
+    }
+
 
     @Override
     @Cacheable(cacheNames="TERM")

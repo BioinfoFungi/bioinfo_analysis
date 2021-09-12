@@ -1,18 +1,12 @@
 package com.wangyang.bioinfo.pojo.vo;
 
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
 import lombok.Data;
 
 @Data
-public class CodeVO extends TermMappingVo{
-    private String code;
-    private String name;
-    private CodeType codeType;
-    private TaskType taskType;
-    private Boolean haveParentId;
-    private Boolean haveExpr;
-    private Boolean haveMetadata;
-
+public class CodeVO extends Code {
+    private String codeOutput;
 }

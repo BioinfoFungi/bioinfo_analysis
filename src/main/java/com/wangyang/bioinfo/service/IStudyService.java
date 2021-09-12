@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.trem.Study;
+import com.wangyang.bioinfo.pojo.entity.Study;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.service.base.IBaseTermService;

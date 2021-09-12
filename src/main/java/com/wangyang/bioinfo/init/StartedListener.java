@@ -2,8 +2,8 @@ package com.wangyang.bioinfo.init;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
-import com.wangyang.bioinfo.pojo.Option;
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.Option;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.RoleUrl;
@@ -11,7 +11,6 @@ import com.wangyang.bioinfo.pojo.enums.TaskStatus;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import com.wangyang.bioinfo.util.CacheStore;
-import com.wangyang.bioinfo.util.TokenProvider;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +30,6 @@ import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandl
 
 import javax.cache.CacheManager;
 import java.lang.reflect.Method;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 

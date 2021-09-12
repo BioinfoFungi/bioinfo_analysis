@@ -2,16 +2,16 @@ package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
-import com.wangyang.bioinfo.pojo.file.Code;
+import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
-import com.wangyang.bioinfo.pojo.support.FileTree;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
+import com.wangyang.bioinfo.service.base.IBaseFileService;
+import com.wangyang.bioinfo.service.base.ICrudService;
 import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 
-import javax.validation.constraints.NotNull;
 import java.util.List;
 
 /**
@@ -19,20 +19,16 @@ import java.util.List;
  * @date 2021/7/22
  */
 
-public interface ICodeService extends ITermMappingService<Code> {
+public interface ICodeService extends IBaseFileService<Code> {
 
     Page<Code> pageBy(CodeQuery codeQuery, Pageable pageable);
 
-    Page<CodeVO> convertVo(Page<Code> codes);
 
     Code saveBy(CodeParam codeParam, User user);
 
     Code updateBy(Integer id, CodeParam codeParam, User user);
 
-    List<Code> findByCan(Integer id);
-
-
-    List<Code> listAllAnnTask();
+    List<Code> findExecute(Integer id);
 
     CodeType checkCodeType(String path);
 

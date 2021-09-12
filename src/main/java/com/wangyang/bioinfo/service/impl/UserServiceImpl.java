@@ -24,6 +24,7 @@ import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.transaction.Transactional;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +36,7 @@ import java.util.stream.Collectors;
  * @date 2021/5/5
  */
 @Service
+@Transactional
 public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
         implements IUserService {
 

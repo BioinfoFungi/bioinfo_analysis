@@ -1,9 +1,8 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.file.Code;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
-import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.entity.Code;
+import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.pojo.support.FileContent;
@@ -37,21 +36,14 @@ public class CodeController {
     IOrganizeFileService organizeFileService;
 
     @GetMapping
-    public Page<? extends TermMapping> page(CodeQuery codeQuery,
+    public Page<Code> page(CodeQuery codeQuery,
                                             @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
                                             @RequestParam(value = "more", defaultValue = "false") Boolean more){
-        Page<Code> cancerStudies = codeService.pageBy(codeQuery,pageable);
-        if(more){
-            return codeService.convertVo(cancerStudies);
-        }
-        return cancerStudies;
-    }
-
-    @GetMapping("listAllAnnTask")
-    public List<Code>  listAllAnnTask(){
-        List<Code> codes = codeService.listAllAnnTask();
+        Page<Code> codes = codeService.pageBy(codeQuery,pageable);
         return codes;
     }
+
+
 
     @PostMapping
     public Code add(@RequestBody  CodeParam codeParam, HttpServletRequest request){
@@ -72,9 +64,11 @@ public class CodeController {
     }
 
     @GetMapping("/findByCan/{id}")
-    public List<Code> findByCan(@PathVariable("id") Integer cancerId){
-        return codeService.findByCan(cancerId);
+    public List<Code> findExecute(@PathVariable("id") Integer id){
+        return codeService.findExecute(id);
     }
+
+
 
     @GetMapping("/checkFile/{id}")
     public Code checkFileExist(@PathVariable("id") Integer id){
@@ -82,19 +76,15 @@ public class CodeController {
         return code;
     }
     @GetMapping("/findById/{id}")
-    public TermMapping findById(@PathVariable("id") Integer id,
-                                @RequestParam(value = "more", defaultValue = "false") Boolean more){
+    public Code findById(@PathVariable("id") Integer id){
         Code code = codeService.findById(id);
-        if(more){
-            return codeService.convertVo(code);
-        }
         return code;
     }
 
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
-        codeService.initData(organizeFile.getAbsolutePath());
+        codeService.initData(organizeFile.getAbsolutePath(),true);
         return BaseResponse.ok("CancerStudy初始化完成!");
     }
 
@@ -103,7 +93,7 @@ public class CodeController {
         if(path!=null && path.equals("")){
             path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data/Code.tsv";
         }
-        codeService.initData(path);
+        codeService.initData(path,true);
         return BaseResponse.ok("["+path+"]初始化完成!");
     }
     @GetMapping("/file")
@@ -112,6 +102,11 @@ public class CodeController {
             path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/R";
         }
         return codeService.listFiles(path);
+    }
+
+    @GetMapping("/listAll")
+    public List<Code> listAll(){
+        return codeService.listAll();
     }
 
 

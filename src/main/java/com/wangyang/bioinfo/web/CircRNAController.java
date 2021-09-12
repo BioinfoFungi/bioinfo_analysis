@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.RNA.CircRNA;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
+import com.wangyang.bioinfo.pojo.entity.CircRNA;
+import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import com.wangyang.bioinfo.service.ICircRNAService;
@@ -43,7 +43,7 @@ public class CircRNAController {
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
-        circRNAService.initData(organizeFile.getAbsolutePath());
+        circRNAService.initData(organizeFile.getAbsolutePath(),true);
         return BaseResponse.ok("circRNA初始化完成!");
     }
 }

@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.DataCategoryParam;
-import com.wangyang.bioinfo.pojo.trem.DataCategory;
+import com.wangyang.bioinfo.pojo.entity.DataCategory;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
 
 /**

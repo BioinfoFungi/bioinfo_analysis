@@ -1,10 +1,13 @@
 package com.wangyang.bioinfo.util;
 
+import com.wangyang.bioinfo.pojo.entity.Cancer;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import io.swagger.models.auth.In;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class ObjectToCollection {
     public static List<Field> setConditionFieldList(Object obj) {
@@ -46,27 +49,40 @@ public class ObjectToCollection {
      * 属性值为String型或Long时为null和“”不加入）
      *注：需要转换的必须是对象，即有属性
      */
-    public static Map<String, String> setConditionMap(Object obj) {
+    public static Map<String, String> setConditionMap(Object obj,String ...ignore) {
         Map<String, String> map = new HashMap<String,String>();
         try {
             Class<?> clazz = obj.getClass();
             List<Field> fields = new ArrayList<>();
             //把父类包含的字段遍历出来
+
             while (clazz!=null){
                 fields.addAll(Arrays.asList(clazz.getDeclaredFields()));
                 clazz = clazz.getSuperclass();
 
             }
+            List<String> collect = Arrays.stream(ignore).collect(Collectors.toList());
+
             for (Field field : fields) {
                 field.setAccessible(true);
                 String fieldName = field.getName();
+                if(collect.contains(fieldName))continue;
                 Object o = field.get(obj);
-                if(o instanceof String){
-                    map.put(fieldName, String.valueOf(o));
-                }else if (o instanceof Integer){
-                    map.put(fieldName,String.valueOf(o));
+                if(o!=null){
+                    if(o instanceof String){
+                        map.put(fieldName, String.valueOf(o));
+                    }else if (o instanceof Integer){
+                        map.put(fieldName,String.valueOf(o));
+                    }else if (o instanceof Cancer){
+                        map.put(fieldName,((Cancer) o).getEnName());
+                    }else if (o instanceof Boolean){
+                        if(((Boolean) o).booleanValue()){
+                            map.put(fieldName,"true");
+                        }else {
+                            map.put(fieldName,"false");
+                        }
+                    }
                 }
-
             }
         } catch (IllegalAccessException e) {
             e.printStackTrace();

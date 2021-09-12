@@ -2,26 +2,23 @@ package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.entity.*;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.entity.base.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
-import com.wangyang.bioinfo.pojo.trem.*;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.util.BioinfoException;
+import com.wangyang.bioinfo.util.CacheStore;
 import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ServiceUtil;
-import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.web.multipart.MultipartFile;
 
-import javax.persistence.criteria.Predicate;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
@@ -189,12 +186,12 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
         termmapping.setUserId(user.getId());
         return saveAndCheckFile(termmapping);
     }
-    public TERMMAPPING update(Integer id, TERMMAPPING termMappingParam, User user) {
-        TERMMAPPING termmapping = findById(id);
-        termmapping.setUserId(user.getId());
-        BeanUtils.copyProperties(termMappingParam,termmapping,"id");
-        return saveAndCheckFile(termmapping);
-    }
+//    public TERMMAPPING update(Integer id, TERMMAPPING termMappingParam, User user) {
+//        TERMMAPPING termmapping = findById(id);
+//        termmapping.setUserId(user.getId());
+//        BeanUtils.copyProperties(termMappingParam,termmapping,"id");
+//        return saveAndCheckFile(termmapping);
+//    }
 
 //    public TERMMAPPING saveTermMapping(TermMappingParamDTO termMappingParamDTO, User user) {
 //        TERMMAPPING termMapping = getInstance();
@@ -214,17 +211,31 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
         return super.upload(uploadResult,termmapping);
     }
 
-    public List<TERMMAPPING> initData(String filePath,Class<? extends TermMappingParam> clz) {
+
+    public List<TERMMAPPING> initData(String filePath,Class<? extends TermMappingParam> clz,Boolean isEmpty) {
         if (!Paths.get(filePath).toFile().exists()){
             throw new BioinfoException("["+filePath+"]不存在！！");
         }
-        baseTermMappingRepository.deleteAll();
+        if(isEmpty){
+            truncateTable();
+        }
+//        baseTermMappingRepository.deleteAll();
         List<? extends TermMappingParam> termMappingParamDTOS = File2Tsv.tsvToBean(clz, filePath);
-        List<TERMMAPPING> cancerStudies = termMappingParamDTOS.stream().map(cancerStudyParam -> {
+        List<TERMMAPPING> termmappings = baseTermMappingRepository.findAll();
+        List<TERMMAPPING> importTermMappings = termMappingParamDTOS.stream().map(cancerStudyParam -> {
             TERMMAPPING termmapping = convert(cancerStudyParam);
-            return saveAndCheckFile(termmapping);
+            if(termmapping.getAbsolutePath()==null && termmapping.getRelativePath()!=null){
+                String workDir = CacheStore.getValue("workDir");
+                Path path = Paths.get(workDir, termmapping.getRelativePath());
+                termmapping.setAbsolutePath(path.toString());
+            }
+            return termmapping;
         }).collect(Collectors.toList());
-        return cancerStudies;
+        importTermMappings.removeAll(termmappings);
+        if(importTermMappings.size()!=0){
+            importTermMappings.forEach(termmapping -> saveAndCheckFile(termmapping));
+        }
+        return importTermMappings;
     }
 
 
@@ -383,10 +394,8 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
      * obj -> id
      * @return
      */
-    @Override
-    public <PARAM extends TermMappingParam> TERMMAPPING convert(PARAM param){
-        TERMMAPPING termmapping = getInstance();
-        BeanUtils.copyProperties(param,termmapping);
+    public <PARAM extends TermMappingParam> TERMMAPPING convert(PARAM param,TERMMAPPING termmapping){
+        BeanUtils.copyProperties(param,termmapping,"id");
         Cancer cancer = cancerService.findAndCheckByEnName(param.getCancer());
         Study study = studyService.findAndCheckByEnName(param.getStudy());
         DataOrigin dataOrigin = dataOriginService.findAndCheckByEnName(param.getDataOrigin());
@@ -409,6 +418,11 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
         }
 
         return termmapping;
+    }
+    @Override
+    public <PARAM extends TermMappingParam> TERMMAPPING convert(PARAM param){
+        TERMMAPPING termmapping = getInstance();
+        return convert(param,termmapping);
     }
 
     @Override

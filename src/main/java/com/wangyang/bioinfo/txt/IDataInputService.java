@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.txt;
 
-import com.wangyang.bioinfo.pojo.txt.Annotation;
+import com.wangyang.bioinfo.pojo.support.Annotation;
 
 import java.util.List;
 

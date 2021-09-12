@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service;
 
 
-import com.wangyang.bioinfo.pojo.file.Annotation;
+import com.wangyang.bioinfo.pojo.entity.Annotation;
 import com.wangyang.bioinfo.pojo.param.AnnotationParam;
 import com.wangyang.bioinfo.pojo.param.AnnotationQuery;
 import com.wangyang.bioinfo.pojo.vo.AnnotationSimpleVO;

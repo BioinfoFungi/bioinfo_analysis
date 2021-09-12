@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Comment;
+import com.wangyang.bioinfo.pojo.entity.Comment;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.vo.CommentVo;
 import org.springframework.data.domain.Page;

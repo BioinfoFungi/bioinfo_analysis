@@ -2,17 +2,15 @@ package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
-import com.wangyang.bioinfo.pojo.param.AnalysisSoftwareParam;
+import com.wangyang.bioinfo.pojo.entity.AnalysisSoftware;
+import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import com.wangyang.bioinfo.pojo.param.DataCategoryParam;
-import com.wangyang.bioinfo.pojo.trem.AnalysisSoftware;
-import com.wangyang.bioinfo.pojo.trem.DataCategory;
-import com.wangyang.bioinfo.pojo.trem.DataOrigin;
-import com.wangyang.bioinfo.pojo.trem.Study;
+import com.wangyang.bioinfo.pojo.entity.DataCategory;
 import com.wangyang.bioinfo.service.IDataCategoryService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -63,10 +61,10 @@ public class DataCategoryController {
     @GetMapping("/init/{name}")
     public BaseResponse initData(@PathVariable("name") String name){
         OrganizeFile organizeFile = organizeFileService.findByEnName(name);
-        dataCategoryService.initData(organizeFile.getAbsolutePath());
+        dataCategoryService.initData(organizeFile.getAbsolutePath(),true);
         return BaseResponse.ok("初始化完成!");
     }
-    @GetMapping("/createTSVFile")
+    @PostMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
         dataCategoryService.createTSVFile(response);
     }
@@ -75,9 +73,13 @@ public class DataCategoryController {
         return dataCategoryService.listAll();
     }
     @GetMapping("/init")
-    public BaseResponse initDataBy(@RequestParam("path") String path){
-        dataCategoryService.initData(path);
-        return BaseResponse.ok("初始化完成!");
+    public BaseResponse initDataBy(@RequestParam(value = "path",defaultValue = "") String path,
+                                   @RequestParam(value = "isEmpty", defaultValue = "false") Boolean isEmpty){
+        if(path!=null && path.equals("")){
+            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data/DataCategory.tsv";
+        }
+        List<DataCategory> cancerStudyList = dataCategoryService.initData(path, isEmpty);
+        return BaseResponse.ok("导入["+cancerStudyList.size()+"]个对象！");
     }
 
 }

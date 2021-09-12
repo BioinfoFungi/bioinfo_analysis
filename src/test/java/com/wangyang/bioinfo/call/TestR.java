@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.call;
 
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.util.ObjectToCollection;
 import org.junit.Test;
 import org.rosuda.REngine.*;

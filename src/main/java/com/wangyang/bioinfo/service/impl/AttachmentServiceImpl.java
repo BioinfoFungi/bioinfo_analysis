@@ -1,21 +1,19 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.file.Attachment;
-import com.wangyang.bioinfo.pojo.Project;
+import com.wangyang.bioinfo.pojo.entity.Attachment;
+import com.wangyang.bioinfo.pojo.entity.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.repository.AttachmentRepository;
-import com.wangyang.bioinfo.repository.base.BaseFileRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;

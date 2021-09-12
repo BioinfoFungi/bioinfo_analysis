@@ -1,7 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.Comment;
-import com.wangyang.bioinfo.pojo.Project;
+import com.wangyang.bioinfo.pojo.entity.Comment;
+import com.wangyang.bioinfo.pojo.entity.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.vo.CommentVo;
 import com.wangyang.bioinfo.repository.CommentRepository;

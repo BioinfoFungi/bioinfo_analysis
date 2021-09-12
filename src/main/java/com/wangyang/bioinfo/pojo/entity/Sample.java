@@ -2,14 +2,10 @@ package com.wangyang.bioinfo.pojo.entity;
 
 
 
-import com.wangyang.bioinfo.pojo.base.BaseEntity;
-import com.wangyang.bioinfo.util.JpaConverterListJson;
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import lombok.Data;
-import org.hibernate.annotations.Type;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import java.util.List;
 
 /**
  * @author wangyang
@@ -22,7 +18,7 @@ public class Sample extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int id;
     private String name;
-//    @Convert(converter = JpaConverterListJson.class)
+//    @Convert(converter = JpaConverterJson.class)
 //    @Column(columnDefinition = "TEXT")
 //    private Integer[] geneData;
 }

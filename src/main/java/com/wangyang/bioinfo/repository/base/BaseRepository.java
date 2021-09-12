@@ -15,4 +15,5 @@ import java.util.List;
 public interface BaseRepository <T,  ID extends Serializable> extends JpaRepository<T,  ID> {
     List<T> listAllCached();
     T saveCached(T entity);
+
 }

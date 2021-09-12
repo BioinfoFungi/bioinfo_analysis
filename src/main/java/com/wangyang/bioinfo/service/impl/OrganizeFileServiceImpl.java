@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
-import com.wangyang.bioinfo.pojo.file.OrganizeFile;
+import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileQuery;
 import com.wangyang.bioinfo.pojo.support.UploadResult;

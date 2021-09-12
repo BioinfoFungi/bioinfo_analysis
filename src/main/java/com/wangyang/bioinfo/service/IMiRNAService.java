@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.RNA.MiRNA;
+import com.wangyang.bioinfo.pojo.entity.MiRNA;
 import com.wangyang.bioinfo.service.base.IBaseRNAService;
 
 /**

@@ -2,10 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 
 import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.Task;
-import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.pojo.file.Annotation;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Annotation;
 import com.wangyang.bioinfo.pojo.param.AnnotationParam;
 import com.wangyang.bioinfo.pojo.param.AnnotationQuery;
 import com.wangyang.bioinfo.pojo.vo.AnnotationSimpleVO;
@@ -84,16 +81,8 @@ public class AnnotationFileServiceImpl
 
     @Override
     public Annotation delBy(Integer id) {
-        Annotation annotation = findById(id);
-        List<Task> tasks = taskRepository.findByObjIdAndTaskType(annotation.getId(), TaskType.ANNOTATION);
-        taskRepository.deleteAll(tasks);
-        Integer parentId = annotation.getParentId();
-        if(parentId!=null && parentId!=-1){
-            List<Task> tasksP = taskRepository.findByObjIdAndTaskType(parentId, TaskType.ANNOTATION);
-            taskRepository.deleteAll(tasksP);
-        }
-        annotationFileRepository.delete(annotation);
-        return annotation;
+
+        return null;
     }
 
     @Override

@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.txt;
 
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
-import com.wangyang.bioinfo.pojo.txt.Annotation;
+import com.wangyang.bioinfo.pojo.support.Annotation;
 
 import java.io.FileInputStream;
 import java.io.IOException;

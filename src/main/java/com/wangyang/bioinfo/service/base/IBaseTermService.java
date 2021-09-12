@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.base.BaseTerm;
+import com.wangyang.bioinfo.pojo.entity.base.BaseTerm;
 import com.wangyang.bioinfo.pojo.param.BaseTermParam;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -17,7 +17,7 @@ public interface IBaseTermService<TERM extends BaseTerm>  extends ICrudService<T
 
     TERM findByEnName(String name);
 //    TERM findById(Integer id);
-
+    TERM findAndCheckById(Integer id);
     TERM findAndCheckByEnName(String name);
 
     TERM save(BaseTermParam baseTermParam);

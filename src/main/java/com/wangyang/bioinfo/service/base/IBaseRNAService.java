@@ -1,12 +1,10 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.base.BaseRNA;
+import com.wangyang.bioinfo.pojo.entity.base.BaseRNA;
 import com.wangyang.bioinfo.pojo.param.BaseRNAQuery;
 import com.wangyang.bioinfo.pojo.vo.RNAVO;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-
-import java.util.List;
 
 
 /**

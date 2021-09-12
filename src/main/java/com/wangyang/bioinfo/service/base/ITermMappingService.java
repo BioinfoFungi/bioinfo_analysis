@@ -1,12 +1,8 @@
 package com.wangyang.bioinfo.service.base;
 
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
-import com.wangyang.bioinfo.pojo.file.TermMapping;
+import com.wangyang.bioinfo.pojo.entity.base.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
-import org.springframework.data.domain.Page;
-
-import java.util.List;
 
 /**
  * @author wangyang

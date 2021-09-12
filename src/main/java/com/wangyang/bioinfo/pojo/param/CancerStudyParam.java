@@ -1,9 +1,11 @@
 package com.wangyang.bioinfo.pojo.param;
 
 import com.univocity.parsers.annotations.Parsed;
+import io.swagger.models.auth.In;
 import lombok.Data;
 
 import javax.validation.constraints.NotBlank;
+import java.util.List;
 
 /**
  * @author wangyang
@@ -11,17 +13,15 @@ import javax.validation.constraints.NotBlank;
  */
 @Data
 public class CancerStudyParam extends TermMappingParam {
-    private Integer annotationId;
-//    @Parsed
-//    private Integer parentId;
+    @Parsed
+    private String annotation;
     @Parsed
     private String gse;
     private String metadata;
     private String expr;
     private String description;
-//    private String processedAbsolutePath;
-//    @Parsed
-//    private String processedRelativePath;
-//    @Parsed
-//    private Integer processedId;
+    @Parsed
+    private String param;
+    @Parsed
+    private Integer id;
 }

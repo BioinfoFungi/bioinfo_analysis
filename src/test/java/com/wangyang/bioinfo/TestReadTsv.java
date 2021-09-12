@@ -6,8 +6,8 @@ import com.univocity.parsers.common.processor.RowListProcessor;
 import com.univocity.parsers.tsv.TsvParser;
 import com.univocity.parsers.tsv.TsvParserSettings;
 import com.wangyang.bioinfo.txt.IDataInputService;
-import com.wangyang.bioinfo.pojo.RNA.MRNA;
-import com.wangyang.bioinfo.pojo.txt.Annotation;
+import com.wangyang.bioinfo.pojo.entity.MRNA;
+import com.wangyang.bioinfo.pojo.support.Annotation;
 import com.wangyang.bioinfo.service.IMRNAService;
 
 import java.io.FileInputStream;
@@ -88,7 +88,7 @@ public class TestReadTsv {
 
 //    @Test
     public void test4(){
-        imrnaService.initData("/home/wy/Downloads/gencode.gene.info.v22.tsv");
+//        imrnaService.initData("/home/wy/Downloads/gencode.gene.info.v22.tsv");
     }
 }
 

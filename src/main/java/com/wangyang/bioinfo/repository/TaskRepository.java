@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.repository;
 
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
@@ -16,4 +16,6 @@ public interface TaskRepository extends BaseRepository<Task,Integer> ,
 
     List<Task> findByObjIdAndTaskType(int objId, TaskType taskType);
     List<Task> findByCodeId(int codeId);
+
+    Task findByObjIdAndCodeIdAndTaskType(Integer id, Integer prerequisites, TaskType taskType);
 }

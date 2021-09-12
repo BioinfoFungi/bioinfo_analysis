@@ -1,8 +1,7 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.DEG;
+import com.wangyang.bioinfo.pojo.entity.DEG;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
 /**

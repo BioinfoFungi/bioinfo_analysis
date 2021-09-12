@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.repository;
 
-import com.wangyang.bioinfo.pojo.trem.Cancer;
+import com.wangyang.bioinfo.pojo.entity.Cancer;
 import com.wangyang.bioinfo.repository.base.BaseTermRepository;
 
 /**

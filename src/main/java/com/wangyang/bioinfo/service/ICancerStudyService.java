@@ -1,11 +1,11 @@
 package com.wangyang.bioinfo.service;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.file.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
-import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.service.base.ITermMappingService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -35,7 +35,7 @@ public interface ICancerStudyService extends ITermMappingService<CancerStudy> {
 //    Page<CancerStudyVo> pageCancerStudyVo(CancerStudyQuery findCancer, Pageable pageable);
 
     CancerStudyVO convertVo(CancerStudy cancerStudy);
-    CancerStudy findByParACodeId(Integer parentId, Integer codeId);
+    CancerStudy findByParACodeId(Integer parentId, Integer codeId,Integer analysisSoftwareId);
 
     List<CancerStudy> findAllById(Collection<Integer> id);
 
@@ -53,4 +53,18 @@ public interface ICancerStudyService extends ITermMappingService<CancerStudy> {
     Page<CancerStudyVO> convertVo(Page<CancerStudy> fromCancerStudies);
 
     List<CancerStudyVO> convertVo(List<CancerStudy> fromCancerStudies);
+
+    /**
+     * 查找请求的CancerStudy是否生成
+     * @param id
+     * @return
+     */
+    CancerStudy findByParentIdAndCodeId(Integer id, Integer codeId);
+
+
+    List<CancerStudy> findByCode(Code code);
+
+    Page<CancerStudy> pageByCodeId(Integer id,CancerStudyQuery cancerStudyQuery, Pageable pageable);
+
+    CancerStudy checkExist(CancerStudy cancerStudy);
 }

@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.RNA.CircRNA;
+import com.wangyang.bioinfo.pojo.entity.CircRNA;
 import com.wangyang.bioinfo.service.base.IBaseRNAService;
 
 /**

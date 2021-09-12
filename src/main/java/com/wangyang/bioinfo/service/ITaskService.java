@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.Task;
+import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
@@ -51,4 +52,5 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
     List<Task> addTas2Queue();
 
 
+    List<CancerStudy>  runByCodeId(Integer id, User user);
 }

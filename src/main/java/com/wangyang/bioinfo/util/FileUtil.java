@@ -1,10 +1,9 @@
 package com.wangyang.bioinfo.util;
 
-import com.wangyang.bioinfo.pojo.base.BaseFile;
+import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.dto.FileDTO;
 import com.wangyang.bioinfo.pojo.dto.term.BaseFileDTO;
 import org.apache.commons.io.FileUtils;
-import org.apache.tomcat.util.buf.StringCache;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,7 +14,6 @@ import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
 
 /**

@@ -2,7 +2,7 @@ package com.wangyang.bioinfo.txt;
 
 import com.univocity.parsers.common.ParsingContext;
 import com.univocity.parsers.common.processor.BeanListProcessor;
-import com.wangyang.bioinfo.pojo.txt.Annotation;
+import com.wangyang.bioinfo.pojo.support.Annotation;
 
 /**
  * @author wangyang

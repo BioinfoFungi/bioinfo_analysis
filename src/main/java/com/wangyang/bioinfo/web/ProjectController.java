@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.web;
 
-import com.wangyang.bioinfo.pojo.Project;
+import com.wangyang.bioinfo.pojo.entity.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.ProjectContentParam;
 import com.wangyang.bioinfo.pojo.param.ProjectParam;

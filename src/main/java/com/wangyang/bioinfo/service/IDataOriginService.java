@@ -1,6 +1,6 @@
 package com.wangyang.bioinfo.service;
 
-import com.wangyang.bioinfo.pojo.trem.DataOrigin;
+import com.wangyang.bioinfo.pojo.entity.DataOrigin;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.service.base.IBaseTermService;
