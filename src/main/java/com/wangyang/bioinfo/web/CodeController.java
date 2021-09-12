@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.entity.Cancer;
 import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
@@ -87,14 +88,14 @@ public class CodeController {
         codeService.initData(organizeFile.getAbsolutePath(),true);
         return BaseResponse.ok("CancerStudy初始化完成!");
     }
-
     @GetMapping("/init")
-    public BaseResponse initDataBy(@RequestParam(value = "path", defaultValue = "") String path){
+    public BaseResponse initDataBy(@RequestParam(value = "path",defaultValue = "") String path,
+                                   @RequestParam(value = "isEmpty", defaultValue = "false") Boolean isEmpty){
         if(path!=null && path.equals("")){
             path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data/Code.tsv";
         }
-        codeService.initData(path,true);
-        return BaseResponse.ok("["+path+"]初始化完成!");
+        List<Code> cancerStudyList = codeService.initData(path, isEmpty);
+        return BaseResponse.ok("导入["+cancerStudyList.size()+"]个对象！");
     }
     @GetMapping("/file")
     public List<FileTree> listFiles(@RequestParam(value = "path", defaultValue = "")  String path){
