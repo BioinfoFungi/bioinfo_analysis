@@ -8,26 +8,23 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class UnivocityConverter  implements Conversion<String, Set<Integer>> {
-
-
+public class UnivocityConverterStr2StrSet implements Conversion<String, Set<String>> {
     @Override
-    public Set<Integer> execute(String s) {
+    public Set<String> execute(String s) {
         if(s==null){
             return null;
         }
         s = s.replace("\"","");
         JSONArray jsonArray = JSON.parseArray(s);
-        List<Integer> list = jsonArray.toJavaList(Integer.class);
-        Set<Integer> collect = list.stream().collect(Collectors.toSet());
+        List<String> list = jsonArray.toJavaList(String.class);
+        Set<String> collect = list.stream().collect(Collectors.toSet());
         return collect;
     }
 
     @Override
-    public String revert(Set<Integer> integers) {
-        if(integers==null)return null;
-        return  JSON.toJSONString(integers);
+    public String revert(Set<String> strings) {
+        if(strings==null)return null;
+        return  JSON.toJSONString(strings);
     }
-
 
 }

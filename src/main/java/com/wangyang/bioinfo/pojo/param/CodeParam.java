@@ -1,15 +1,15 @@
 package com.wangyang.bioinfo.pojo.param;
 
+import com.univocity.parsers.annotations.Convert;
 import com.univocity.parsers.annotations.Parsed;
-import com.wangyang.bioinfo.pojo.annotation.QueryField;
 import com.wangyang.bioinfo.pojo.dto.term.BaseFileDTO;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.support.JpaConverterJson;
+import com.wangyang.bioinfo.support.UnivocityConverterStr2IntSet;
+import com.wangyang.bioinfo.support.UnivocityConverterStr2StrSet;
 import lombok.Data;
 
-import javax.persistence.Convert;
-import javax.validation.constraints.NotBlank;
+
 import java.util.Set;
 
 @Data
@@ -24,11 +24,39 @@ public class CodeParam extends BaseFileDTO {
     private Integer prerequisites=-1;
     @Parsed
     private Integer id;
+    @Parsed
     private String codeOutput;
-
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> cancer;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> study;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> dataOrigin;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> analysisSoftware;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> dataCategory;
+
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2StrSet.class)
+    private Set<String> cancerStr;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2StrSet.class)
+    private Set<String> studyStr;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2StrSet.class)
+    private Set<String> dataOriginStr;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2StrSet.class)
+    private Set<String> analysisSoftwareStr;
+    @Parsed
+    @Convert(conversionClass = UnivocityConverterStr2StrSet.class)
+    private Set<String> dataCategoryStr;
+
+
 }

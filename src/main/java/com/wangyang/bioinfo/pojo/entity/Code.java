@@ -1,12 +1,11 @@
 package com.wangyang.bioinfo.pojo.entity;
 
-import com.univocity.parsers.annotations.Convert;
 import com.univocity.parsers.annotations.Parsed;
 import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.support.JpaConverterJson;
-import com.wangyang.bioinfo.support.UnivocityConverter;
+import com.wangyang.bioinfo.support.UnivocityConverterStr2IntSet;
 import lombok.Data;
 
 import javax.persistence.Column;
@@ -37,22 +36,22 @@ public class Code extends BaseFile {
     private String codeOutput;
     @Parsed
     @javax.persistence.Convert(converter = JpaConverterJson.class)
-    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverter.class)
+    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> cancer;
     @Parsed
     @javax.persistence.Convert(converter = JpaConverterJson.class)
-    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverter.class)
+    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> study;
     @Parsed
     @javax.persistence.Convert(converter = JpaConverterJson.class)
-    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverter.class)
+    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> dataOrigin;
     @Parsed
     @javax.persistence.Convert(converter = JpaConverterJson.class)
-    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverter.class)
+    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> analysisSoftware;
     @Parsed
     @javax.persistence.Convert(converter = JpaConverterJson.class)
-    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverter.class)
+    @com.univocity.parsers.annotations.Convert(conversionClass = UnivocityConverterStr2IntSet.class)
     private Set<Integer> dataCategory;
 }
