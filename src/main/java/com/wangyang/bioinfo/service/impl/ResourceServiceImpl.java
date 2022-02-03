@@ -3,6 +3,7 @@ package com.wangyang.bioinfo.service.impl;
 import com.wangyang.bioinfo.pojo.authorize.Resource;
 import com.wangyang.bioinfo.pojo.authorize.RoleResource;
 import com.wangyang.bioinfo.pojo.authorize.ResourceVO;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.ResourceRepository;
 import com.wangyang.bioinfo.service.IResourceService;
 import com.wangyang.bioinfo.service.IRoleResourceService;
@@ -13,7 +14,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.io.Serializable;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -118,5 +118,10 @@ public class ResourceServiceImpl extends AbstractCrudService<Resource,Integer>
         List<RoleResource> roleResources = roleResourceService.findByResourceId(ids);
         roleResourceService.deleteAll(roleResources);
         super.deleteAll(resources);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

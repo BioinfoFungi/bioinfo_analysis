@@ -8,7 +8,8 @@ import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
  * @author wangyang
  * @date 2021/7/25
  */
-public interface ITermMappingService<TERMMAPPING extends TermMapping> extends IBaseFileService<TERMMAPPING>{
+public interface ITermMappingService<TERMMAPPING extends TermMapping>
+        extends ICrudService<TERMMAPPING,Integer>{
 //    <MAPPING extends TERMMAPPING>Page<TERMMAPPING> pageBy(MAPPING termMapping, Pageable pageable);
 
 //    List<TERMMAPPING> listBy(TERMMAPPING termMapping,String keyWard);

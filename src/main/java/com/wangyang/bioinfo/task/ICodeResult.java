@@ -1,7 +1,8 @@
-package com.wangyang.bioinfo.handle;
+package com.wangyang.bioinfo.task;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.entity.base.BaseFile;
 import com.wangyang.bioinfo.pojo.dto.CodeMsg;
 import com.wangyang.bioinfo.pojo.enums.TaskType;
@@ -10,7 +11,7 @@ import com.wangyang.bioinfo.pojo.entity.Code;
 import java.util.List;
 import java.util.Map;
 
-public interface ICodeResult<T extends BaseFile>{
+public interface ICodeResult<T extends BaseEntity>{
     void call(Code code, User user, CodeMsg codeMsg, T t);
     Map<String, String>  getMap(T t);
     T getObj(int id);

@@ -53,7 +53,18 @@ public class BaseResponse<T> {
         this.msgType = msgType;
         this.data = data;
     }
+    public BaseResponse(Integer status, MsgType msgType,  String message,T data) {
+        this.status = status;
+        this.message =message;
+        this.msgType = msgType;
+        this.data = data;
+    }
 
+    public BaseResponse(Integer status, MsgType msgType,  String message) {
+        this.status = status;
+        this.message =message;
+        this.msgType = msgType;
+    }
     public BaseResponse(){}
     /**
      * Creates an ok result with message and data. (Default status is 200)
@@ -69,10 +80,12 @@ public class BaseResponse<T> {
     public static <T> BaseResponse<T> error(String message){
         return new BaseResponse<>(HttpStatus.UNAUTHORIZED.value(),message,null);
     }
-    public static <T> BaseResponse<T> ok(@Nullable MsgType msgType, @Nullable T data) {
-        return new BaseResponse<>(HttpStatus.OK.value(), msgType, data);
+    public static <T> BaseResponse<T> ok(@Nullable MsgType msgType, String message,@Nullable T data) {
+        return new BaseResponse<>(HttpStatus.OK.value(), msgType,message, data);
     }
-
+    public static <T> BaseResponse<T> ok(@Nullable MsgType msgType, String message) {
+        return new BaseResponse<>(HttpStatus.OK.value(), msgType,message);
+    }
     /**
      * Creates an ok result with message only. (Default status is 200)
      *

@@ -39,7 +39,7 @@ import java.util.stream.Stream;
  * @date 2021/7/8
  */
 @Slf4j
-public class BaseFileService<FILE extends BaseFile>
+public abstract class BaseFileService<FILE extends BaseFile>
         extends AbstractCrudService<FILE,Integer>
         implements IBaseFileService<FILE> {
 
@@ -128,29 +128,29 @@ public class BaseFileService<FILE extends BaseFile>
 //    }
 
 
-    @Override
-    @Transactional
-    public List<FILE> initData(String filePath, Boolean isEmpty) {
-        if(isEmpty){
-            truncateTable();
-        }
-        List<FILE> beans = tsvToBean(filePath);
-
-        if(beans==null){
-            throw new BioinfoException(filePath+" 不存在！");
-        }
-        if(beans.size()!=0){
-            beans.forEach(bean->{
-                if(bean.getRelativePath()!=null && bean.getAbsolutePath()==null){
-                    String workDir = CacheStore.getValue("workDir");
-                    Path path = Paths.get(workDir, bean.getRelativePath());
-                    bean.setAbsolutePath(path.toString());
-                }
-                saveAndCheckFile(bean);
-            });
-        }
-        return beans;
-    }
+//    @Override
+//    @Transactional
+//    public List<FILE> initData(String filePath, Boolean isEmpty) {
+//        if(isEmpty){
+//            truncateTable();
+//        }
+//        List<FILE> beans = tsvToBean(filePath);
+//
+//        if(beans==null){
+//            throw new BioinfoException(filePath+" 不存在！");
+//        }
+//        if(beans.size()!=0){
+//            beans.forEach(bean->{
+//                if(bean.getRelativePath()!=null && bean.getAbsolutePath()==null){
+//                    String workDir = CacheStore.getValue("workDir");
+//                    Path path = Paths.get(workDir, bean.getRelativePath());
+//                    bean.setAbsolutePath(path.toString());
+//                }
+//                saveAndCheckFile(bean);
+//            });
+//        }
+//        return beans;
+//    }
 
     @Override
     public FILE download(String uuid, FileLocation fileLocation,HttpServletResponse response){

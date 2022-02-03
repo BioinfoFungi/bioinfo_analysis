@@ -1,8 +1,10 @@
-package com.wangyang.bioinfo.service.impl;
+package com.wangyang.bioinfo.service.task;
 
-import com.alibaba.fastjson.JSONArray;
 import com.wangyang.bioinfo.core.KeyLock;
-import com.wangyang.bioinfo.handle.ICodeResult;
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
+import com.wangyang.bioinfo.service.base.ICrudService;
+import com.wangyang.bioinfo.task.ICodeResult;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -12,7 +14,7 @@ import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
-import com.wangyang.bioinfo.repository.TaskRepository;
+import com.wangyang.bioinfo.repository.task.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.*;
@@ -30,8 +32,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.*;
 
 /**
@@ -71,13 +71,16 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         this.annotationService=annotationService;
         this.applicationContext=applicationContext;
         this.lock=lock;
+
     }
+
 
 
     @Override
     public Page<Task> page(TaskQuery taskQuery, Pageable pageable) {
         return taskRepository.findAll(buildSpecByQuery(taskQuery,null,null),pageable);
     }
+
 
 
     @Override
@@ -131,15 +134,6 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
 
 
-    public  boolean runCheck(Task task){
-        if(task!=null && !task.getTaskStatus().equals(TaskStatus.FINISH) &&
-                !task.getTaskStatus().equals(TaskStatus.INTERRUPT) &&
-                !task.getTaskStatus().equals(TaskStatus.ERROR)){
-            return true;
-        }else{
-            return false;
-        }
-    }
 
     public ICodeResult getCodeResult(TaskType taskType){
         Map<String, ICodeResult> beans = applicationContext.getBeansOfType(ICodeResult.class);
@@ -157,74 +151,116 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     }
 
     @Override
-    public Task runTask(Integer id, User user) {
+    public Task addTask(CrudType crudEnum, ICrudService<BaseEntity,Integer> crudService, Integer id, Integer codeId, User user) {
+        Task task = findTask(crudEnum,id,codeId);
+        Code code = codeService.findById(codeId);
+
+        if (task==null) {
+            task = new Task();
+        }else {
+            if(runCheck(task)){
+                throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
+            }
+        }
+        BaseEntity baseEntity = crudService.findById(id);
+
+        task.setCodeId(code.getId());
+        task.setObjId(baseEntity.getId());
+        task.setTaskStatus(TaskStatus.UNTRACKING);
+        task.setCrudEnum(crudEnum);
+//        task.setTaskType(code.getTaskType());
+        task.setUserId(user.getId());
+        task.setName(crudEnum.name()+"-"+code.getName());
+        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
+        task=taskRepository.save(task);
+
+        //交给thread
+        asyncService.processCancerStudy1(user,crudService,task,baseEntity,code);
+        return task;
+    }
+
+    private Task findTask(CrudType crudEnum, Integer id, Integer codeId) {
+        List<Task> tasks = taskRepository.findAll(new Specification<Task>() {
+            @Override
+            public Predicate toPredicate(Root<Task> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(
+                        criteriaBuilder.equal(root.get("objId"),id),
+                        criteriaBuilder.equal(root.get("codeId"),codeId),
+                        criteriaBuilder.equal(root.get("crudEnum"),crudEnum)
+                ).getRestriction();
+            }
+        });
+        return tasks.size()==0?null:tasks.get(0);
+    }
+    public  boolean runCheck(Task task){
+        if(task.getTaskStatus().equals(TaskStatus.RUNNING) || task.getTaskStatus().equals(TaskStatus.UNTRACKING)){
+            return true;
+        }else{
+            return false;
+        }
+    }
+
+    @Override
+    public Task runTask(ICrudService<BaseEntity,Integer> crudService,
+                        Integer id,
+                        User user) {
 
         Task task = findById(id);
         if(runCheck(task)){
             throw new BioinfoException(task.getName()+" 已经运行或在队列中！");
         }
-        try {
-            lock.lock("task"+task.getId());
-            log.debug(">>>>>>>>>>>>>>>>>>>>runTask task{} 加锁",task.getId());
-            Code code = codeService.findById(task.getCodeId());
-            ICodeResult codeResult = getCodeResult(code.getTaskType());
-            BaseFile baseFile = codeResult.getObj(task.getObjId());
-            checkRun(codeResult,code,baseFile);
-
-
-            task.setTaskStatus(TaskStatus.UNTRACKING);
-            task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
-            task= super.save(task);
-            asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
-        } finally {
-            lock.unlock("task"+task.getId());
-            log.debug("<<<<<<<<<<<<<<<<<<<<<<< runTask task{} 解锁",task.getId());
-        }
-        return task;
-    }
-
-
-    @Override
-    public Task addTask(TaskParam taskParam,User user) {
-        Code code = codeService.findById(taskParam.getCodeId());
-        return addTask(code,taskParam.getObjId(),user);
-    }
-
-
-    @Override
-    public Map<String, Object> getObjMap(TaskType taskType, int objId){
-        ICodeResult codeResult = getCodeResult(taskType);
-        BaseFile baseFile = codeResult.getObj(objId);
-        return codeResult.getMap(baseFile);
-    }
-
-    public Task addTask(Code code,int objId,User user){
-        ICodeResult codeResult = getCodeResult(code.getTaskType());
-        BaseFile baseFile = codeResult.getObj(objId);
-
-        checkRun(codeResult,code,baseFile);
-
-        Task task = findByCanSIdACodeId(objId, code.getId(),code.getTaskType());
-        if (runCheck(task)) {
-            throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
-        }
-        if (task == null) {
-            task = new Task();
-        }
-        task.setObjId(baseFile.getId());
-        task.setCodeId(code.getId());
+        Code code = codeService.findById(task.getCodeId());
+        BaseEntity baseEntity = crudService.findById(task.getObjId());
         task.setTaskStatus(TaskStatus.UNTRACKING);
-        task.setTaskType(code.getTaskType());
-        task.setUserId(user.getId());
-        task.setName(baseFile.getFileName()+code.getName());
-        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
-        task=taskRepository.save(task);
-
-        //交给thread
-        asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+        task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
+        task= super.save(task);
+        asyncService.processCancerStudy1(user,crudService,task,baseEntity,code);
 
         return task;
     }
+
+
+//    @Override
+//    public Task addTask(TaskParam taskParam,User user) {
+//        Code code = codeService.findById(taskParam.getCodeId());
+//        return addTask(code,taskParam.getObjId(),user);
+//    }
+
+
+//    @Override
+//    public Map<String, Object> getObjMap(TaskType taskType, int objId){
+//        ICodeResult codeResult = getCodeResult(taskType);
+////        BaseFile baseFile = codeResult.getObj(objId);
+//        return null;//codeResult.getMap(baseFile);
+//    }
+
+//    public Task addTask(Code code,int objId,User user){
+//        ICodeResult codeResult = getCodeResult(code.getTaskType());
+////        BaseFile baseFile = codeResult.getObj(objId);
+//
+////        checkRun(codeResult,code,baseFile);
+//
+//        Task task = findByCanSIdACodeId(objId, code.getId(),code.getTaskType());
+//        if (runCheck(task)) {
+//            throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
+//        }
+//        if (task == null) {
+//            task = new Task();
+//        }
+////        task.setObjId(baseFile.getId());
+//        task.setCodeId(code.getId());
+//        task.setTaskStatus(TaskStatus.UNTRACKING);
+//        task.setTaskType(code.getTaskType());
+//        task.setUserId(user.getId());
+////        task.setName(baseFile.getFileName()+code.getName());
+//        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
+//        task=taskRepository.save(task);
+//
+//        //交给thread
+////        asyncService.processCancerStudy1(user,task,code,baseFile,codeResult);
+//
+//        return task;
+//    }
 
     private void checkRun( ICodeResult codeResult,Code code, BaseFile baseFile) {
         Boolean checkRun =  codeResult.checkRun(code,baseFile);
@@ -246,8 +282,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         cancerStudies.forEach(cancerStudy -> {
             TaskParam taskParam = new TaskParam();
             taskParam.setCodeId(code.getId());
-            taskParam.setObjId(cancerStudy.getId());
-            addTask(taskParam,user);
+//            taskParam.setObjId(cancerStudy.getId());
+//            addTask(taskParam,user);
         });
         return cancerStudies;
     }
@@ -324,6 +360,17 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             lock.unlock("task"+task.getId());
         }
         return task;
+    }
+
+    @Override
+    public List<Task> listAll(CrudType crudEnum, Integer id) {
+        return taskRepository.findAll(new Specification<Task>() {
+            @Override
+            public Predicate toPredicate(Root<Task> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("crudEnum"),crudEnum),
+                        criteriaBuilder.equal(root.get("objId"),id)).getRestriction();
+            }
+        });
     }
 
     //    @Override
@@ -436,5 +483,10 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             });
         }
         return tasks;
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

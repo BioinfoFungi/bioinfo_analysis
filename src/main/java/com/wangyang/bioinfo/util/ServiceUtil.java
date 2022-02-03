@@ -18,7 +18,11 @@ public class ServiceUtil {
                 Collections.emptySet() :
                 datas.stream().map(mappingFunction).collect(Collectors.toSet());
     }
-
+    public static <ID, T> List<ID> fetchPropertyList(final Collection<T> datas, Function<T, ID> mappingFunction) {
+        return CollectionUtils.isEmpty(datas) ?
+                Collections.emptyList() :
+                datas.stream().map(mappingFunction).collect(Collectors.toList());
+    }
     @NonNull
     public static <ID, D> Map<ID, D> convertToMap(Collection<D> list, Function<D, ID> mappingFunction) {
         Assert.notNull(mappingFunction, "mapping function must not be null");

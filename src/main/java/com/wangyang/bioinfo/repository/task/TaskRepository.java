@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.repository;
+package com.wangyang.bioinfo.repository.task;
 
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.enums.TaskType;

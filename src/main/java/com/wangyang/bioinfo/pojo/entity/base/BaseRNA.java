@@ -14,9 +14,9 @@ import javax.persistence.*;
 //@MappedSuperclass
 @Data
 public class BaseRNA extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private Integer id;
     @Parsed(field = "gene_id")
     private String geneId;
     @Parsed(field = "gene_name")

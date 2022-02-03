@@ -17,12 +17,12 @@ import javax.persistence.*;
 @MappedSuperclass
 @Data
 public class BaseFile extends BaseEntity {
-    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "myid")
-    @GenericGenerator(name = "myid", strategy = "com.wangyang.bioinfo.support.ManualInsertGenerator")
-    @Parsed
-    private Integer id;
+//    @Id
+////    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.AUTO, generator = "myid")
+//    @GenericGenerator(name = "myid", strategy = "com.wangyang.bioinfo.support.ManualInsertGenerator")
+//    @Parsed
+//    private Integer id;
     /**
      * 显示文件的名称
      */

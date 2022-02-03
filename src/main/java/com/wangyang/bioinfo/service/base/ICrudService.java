@@ -1,19 +1,23 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
+import org.springframework.lang.Nullable;
 
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.util.List;
+import java.util.Set;
 
 /**
  * @author wangyang
  * @date 2021/6/27
  */
-public interface ICrudService<DOMAIN, ID> {
+public interface ICrudService<DOMAIN extends BaseEntity, ID> {
     List<DOMAIN> listAll();
     DOMAIN add(@NonNull DOMAIN domain);
     DOMAIN save(@NonNull DOMAIN domain);
@@ -41,4 +45,7 @@ public interface ICrudService<DOMAIN, ID> {
     List<DOMAIN> tsvToBean(String filePath);
     DOMAIN delBy(ID id);
     List<DOMAIN> initData(String filePath,Boolean isEmpty);
+    boolean supportType(@Nullable CrudType type);
+
+    List<String> getFields();
 }

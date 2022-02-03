@@ -24,7 +24,7 @@ import java.util.Optional;
  * @author wangyang
  * @date 2021/6/27
  */
-public class BaseTermServiceImpl<TERM extends BaseTerm>
+public abstract class BaseTermServiceImpl<TERM extends BaseTerm>
         extends AbstractCrudService<TERM,Integer>
         implements IBaseTermService<TERM> {
 

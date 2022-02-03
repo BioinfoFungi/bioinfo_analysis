@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.entity.Attachment;
 import com.wangyang.bioinfo.pojo.entity.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.pojo.support.UploadResult;
@@ -181,5 +182,10 @@ public class AttachmentServiceImpl extends BaseFileService<Attachment> implement
             }
         });
         return attachments;
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

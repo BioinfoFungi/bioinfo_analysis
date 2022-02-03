@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.DataOrigin;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.DataOriginParam;
 import com.wangyang.bioinfo.repository.DataOriginRepository;
 import com.wangyang.bioinfo.service.IDataOriginService;
@@ -81,5 +82,10 @@ public class DataOriginServiceImpl extends BaseTermServiceImpl<DataOrigin> imple
     @Override
     public Page<DataOrigin> pageDataOrigin(Pageable pageable) {
         return dataOriginRepository.findAll(pageable);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

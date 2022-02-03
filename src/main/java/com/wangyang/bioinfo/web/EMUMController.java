@@ -1,8 +1,8 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.enums.CodeType;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.enums.ProjectStatus;
-import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.vo.KeyAndValue;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -39,11 +39,11 @@ public class EMUMController {
         }
         return keyAndValues;
     }
-    @GetMapping("/taskType")
+    @GetMapping("/crudType")
     public List<KeyAndValue> taskType(){
         List<KeyAndValue> keyAndValues = new ArrayList<>();
-        for(TaskType taskType: TaskType.values()){
-            KeyAndValue keyAndValue = new KeyAndValue(taskType.getCode(),taskType.getValue());
+        for(CrudType crudType: CrudType.values()){
+            KeyAndValue keyAndValue = new KeyAndValue(crudType.getCode(),crudType.getValue());
             keyAndValues.add(keyAndValue);
         }
         return keyAndValues;

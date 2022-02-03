@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.CircRNA;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.CircRNARepository;
 import com.wangyang.bioinfo.service.ICircRNAService;
 import com.wangyang.bioinfo.service.base.BaseRNAServiceImpl;
@@ -22,5 +23,10 @@ public class CircRNAServiceImpl
     public CircRNAServiceImpl(CircRNARepository circRNARepository) {
         super(circRNARepository);
         this.circRNARepository = circRNARepository;
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

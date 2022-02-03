@@ -113,7 +113,7 @@ public class WebSocketServer {
             }
         }
     }
-    public void sendMessageToUser(String toUser, BaseResponse<String> response){
+    public void sendMessageToUser(String toUser, BaseResponse response){
         sendMessageToUser(toUser, JSONObject.toJSON(response).toString());
     }
     public void sendMessageToUser(String toUser, String message) {

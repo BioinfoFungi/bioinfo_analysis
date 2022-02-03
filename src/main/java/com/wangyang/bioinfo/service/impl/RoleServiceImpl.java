@@ -2,8 +2,8 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.RoleDto;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.RoleRepository;
-import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.IRoleService;
 import com.wangyang.bioinfo.service.IUserRoleService;
@@ -12,22 +12,10 @@ import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.domain.Specification;
-import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.stereotype.Service;
 
-import javax.persistence.EntityManager;
-import javax.persistence.QueryHint;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
-import javax.transaction.Transactional;
-import java.math.BigDecimal;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -191,4 +179,8 @@ public class RoleServiceImpl extends AbstractCrudService<Role,Integer>
         return roles;
     }
 
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
+    }
 }

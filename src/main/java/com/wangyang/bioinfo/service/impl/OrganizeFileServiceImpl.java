@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
 import com.wangyang.bioinfo.pojo.param.OrganizeFileParam;
@@ -86,4 +87,8 @@ public class OrganizeFileServiceImpl
         return organizeFileRepository.findAll(specification,pageable);
     }
 
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
+    }
 }

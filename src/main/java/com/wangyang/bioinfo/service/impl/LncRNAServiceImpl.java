@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.LncRNA;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.LncRNARepository;
 import com.wangyang.bioinfo.service.ILncRNAService;
 import com.wangyang.bioinfo.service.base.BaseRNAServiceImpl;
@@ -26,4 +27,10 @@ public class LncRNAServiceImpl extends BaseRNAServiceImpl<LncRNA> implements ILn
 //    public LncRNAServiceImpl(BaseRNARepository<LncRNA> baseRNARepository) {
 //        super(baseRNARepository);
 //    }
+
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
+    }
 }

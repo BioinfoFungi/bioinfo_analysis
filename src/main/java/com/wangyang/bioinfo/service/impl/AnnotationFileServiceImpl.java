@@ -3,11 +3,12 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.entity.Annotation;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.AnnotationParam;
 import com.wangyang.bioinfo.pojo.param.AnnotationQuery;
 import com.wangyang.bioinfo.pojo.vo.AnnotationSimpleVO;
 import com.wangyang.bioinfo.repository.AnnotationRepository;
-import com.wangyang.bioinfo.repository.TaskRepository;
+import com.wangyang.bioinfo.repository.task.TaskRepository;
 import com.wangyang.bioinfo.service.IAnnotationService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import org.springframework.beans.BeanUtils;
@@ -94,5 +95,10 @@ public class AnnotationFileServiceImpl
 
 
         return saveAndCheckFile;
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

@@ -14,9 +14,9 @@ import javax.persistence.*;
 @Data
 @Entity(name = "t_sample")
 public class Sample extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private int id;
     private String name;
 //    @Convert(converter = JpaConverterJson.class)
 //    @Column(columnDefinition = "TEXT")

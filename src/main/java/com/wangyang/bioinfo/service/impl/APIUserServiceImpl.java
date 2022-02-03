@@ -1,11 +1,10 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.APIUser;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.ApiUserRepository;
-import com.wangyang.bioinfo.repository.base.BaseAuthorizeRepository;
 import com.wangyang.bioinfo.service.IAPIUserService;
-import com.wangyang.bioinfo.service.base.BaseAuthorizeServiceImpl;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.wangyang.bioinfo.service.base.AbstractAuthorizeServiceImpl;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -18,7 +17,7 @@ import java.util.List;
 
 @Service
 @Transactional
-public class APIUserServiceImpl extends BaseAuthorizeServiceImpl<APIUser>
+public class APIUserServiceImpl extends AbstractAuthorizeServiceImpl<APIUser>
         implements IAPIUserService{
 
 
@@ -38,5 +37,10 @@ public class APIUserServiceImpl extends BaseAuthorizeServiceImpl<APIUser>
             }
         });
         return apiUserList.size()==0?null:apiUserList.get(0);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

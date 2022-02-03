@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.AnalysisSoftwareParam;
 import com.wangyang.bioinfo.pojo.entity.AnalysisSoftware;
 import com.wangyang.bioinfo.repository.AnalysisSoftwareRepository;
@@ -41,9 +42,15 @@ public class AnalysisSoftwareServiceImpl extends BaseTermServiceImpl<AnalysisSof
         return analysisSoftwareRepository.save(analysisSoftware);
     }
 
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
+    }
+
     //    private final AnalysisSoftwareRepository analysisSoftwareRepository;
 //    public AnalysisSoftwareServiceImpl(AnalysisSoftwareRepository AnalysisSoftwareRepository) {
 //        super(analysisSoftwareRepository);
 //        this.AnalysisSoftwareRepository= analysisSoftwareRepository;
 //    }
+
 }

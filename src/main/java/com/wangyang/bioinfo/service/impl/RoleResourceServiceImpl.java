@@ -1,27 +1,16 @@
 package com.wangyang.bioinfo.service.impl;
 
-import com.wangyang.bioinfo.pojo.annotation.Anonymous;
-import com.wangyang.bioinfo.pojo.authorize.Resource;
-import com.wangyang.bioinfo.pojo.authorize.Role;
 import com.wangyang.bioinfo.pojo.authorize.RoleResource;
-import com.wangyang.bioinfo.pojo.dto.RoleUrl;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.ResourceRepository;
 import com.wangyang.bioinfo.repository.RoleRepository;
 import com.wangyang.bioinfo.repository.RoleResourceRepository;
 import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
-import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.method.HandlerMethod;
-import org.springframework.web.servlet.mvc.method.RequestMappingInfo;
-import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
-import java.lang.reflect.Method;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -147,4 +136,10 @@ public class RoleResourceServiceImpl extends AbstractCrudService<RoleResource,In
 //        List<Resource> resources = findByIds(resourceIds);
 //        return resources;
 //    }
+
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
+    }
 }

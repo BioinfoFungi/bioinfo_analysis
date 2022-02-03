@@ -3,10 +3,9 @@ package com.wangyang.bioinfo.web;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.enums.TaskType;
-import com.wangyang.bioinfo.pojo.param.TaskParam;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
-import com.wangyang.bioinfo.service.ITaskService;
+import com.wangyang.bioinfo.service.task.ITaskService;
 import com.wangyang.bioinfo.util.BaseResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.List;
-import java.util.Map;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -40,12 +38,12 @@ public class TaskController {
 //        return task;
 //    }
 
-    @GetMapping("/run")
-    public Task addTask(TaskParam taskParam, HttpServletRequest request){
-        User user = (User) request.getAttribute("user");
-        Task task = taskService.addTask(taskParam,user);
-        return task;
-    }
+//    @GetMapping("/run")
+//    public Task addTask(TaskParam taskParam, HttpServletRequest request){
+//        User user = (User) request.getAttribute("user");
+//        Task task = taskService.addTask(taskParam,user);
+//        return task;
+//    }
     @GetMapping("/runByCodeId/{id}")
     public BaseResponse runByCodeId(@PathVariable("id") Integer id, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
@@ -53,12 +51,12 @@ public class TaskController {
         return BaseResponse.ok("success",+cancerStudies.size());
     }
 
-    @GetMapping("/run/{id}")
-    public Task addTask(@PathVariable("id") Integer id, HttpServletRequest request){
-        User user = (User) request.getAttribute("user");
-        Task task = taskService.runTask(id,user);
-        return task;
-    }
+//    @GetMapping("/run/{id}")
+//    public Task addTask(@PathVariable("id") Integer id, HttpServletRequest request){
+//        User user = (User) request.getAttribute("user");
+//        Task task = taskService.runTask(id,user);
+//        return task;
+//    }
     @GetMapping("/shutdown/{taskId}")
     public Task shutdownProcess(@PathVariable("taskId") int taskId){
         Task task = taskService.shutdownProcess(taskId);
@@ -68,7 +66,11 @@ public class TaskController {
     public Page<Task> page(TaskQuery taskQuery, @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable){
         return taskService.page(taskQuery,pageable);
     }
-
+    @GetMapping("/listAll/{crudEnum}")
+    public List<Task> listAll(@PathVariable(value = "crudEnum") CrudType crudEnum,
+                              Integer id){
+        return taskService.listAll(crudEnum,id);
+    }
     @GetMapping("/removeALlTask")
     public BaseResponse removeALlTask(){
         taskService.truncateTable();
@@ -81,10 +83,10 @@ public class TaskController {
         return logFiles;
     }
 
-    @GetMapping("/getObjMap/{id}")
-    public Map<String, String> getObjMap(@PathVariable("id") Integer id){
-        return  taskService.getObjMap(TaskType.CANCER_STUDY,id);
-    }
+//    @GetMapping("/getObjMap/{id}")
+//    public Map<String, String> getObjMap(@PathVariable("id") Integer id){
+//        return  taskService.getObjMap(TaskType.CANCER_STUDY,id);
+//    }
 
     @GetMapping("/del/{id}")
     public Task del(@PathVariable("id") Integer id){

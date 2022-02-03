@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.repository;
+package com.wangyang.bioinfo.repository.task;
 
 import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.repository.base.BaseFileRepository;

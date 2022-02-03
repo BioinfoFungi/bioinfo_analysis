@@ -1,17 +1,15 @@
-package com.wangyang.bioinfo.service.impl;
+package com.wangyang.bioinfo.service.task;
 
-import com.alibaba.fastjson.JSONArray;
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.entity.*;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
-import com.wangyang.bioinfo.pojo.enums.TaskType;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
-import com.wangyang.bioinfo.pojo.param.TermMappingParam;
 import com.wangyang.bioinfo.repository.CancerStudyRepository;
-import com.wangyang.bioinfo.repository.CodeRepository;
-import com.wangyang.bioinfo.repository.TaskRepository;
+import com.wangyang.bioinfo.repository.task.CodeRepository;
+import com.wangyang.bioinfo.repository.task.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.BaseFileService;
 import com.wangyang.bioinfo.util.BioinfoException;
@@ -21,8 +19,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -41,8 +44,8 @@ public class CodeServiceImpl extends BaseFileService<Code>
 
 
     private  final CodeRepository codeRepository;
-    private final TaskRepository taskRepository;
-    private final CancerStudyRepository cancerStudyRepository;
+    private  final TaskRepository taskRepository;
+    private  final CancerStudyRepository cancerStudyRepository;
     private  final ICancerService cancerService;
     private  final IStudyService studyService;
     private  final IDataOriginService dataOriginService;
@@ -100,14 +103,14 @@ public class CodeServiceImpl extends BaseFileService<Code>
         }
         List<Code> codes = codeRepository.findAll();
         CancerStudy cancerStudy = cancerStudyOptional.get();
-        List<Code> codeList = codes.stream().filter(code ->{
-            return  (code.getStudy() == null ? true : code.getStudy().contains(cancerStudy.getStudyId())) &&
-                    (code.getCancer() == null ? true : code.getCancer().contains(cancerStudy.getCancerId())) &&
-                    (code.getAnalysisSoftware() == null ? true : code.getAnalysisSoftware().contains(cancerStudy.getAnalysisSoftwareId())) &&
-                    (code.getDataOrigin() == null ? true : code.getDataOrigin().contains(cancerStudy.getDataOriginId())) &&
-                            (code.getDataCategory() == null ? true : code.getDataCategory().contains(cancerStudy.getDataCategoryId()));
-        }).collect(Collectors.toList());
-        return codeList;
+//        List<Code> codeList = codes.stream().filter(code ->{
+//            return  (code.getStudy() == null ? true : code.getStudy().contains(cancerStudy.getStudyId())) &&
+//                    (code.getCancer() == null ? true : code.getCancer().contains(cancerStudy.getCancerId())) &&
+//                    (code.getAnalysisSoftware() == null ? true : code.getAnalysisSoftware().contains(cancerStudy.getAnalysisSoftwareId())) &&
+//                    (code.getDataOrigin() == null ? true : code.getDataOrigin().contains(cancerStudy.getDataOriginId())) &&
+//                            (code.getDataCategory() == null ? true : code.getDataCategory().contains(cancerStudy.getDataCategoryId()));
+//        }).collect(Collectors.toList());
+        return null;
     }
 
 
@@ -154,6 +157,17 @@ public class CodeServiceImpl extends BaseFileService<Code>
         }).collect(Collectors.toList());
     }
 
+
+    @Override
+    public List<Code> listByCrudType(CrudType crudType) {
+        return codeRepository.findAll(new Specification<Code>() {
+            @Override
+            public Predicate toPredicate(Root<Code> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
+                return criteriaQuery.where(criteriaBuilder.equal(root.get("crudType"),crudType)).getRestriction();
+            }
+        });
+    }
+
     private Code covert(CodeParam codeParams) {
         Code code = new Code();
         BeanUtils.copyProperties(codeParams,code);
@@ -163,46 +177,50 @@ public class CodeServiceImpl extends BaseFileService<Code>
         return code;
     }
 
-    private void checkTerm(Code bean) {
-        Set<Integer> cancer = bean.getCancer()!=null?bean.getCancer():new HashSet<>();
-        Set<Integer> study = bean.getStudy()!=null?bean.getStudy():new HashSet<>();
-        Set<Integer> dataOrigin = bean.getDataOrigin()!=null?bean.getDataOrigin():new HashSet<>();
-        Set<Integer> analysisSoftware = bean.getAnalysisSoftware()!=null?bean.getAnalysisSoftware():new HashSet<>();
-        Set<Integer> dataCategory = bean.getDataCategory()!=null?bean.getDataCategory():new HashSet<>();
-        if(bean.getCodeOutput()!=null){
-            if(bean.getTaskType().equals(TaskType.CANCER_STUDY)){
-                String json = bean.getCodeOutput();
-                json = json.replace("\"","");
-                List<CancerStudy> cancerStudies = JSONArray.parseArray(json, CancerStudy.class);
-                cancerStudies.forEach(cancerStudy -> {
-                    if(cancerStudy.getCancerId()!=null){
-                        cancer.add(cancerStudy.getCancerId());
-                    }
-                    if(cancerStudy.getStudyId()!=null){
-                        study.add(cancerStudy.getStudyId());
-                    }
-                    if(cancerStudy.getDataCategoryId()!=null){
-                        dataCategory.add(cancerStudy.getDataCategoryId());
-                    }
-                    if(cancerStudy.getDataOriginId()!=null){
-                        dataOrigin.add(cancerStudy.getDataOriginId());
-                    }
-                    if(cancerStudy.getAnalysisSoftwareId()!=null){
-                        analysisSoftware.add(cancerStudy.getAnalysisSoftwareId());
-                    }
-                });
-            }
-        }
+//    private void checkTerm(Code bean) {
+//        Set<Integer> cancer = bean.getCancer()!=null?bean.getCancer():new HashSet<>();
+//        Set<Integer> study = bean.getStudy()!=null?bean.getStudy():new HashSet<>();
+//        Set<Integer> dataOrigin = bean.getDataOrigin()!=null?bean.getDataOrigin():new HashSet<>();
+//        Set<Integer> analysisSoftware = bean.getAnalysisSoftware()!=null?bean.getAnalysisSoftware():new HashSet<>();
+//        Set<Integer> dataCategory = bean.getDataCategory()!=null?bean.getDataCategory():new HashSet<>();
+////        if(bean.getCodeOutput()!=null){
+////            if(bean.getTaskType().equals(TaskType.CANCER_STUDY)){
+////                String json = bean.getCodeOutput();
+////                json = json.replace("\"","");
+////                List<CancerStudy> cancerStudies = JSONArray.parseArray(json, CancerStudy.class);
+////                cancerStudies.forEach(cancerStudy -> {
+////                    if(cancerStudy.getCancerId()!=null){
+////                        cancer.add(cancerStudy.getCancerId());
+////                    }
+////                    if(cancerStudy.getStudyId()!=null){
+////                        study.add(cancerStudy.getStudyId());
+////                    }
+////                    if(cancerStudy.getDataCategoryId()!=null){
+////                        dataCategory.add(cancerStudy.getDataCategoryId());
+////                    }
+////                    if(cancerStudy.getDataOriginId()!=null){
+////                        dataOrigin.add(cancerStudy.getDataOriginId());
+////                    }
+////                    if(cancerStudy.getAnalysisSoftwareId()!=null){
+////                        analysisSoftware.add(cancerStudy.getAnalysisSoftwareId());
+////                    }
+////                });
+////            }
+//        }
+//
+////        List<Cancer> cancerList = cancerService.findAllById(cancer);
+////
+////        List<Study> studyList = studyService.findAllById(study);
+////        List<DataCategory> dataCategoryList = dataCategoryService.findAllById(dataOrigin);
+////        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftware);
+////        List<DataOrigin> dataOriginList = dataOriginService.findAllById(dataCategory);
+//
+//
+//    }
 
-        List<Cancer> cancerList = cancerService.findAllById(cancer);
-
-        List<Study> studyList = studyService.findAllById(study);
-        List<DataCategory> dataCategoryList = dataCategoryService.findAllById(dataOrigin);
-        List<AnalysisSoftware> analysisSoftwareList = analysisSoftwareService.findAllById(analysisSoftware);
-        List<DataOrigin> dataOriginList = dataOriginService.findAllById(dataCategory);
-
-
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
-
 }
 

@@ -12,6 +12,10 @@ import java.util.stream.Collectors;
 public class ObjectToCollection {
     public static List<Field> setConditionFieldList(Object obj) {
         Class<?> clazz = obj.getClass();
+        return getFields(clazz);
+    }
+
+    public static List<Field> getFields(Class<?> clazz) {
         List<Field> fields = new ArrayList<>();
         //把父类包含的字段遍历出来
         while (clazz!=null){
@@ -20,6 +24,17 @@ public class ObjectToCollection {
 
         }
         return fields;
+    }
+    public static List<Method> getAllMethods(Object obj) {
+        Class<?> clazz = obj.getClass();
+        List<Method> methods = new ArrayList<>();
+        //把父类包含的字段遍历出来
+        while (clazz!=null){
+            methods.addAll(Arrays.asList(clazz.getDeclaredMethods()));
+            clazz = clazz.getSuperclass();
+
+        }
+        return methods;
     }
     public static Map<String, Object> setConditionObjMap(Object obj) {
         Map<String, Object> map = new HashMap<String,Object>();

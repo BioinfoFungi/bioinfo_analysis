@@ -7,13 +7,18 @@ import org.apache.commons.io.FileUtils;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.lang.NonNull;
+import org.springframework.util.Assert;
+import org.springframework.util.ResourceUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.nio.file.*;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -122,5 +127,37 @@ public class FileUtil {
             }
         }
     }
+    public static Path getJarResources(String resourceName) {
+        try {
+            Path source ;
+            URI templateUri = ResourceUtils.getURL("classpath:"+resourceName).toURI();
 
+            if ("jar".equalsIgnoreCase(templateUri.getScheme())) {
+                // Create new file system for jar
+                FileSystem fileSystem = getFileSystem(templateUri);
+                source = fileSystem.getPath("/BOOT-INF/classes/" + resourceName);
+            } else {
+                source = Paths.get(templateUri);
+            }
+            return source;
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+    private static FileSystem getFileSystem(@NonNull URI uri) throws IOException {
+        Assert.notNull(uri, "Uri must not be null");
+
+        FileSystem fileSystem;
+
+        try {
+            fileSystem = FileSystems.getFileSystem(uri);
+        } catch (FileSystemNotFoundException e) {
+            fileSystem = FileSystems.newFileSystem(uri, Collections.emptyMap());
+        }
+
+        return fileSystem;
+    }
 }

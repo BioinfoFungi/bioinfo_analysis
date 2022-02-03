@@ -1,25 +1,16 @@
 package com.wangyang.bioinfo.service.base;
 
 import com.wangyang.bioinfo.handle.FileHandlers;
-import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.entity.*;
-import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.entity.base.TermMapping;
 import com.wangyang.bioinfo.pojo.param.TermMappingParam;
-import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.pojo.vo.TermMappingVo;
 import com.wangyang.bioinfo.repository.base.BaseTermMappingRepository;
 import com.wangyang.bioinfo.service.*;
-import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.CacheStore;
-import com.wangyang.bioinfo.util.File2Tsv;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.data.domain.Page;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -29,8 +20,8 @@ import java.util.stream.Collectors;
  * @author wangyang
  * @date 2021/7/25
  */
-public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
-        extends BaseFileService<TERMMAPPING>
+public abstract class AbstractTermMappingService<TERMMAPPING extends TermMapping>
+        extends AbstractCrudService<TERMMAPPING,Integer>
         implements ITermMappingService<TERMMAPPING> {
 
     private  final BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository;
@@ -41,14 +32,14 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
     private  final IAnalysisSoftwareService analysisSoftwareService;
     private  final FileHandlers fileHandlers;
 
-    public TermMappingServiceImpl(FileHandlers fileHandlers,
-                                  BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository,
-                                  ICancerService cancerService,
-                                  IStudyService studyService,
-                                  IDataOriginService dataOriginService,
-                                  IDataCategoryService dataCategoryService,
-                                  IAnalysisSoftwareService analysisSoftwareService) {
-        super(fileHandlers, baseTermMappingRepository);
+    public AbstractTermMappingService(FileHandlers fileHandlers,
+                                      BaseTermMappingRepository<TERMMAPPING> baseTermMappingRepository,
+                                      ICancerService cancerService,
+                                      IStudyService studyService,
+                                      IDataOriginService dataOriginService,
+                                      IDataCategoryService dataCategoryService,
+                                      IAnalysisSoftwareService analysisSoftwareService) {
+        super(baseTermMappingRepository);
         this.fileHandlers=fileHandlers;
         this.baseTermMappingRepository=baseTermMappingRepository;
         this.cancerService =cancerService;
@@ -182,10 +173,10 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
 //        return termMapping;
 //    }
 
-    public TERMMAPPING add(TERMMAPPING termmapping, User user) {
-        termmapping.setUserId(user.getId());
-        return saveAndCheckFile(termmapping);
-    }
+//    public TERMMAPPING add(TERMMAPPING termmapping, User user) {
+//        termmapping.setUserId(user.getId());
+//        return saveAndCheckFile(termmapping);
+//    }
 //    public TERMMAPPING update(Integer id, TERMMAPPING termMappingParam, User user) {
 //        TERMMAPPING termmapping = findById(id);
 //        termmapping.setUserId(user.getId());
@@ -206,37 +197,37 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
 //        return saveAndCheckFile(termmapping);
 //    }
 
-    public TERMMAPPING upload(MultipartFile file, TERMMAPPING termmapping) {
-        UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" , FileLocation.LOCAL);
-        return super.upload(uploadResult,termmapping);
-    }
-
-
-    public List<TERMMAPPING> initData(String filePath,Class<? extends TermMappingParam> clz,Boolean isEmpty) {
-        if (!Paths.get(filePath).toFile().exists()){
-            throw new BioinfoException("["+filePath+"]不存在！！");
-        }
-        if(isEmpty){
-            truncateTable();
-        }
-//        baseTermMappingRepository.deleteAll();
-        List<? extends TermMappingParam> termMappingParamDTOS = File2Tsv.tsvToBean(clz, filePath);
-        List<TERMMAPPING> termmappings = baseTermMappingRepository.findAll();
-        List<TERMMAPPING> importTermMappings = termMappingParamDTOS.stream().map(cancerStudyParam -> {
-            TERMMAPPING termmapping = convert(cancerStudyParam);
-            if(termmapping.getAbsolutePath()==null && termmapping.getRelativePath()!=null){
-                String workDir = CacheStore.getValue("workDir");
-                Path path = Paths.get(workDir, termmapping.getRelativePath());
-                termmapping.setAbsolutePath(path.toString());
-            }
-            return termmapping;
-        }).collect(Collectors.toList());
-        importTermMappings.removeAll(termmappings);
-        if(importTermMappings.size()!=0){
-            importTermMappings.forEach(termmapping -> saveAndCheckFile(termmapping));
-        }
-        return importTermMappings;
-    }
+//    public TERMMAPPING upload(MultipartFile file, TERMMAPPING termmapping) {
+//        UploadResult uploadResult = fileHandlers.uploadFixed(file,"data" , FileLocation.LOCAL);
+//        return super.upload(uploadResult,termmapping);
+//    }
+//
+//
+//    public List<TERMMAPPING> initData(String filePath,Class<? extends TermMappingParam> clz,Boolean isEmpty) {
+//        if (!Paths.get(filePath).toFile().exists()){
+//            throw new BioinfoException("["+filePath+"]不存在！！");
+//        }
+//        if(isEmpty){
+//            truncateTable();
+//        }
+////        baseTermMappingRepository.deleteAll();
+//        List<? extends TermMappingParam> termMappingParamDTOS = File2Tsv.tsvToBean(clz, filePath);
+//        List<TERMMAPPING> termmappings = baseTermMappingRepository.findAll();
+//        List<TERMMAPPING> importTermMappings = termMappingParamDTOS.stream().map(cancerStudyParam -> {
+//            TERMMAPPING termmapping = convert(cancerStudyParam);
+//            if(termmapping.getAbsolutePath()==null && termmapping.getRelativePath()!=null){
+//                String workDir = CacheStore.getValue("workDir");
+//                Path path = Paths.get(workDir, termmapping.getRelativePath());
+//                termmapping.setAbsolutePath(path.toString());
+//            }
+//            return termmapping;
+//        }).collect(Collectors.toList());
+//        importTermMappings.removeAll(termmappings);
+//        if(importTermMappings.size()!=0){
+//            importTermMappings.forEach(termmapping -> saveAndCheckFile(termmapping));
+//        }
+//        return importTermMappings;
+//    }
 
 
 
@@ -459,4 +450,9 @@ public class TermMappingServiceImpl<TERMMAPPING extends TermMapping>
 //        return termmapping;
 //    }
 
+
+//    @Override
+//    public boolean supportType(CrudType type) {
+//        return false;
+//    }
 }

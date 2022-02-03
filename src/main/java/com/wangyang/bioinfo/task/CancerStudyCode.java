@@ -1,4 +1,4 @@
-package com.wangyang.bioinfo.handle;
+package com.wangyang.bioinfo.task;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
@@ -9,20 +9,12 @@ import com.wangyang.bioinfo.pojo.enums.TaskType;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
-import com.wangyang.bioinfo.pojo.param.CancerStudyParam;
-import com.wangyang.bioinfo.pojo.vo.CancerStudyVO;
-import com.wangyang.bioinfo.service.ICancerStudyService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BeanUtil;
-import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.Map2Obj;
-import com.wangyang.bioinfo.util.ObjectToCollection;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +22,8 @@ import java.util.stream.Collectors;
 
 @Component
 public class CancerStudyCode implements ICodeResult<CancerStudy> {
-    @Autowired
-    ICancerStudyService cancerStudyService;
+//    @Autowired
+//    ICancerStudyService cancerStudyService;
     @Autowired
     IOrganizeFileService organizeFileService;
     @Override
@@ -40,11 +32,11 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
     }
     @Override
     public CancerStudy getObj(int id) {
-        return cancerStudyService.findById(id);
+        return null;//cancerStudyService.findById(id);
     }
     @Override
     public Map<String, String> getMap(CancerStudy cancerStudy) {
-        CancerStudyVO mappingVo = cancerStudyService.convertVo(cancerStudy);
+//        CancerStudyVO mappingVo = cancerStudyService.convertVo(cancerStudy);
         List<OrganizeFile> organizeFiles = organizeFileService.listAll();
         Map<String, String> map = new HashMap<>();
         if(cancerStudy.getParam()!=null ){
@@ -56,7 +48,7 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
             }
         }
 
-        map.putAll(ObjectToCollection.setConditionMap(mappingVo,"param"));
+//        map.putAll(ObjectToCollection.setConditionMap(mappingVo,"param"));
         map.putAll(organizeFiles.stream().collect(Collectors.toMap(OrganizeFile::getEnName, OrganizeFile::getAbsolutePath)));
         return map;
     }
@@ -103,19 +95,19 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
     public void call(User user,CancerStudy cancerStudyPar,List<CancerStudy> cancerStudies) {
 
         for (CancerStudy cancerStudy: cancerStudies){
-            CancerStudy findCancerStudy = cancerStudyService.checkExist(cancerStudy);
-            if(findCancerStudy!=null){
-                BeanUtils.copyProperties(cancerStudy,findCancerStudy,"id");
-                CancerStudy cancerStudy1 = cancerStudyService.saveCancerStudy(findCancerStudy, user);
-                if(!cancerStudy1.getStatus())return;
-            }else {
-                CancerStudy cancerStudy1 = cancerStudyService.saveCancerStudy(cancerStudy, user);
-                if(!cancerStudy1.getStatus())return;
-            }
+//            CancerStudy findCancerStudy = cancerStudyService.checkExist(cancerStudy);
+//            if(findCancerStudy!=null){
+//                BeanUtils.copyProperties(cancerStudy,findCancerStudy,"id");
+//                CancerStudy cancerStudy1 = cancerStudyService.saveCancerStudy(findCancerStudy, user);
+//                if(!cancerStudy1.getStatus())return;
+//            }else {
+//                CancerStudy cancerStudy1 = cancerStudyService.saveCancerStudy(cancerStudy, user);
+//                if(!cancerStudy1.getStatus())return;
+//            }
         }
         if(cancerStudies.size()!=0){
             cancerStudyPar.setCodeIsSuccess(true);
-            cancerStudyService.save(cancerStudyPar);
+//            cancerStudyService.save(cancerStudyPar);
         }
     }
 
@@ -135,19 +127,19 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
             CancerStudy proCan = new CancerStudy();
             BeanUtils.copyProperties(cancerStudy, proCan);
             BeanUtil.copyProperties(canS, proCan);
-            proCan.setParentId(cancerStudy.getId());
-            proCan.setId(null);
+//            proCan.setParentId(cancerStudy.getId());
+//            proCan.setId(null);
             proCan.setCodeId(code.getId());
             return proCan;
         }).collect(Collectors.toList());
         for (CancerStudy cancerStudy1 :cancerStudies){
-            if(!Paths.get(cancerStudy1.getAbsolutePath()).toFile().exists()){
-//                CancerStudy findCancerStudy = cancerStudyService.checkExist(cancerStudy);
-//                if(cancerStudy!=null){
-//                    cancerStudyService.delete(findCancerStudy);
-//                }
-                throw new BioinfoException(cancerStudy1.getAbsolutePath()+" 不存在！");
-            }
+//            if(!Paths.get(cancerStudy1.getAbsolutePath()).toFile().exists()){
+////                CancerStudy findCancerStudy = cancerStudyService.checkExist(cancerStudy);
+////                if(cancerStudy!=null){
+////                    cancerStudyService.delete(findCancerStudy);
+////                }
+//                throw new BioinfoException(cancerStudy1.getAbsolutePath()+" 不存在！");
+//            }
         }
         return cancerStudyList;
     }
@@ -155,22 +147,22 @@ public class CancerStudyCode implements ICodeResult<CancerStudy> {
     @Override
     public Boolean checkExist(List<CancerStudy> cancerStudies) {
        for(CancerStudy cancerStudy : cancerStudies){
-           CancerStudy can = cancerStudyService.checkExist(cancerStudy);
-           if(can==null || (can!=null && !Paths.get(can.getAbsolutePath()).toFile().exists() )){
-                return false;
-           }
+//           CancerStudy can = cancerStudyService.checkExist(cancerStudy);
+//           if(can==null || (can!=null && !Paths.get(can.getAbsolutePath()).toFile().exists() )){
+//                return false;
+//           }
        }
         return true;
     }
 
     @Override
     public CancerStudy save(CancerStudy cancerStudy,User user) {
-        return cancerStudyService.saveCancerStudy(cancerStudy,user);
+        return null;//cancerStudyService.saveCancerStudy(cancerStudy,user);
     }
 
     @Override
     public Boolean checkRun(Code code, BaseFile baseFile) {
-        List<CancerStudy> cancerStudies = cancerStudyService.findByCode(code);
-        return cancerStudies.contains(baseFile);
+//        List<CancerStudy> cancerStudies = cancerStudyService.findByCode(code);
+        return null;//cancerStudies.contains(baseFile);
     }
 }

@@ -14,9 +14,9 @@ import javax.persistence.*;
 @Setter
 @Entity(name = "t_comment")
 public class Comment extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private int id;
     private int userId;
     private int projectId;
     @Column(columnDefinition = "longtext not null")

@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.pojo.authorize;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
@@ -20,10 +21,10 @@ import javax.persistence.Cacheable;
 @Data
 @Cacheable
 @Cache(usage=CacheConcurrencyStrategy.READ_WRITE)
-public class Role {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+public class Role  extends BaseEntity {
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private int id;
     private String name;
     private String enName;
 

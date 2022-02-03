@@ -25,7 +25,7 @@ public class User extends BaseAuthorize{
     private Integer gender;
 
     public User(int id){
-        this.id = id;
+        this.id= id;
     }
     public User(){
 

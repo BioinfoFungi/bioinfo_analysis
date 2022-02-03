@@ -2,18 +2,16 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.*;
 import com.wangyang.bioinfo.pojo.dto.UserDto;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.UserRepository;
-import com.wangyang.bioinfo.repository.base.BaseAuthorizeRepository;
-import com.wangyang.bioinfo.service.IRoleResourceService;
 import com.wangyang.bioinfo.service.IRoleService;
 import com.wangyang.bioinfo.service.IUserRoleService;
 import com.wangyang.bioinfo.service.IUserService;
-import com.wangyang.bioinfo.service.base.BaseAuthorizeServiceImpl;
+import com.wangyang.bioinfo.service.base.AbstractAuthorizeServiceImpl;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.ServiceUtil;
 import com.wangyang.bioinfo.util.UserException;
 import org.springframework.beans.BeanUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
@@ -37,7 +35,7 @@ import java.util.stream.Collectors;
  */
 @Service
 @Transactional
-public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
+public class UserServiceImpl extends AbstractAuthorizeServiceImpl<User>
         implements IUserService {
 
     private final UserRepository userRepository;
@@ -157,5 +155,10 @@ public class UserServiceImpl extends BaseAuthorizeServiceImpl<User>
             }
         });
         return CollectionUtils.isEmpty(users)?null:users.get(0);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

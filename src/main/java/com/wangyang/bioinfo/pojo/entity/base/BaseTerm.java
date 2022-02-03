@@ -15,11 +15,11 @@ import javax.persistence.*;
 @Data
 @MappedSuperclass
 public class BaseTerm extends BaseEntity{
-    @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "myid")
-    @GenericGenerator(name = "myid", strategy = "com.wangyang.bioinfo.support.ManualInsertGenerator")
-    @Parsed
-    private int id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.AUTO, generator = "myid")
+//    @GenericGenerator(name = "myid", strategy = "com.wangyang.bioinfo.support.ManualInsertGenerator")
+//    @Parsed
+//    private int id;
     @Parsed
     private String name;
     @Parsed

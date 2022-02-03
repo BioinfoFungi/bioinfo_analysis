@@ -1,8 +1,9 @@
-package com.wangyang.bioinfo.service;
+package com.wangyang.bioinfo.service.task;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.CodeType;
 import com.wangyang.bioinfo.pojo.entity.Code;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.pojo.vo.CodeVO;
@@ -31,6 +32,8 @@ public interface ICodeService extends IBaseFileService<Code> {
     List<Code> findExecute(Integer id);
 
     CodeType checkCodeType(String path);
+
+    List<Code> listByCrudType(CrudType crudType);
 
 
 //    void processByCancerStudyId(Integer cancerStudyId,  ServletOutputStream outputStream);

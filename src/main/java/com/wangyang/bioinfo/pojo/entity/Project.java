@@ -16,9 +16,9 @@ import java.util.Date;
 @Setter
 @Entity(name = "t_project")
 public class Project extends BaseEntity {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    private int id;
     private String name;
     @Column(columnDefinition = "longtext not null")
     private String description;

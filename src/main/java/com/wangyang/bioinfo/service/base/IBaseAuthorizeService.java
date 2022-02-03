@@ -1,4 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
-public interface IBaseAuthorizeService<AUTHORIZE> extends ICrudService<AUTHORIZE,Integer> {
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
+
+public interface IBaseAuthorizeService<AUTHORIZE extends BaseEntity> extends ICrudService<AUTHORIZE,Integer> {
 }

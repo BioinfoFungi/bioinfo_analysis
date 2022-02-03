@@ -4,11 +4,9 @@ import com.univocity.parsers.common.processor.BeanWriterProcessor;
 import com.univocity.parsers.tsv.TsvWriter;
 import com.univocity.parsers.tsv.TsvWriterSettings;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
-import com.wangyang.bioinfo.util.BioinfoException;
-import com.wangyang.bioinfo.util.File2Tsv;
-import com.wangyang.bioinfo.util.CacheStore;
-import com.wangyang.bioinfo.util.ObjectToCollection;
+import com.wangyang.bioinfo.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,7 +37,7 @@ import java.util.*;
  * @author wangyang
  * @date 2021/6/27
  */
-public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> implements ICrudService<DOMAIN, ID> {
+public abstract class AbstractCrudService<DOMAIN extends BaseEntity, ID extends Serializable> implements ICrudService<DOMAIN, ID> {
 
     @PersistenceContext
     private EntityManager em;
@@ -134,6 +132,12 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
     @Override
     public DOMAIN save(DOMAIN domain) {
         return repository.save(domain);
+    }
+
+    protected Class<DOMAIN> getInstanceClass(){
+        ParameterizedType superClass = (ParameterizedType) getClass().getGenericSuperclass();
+        Class<DOMAIN> type = (Class<DOMAIN>) superClass.getActualTypeArguments()[0];
+        return type;
     }
 
     protected DOMAIN getInstance()
@@ -293,5 +297,11 @@ public abstract class AbstractCrudService<DOMAIN, ID extends Serializable> imple
         DOMAIN domain = findById(id);
         repository.delete(domain);
         return domain;
+    }
+
+    @Override
+    public List<String> getFields() {
+        List<Field> fields = ObjectToCollection.getFields(getInstanceClass());
+        return ServiceUtil.fetchPropertyList(fields, Field::getName);
     }
 }

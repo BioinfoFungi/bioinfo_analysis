@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.Study;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.StudyParam;
 import com.wangyang.bioinfo.repository.StudyRepository;
 import com.wangyang.bioinfo.service.IStudyService;
@@ -88,5 +89,10 @@ public class StudyServiceImpl extends BaseTermServiceImpl<Study> implements IStu
     @Override
     public Page<Study> pageStudy(Pageable pageable) {
         return studyRepository.findAll(pageable);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

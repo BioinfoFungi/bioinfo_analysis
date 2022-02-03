@@ -23,7 +23,7 @@ import java.util.List;
  * @date 2021/6/27
  */
 
-public class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T,Integer> implements IBaseRNAService<T> {
+public abstract class BaseRNAServiceImpl<T extends BaseRNA> extends AbstractCrudService<T,Integer> implements IBaseRNAService<T> {
 
     private final BaseRNARepository<T> baseRNARepository;
 

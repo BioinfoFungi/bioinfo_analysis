@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.MiRNA;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.MiRNARepository;
 import com.wangyang.bioinfo.service.IMiRNAService;
 import com.wangyang.bioinfo.service.base.BaseRNAServiceImpl;
@@ -21,5 +22,10 @@ public class MiRNAServiceImpl extends BaseRNAServiceImpl<MiRNA> implements IMiRN
     public MiRNAServiceImpl(MiRNARepository miRNARepository) {
         super(miRNARepository);
         this.miRNARepository =miRNARepository;
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

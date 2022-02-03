@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.service.*;
+import com.wangyang.bioinfo.service.task.ICodeService;
 import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;

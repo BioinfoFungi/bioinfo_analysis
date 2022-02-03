@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.entity.Cancer;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.CancerParam;
 import com.wangyang.bioinfo.repository.CancerRepository;
 import com.wangyang.bioinfo.service.ICancerService;
@@ -93,5 +94,8 @@ public class CancerServiceImpl extends BaseTermServiceImpl<Cancer> implements IC
         return cancers;
     }
 
-
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
+    }
 }

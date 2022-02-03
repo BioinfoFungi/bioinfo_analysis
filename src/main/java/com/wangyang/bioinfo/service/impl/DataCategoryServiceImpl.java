@@ -1,6 +1,7 @@
 package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.DataCategoryParam;
 import com.wangyang.bioinfo.pojo.entity.DataCategory;
 import com.wangyang.bioinfo.repository.DataCategoryRepository;
@@ -39,5 +40,10 @@ public class DataCategoryServiceImpl extends BaseTermServiceImpl<DataCategory>
         BeanUtils.copyProperties(dataCategoryParam,dataCategory);
         dataCategory.setUserId(user.getId());
         return dataCategoryRepository.save(dataCategory);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }

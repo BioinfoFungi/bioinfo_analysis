@@ -1,14 +1,14 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
-import com.wangyang.bioinfo.pojo.entity.Cancer;
 import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.entity.OrganizeFile;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.CodeParam;
 import com.wangyang.bioinfo.pojo.param.CodeQuery;
 import com.wangyang.bioinfo.pojo.support.FileContent;
 import com.wangyang.bioinfo.pojo.support.FileTree;
-import com.wangyang.bioinfo.service.ICodeService;
+import com.wangyang.bioinfo.service.task.ICodeService;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
 import com.wangyang.bioinfo.util.CacheStore;
@@ -110,6 +110,10 @@ public class CodeController {
         return codeService.listAll();
     }
 
+    @GetMapping("/{crudType}/listAll")
+    public List<Code> listByCrudType(@PathVariable("crudType") CrudType crudType){
+        return codeService.listByCrudType(crudType);
+    }
 
 
     @PostMapping("/file/save")

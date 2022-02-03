@@ -3,19 +3,17 @@ package com.wangyang.bioinfo.service.impl;
 
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.authorize.UserRole;
+import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.repository.UserRepository;
 import com.wangyang.bioinfo.repository.UserRoleRepository;
-import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.service.IUserRoleService;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.BioinfoException;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -81,5 +79,10 @@ public class UserRoleServiceImpl extends AbstractCrudService<UserRole,Integer>
             throw new BioinfoException("admin的权限不能被删除！");
         }
         return super.delBy(id);
+    }
+
+    @Override
+    public boolean supportType(CrudType type) {
+        return false;
     }
 }
