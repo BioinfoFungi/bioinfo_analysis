@@ -15,11 +15,14 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Component;
+import org.springframework.util.Assert;
 import org.springframework.util.CollectionUtils;
 
+import javax.servlet.http.HttpServletResponse;
 import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 @Component
 public class CrudHandlers {
@@ -38,14 +41,12 @@ public class CrudHandlers {
     }
 
 
-    public Page<? extends TermMapping> pageBy(Pageable pageable, CrudType termMappingEnum) {
-//        Assert.notNull(file, "Multipart file must not be null");
-//        As
-//        sert.notNull(fileLocation, "Attachment type must not be null");
+    public Page<? extends TermMapping> pageBy(CrudType crudType,Pageable pageable,String keywords) {
+        Assert.notNull(crudType, "crudType  must not be null");
 
         for (ICrudService crudService : fileTermMappingHandlers) {
-            if (crudService.supportType(termMappingEnum)) {
-                return crudService.pageBy(pageable);
+            if (crudService.supportType(crudType)) {
+                return crudService.pageBy(pageable,keywords);
             }
         }
         throw new BioinfoException("不能找到Crud！！");
@@ -79,6 +80,24 @@ public class CrudHandlers {
         return crudService.getFields();
     }
 
+    public void  createTSVFile(CrudType crudEnum, HttpServletResponse response) {
+        ICrudService crudService = getCrudService(crudEnum);
+        crudService.createTSVFile(response);
+    }
+
+    public BaseEntity  delById(CrudType crudEnum, int id,User user) {
+        ICrudService crudService = getCrudService(crudEnum);
+        return crudService.delBy(id);
+    }
+    public BaseEntity  add(CrudType crudEnum, Map<String,Object> map, User user) {
+        ICrudService crudService = getCrudService(crudEnum);
+        return crudService.add(map,user);
+    }
+
+    public BaseEntity  update(CrudType crudEnum,int id, Map<String,Object> map,User user) {
+        ICrudService crudService = getCrudService(crudEnum);
+        return crudService.update(id,map,user);
+    }
     public ICrudService getCrudService(CrudType crudEnum){
         for (ICrudService crudService : fileTermMappingHandlers) {
             if (crudService.supportType(crudEnum)) {

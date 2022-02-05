@@ -107,7 +107,7 @@ public abstract class BaseFileService<FILE extends BaseFile>
     @Override
     public Page<FILE> pageBy(FILE baseFileQuery, String keywords,Pageable pageable,String ... filed) {
         Set<String> sets =Arrays.stream(filed).collect(Collectors.toSet());
-        Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery,keywords,sets),pageable);
+        Page<FILE> page = baseFileRepository.findAll(buildSpecByQuery(baseFileQuery,keywords),pageable);
         return page;
     }
 
@@ -122,7 +122,7 @@ public abstract class BaseFileService<FILE extends BaseFile>
 //                Predicate fileName = criteriaBuilder
 //                        .like(root.get("fileName"), likeCondition);
 //                predicates.add(criteriaBuilder.or(name, fileName));
-//            }
+//            }likeCondition
 //            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
 //        };
 //    }

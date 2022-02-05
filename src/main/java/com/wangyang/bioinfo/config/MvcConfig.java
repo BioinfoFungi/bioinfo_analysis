@@ -29,7 +29,8 @@ import java.util.List;
  * @date 2021/4/24
  */
 @Configuration
-public class MvcConfig   extends WebMvcConfigurationSupport  {
+public class
+MvcConfig   extends WebMvcConfigurationSupport  {
     @Value("${bioinfo.workDir}")
     private String workDir;
 

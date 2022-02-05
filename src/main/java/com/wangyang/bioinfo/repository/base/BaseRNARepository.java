@@ -9,6 +9,5 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @date 2021/6/27
  */
 @NoRepositoryBean
-public interface BaseRNARepository<T extends BaseRNA>  extends BaseRepository<T, Integer>
-        ,JpaSpecificationExecutor<T> {
+public interface BaseRNARepository<T extends BaseRNA>  extends BaseRepository<T, Integer> {
 }

@@ -78,7 +78,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
     @Override
     public Page<Task> page(TaskQuery taskQuery, Pageable pageable) {
-        return taskRepository.findAll(buildSpecByQuery(taskQuery,null,null),pageable);
+        return taskRepository.findAll(buildSpecByQuery(taskQuery,null),pageable);
     }
 
 

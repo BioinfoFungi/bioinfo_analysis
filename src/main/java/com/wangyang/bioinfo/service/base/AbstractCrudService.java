@@ -1,14 +1,17 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.univocity.parsers.common.processor.BeanWriterProcessor;
 import com.univocity.parsers.tsv.TsvWriter;
 import com.univocity.parsers.tsv.TsvWriterSettings;
 import com.wangyang.bioinfo.pojo.annotation.QueryField;
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.repository.base.BaseRepository;
 import com.wangyang.bioinfo.util.*;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -28,9 +31,9 @@ import javax.servlet.ServletOutputStream;
 import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.ParameterizedType;
-import java.lang.reflect.Type;
+import java.lang.reflect.*;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 /**
@@ -61,47 +64,6 @@ public abstract class AbstractCrudService<DOMAIN extends BaseEntity, ID extends 
         resetQuery.executeUpdate();
     }
 
-    protected Specification<DOMAIN> buildSpecByQuery(DOMAIN baseFileQuery, String keywords, Set<String> sets) {
-        return (Specification<DOMAIN>) (root, query, criteriaBuilder) ->{
-            List<Predicate> predicates = toPredicate(baseFileQuery,root, query, criteriaBuilder);
-            if(sets!=null && sets.size()!=0 && keywords!=null ){
-                String likeCondition = String
-                        .format("%%%s%%", StringUtils.strip(keywords));
-                List<Predicate> orPredicates = new ArrayList<>();
-                for (String filed : sets){
-                    Predicate predicate = criteriaBuilder
-                            .equal(root.get(filed), keywords);
-                    orPredicates.add(predicate);
-                }
-                predicates.add(criteriaBuilder.or(orPredicates.toArray(new Predicate[0])));
-            }
-            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
-        };
-    }
-
-    protected List<Predicate> toPredicate(DOMAIN domain,Root<DOMAIN> root, CriteriaQuery<?> criteriaQuery, CriteriaBuilder criteriaBuilder) {
-        List<Predicate> predicates = new LinkedList<>();
-        try {
-            List<Field> fields = ObjectToCollection.setConditionFieldList(domain);
-            for(Field field : fields){
-                boolean fieldAnnotationPresent = field.isAnnotationPresent(QueryField.class);
-                if(fieldAnnotationPresent){
-                    QueryField queryField = field.getDeclaredAnnotation(QueryField.class);
-                    field.setAccessible(true);
-                    String fieldName = field.getName();
-                    Object value = field.get(domain);
-                    if(value!=null){
-                        predicates.add(criteriaBuilder.equal(root.get(fieldName),value));
-                    }
-                }
-            }
-        } catch (IllegalAccessException e) {
-            e.printStackTrace();
-        }
-        return predicates;
-    }
-
-
 
     private Type fetchType(int index) {
         Assert.isTrue(index >= 0 && index <= 1, "type index must be between 0 to 1");
@@ -127,6 +89,100 @@ public abstract class AbstractCrudService<DOMAIN extends BaseEntity, ID extends 
     public DOMAIN add(DOMAIN domain) {
 //        System.out.println(domainName);
         return repository.save(domain);
+    }
+
+    @Override
+    public DOMAIN add(DOMAIN domain, User user) {
+        return repository.save(domain);
+    }
+
+    @Override
+    public DOMAIN update(ID id, DOMAIN inputDomain) {
+        DOMAIN domain = findById(id);
+        inputDomain.setId(null);
+        BeanUtil.copyProperties(inputDomain,domain);
+        return save(domain);
+    }
+
+    @Override
+    public DOMAIN update(ID id, DOMAIN inputDomain, User user) {
+        return update(id,inputDomain);
+    }
+
+    @Override
+    public DOMAIN add(Map<String, Object> map, User user) {
+        DOMAIN domain = mapToObj(map);
+        return add(domain,user);
+    }
+
+    @Override
+    public DOMAIN update(ID id, Map<String, Object> map, User user) {
+        DOMAIN domain = mapToObj(map);
+        return update(id,domain,user);
+    }
+    protected DOMAIN mapToObj(Map<String, Object> map) {
+        DOMAIN domain = getInstance();
+        List<Field> fields = ObjectToCollection.getFields(domain.getClass());
+        for (Field field : fields) {
+            int mod = field.getModifiers();
+            if(Modifier.isStatic(mod) || Modifier.isFinal(mod)){
+                continue;
+            }
+            field.setAccessible(true);
+            try {
+                Object value = map.get(field.getName());
+                if(value!=null){
+                    value = convertValType( value, field.getType());
+                    field.set(domain, value);
+                }
+            } catch (IllegalAccessException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return domain;
+    }
+
+    private Object convertValType(Object value, Class<?> fieldTypeClass) {
+        Object retVal = null;
+        if (Long.class.getName().equals(fieldTypeClass.getName())
+                || long.class.getName().equals(fieldTypeClass.getName())) {
+            retVal = Long.parseLong(value.toString());
+        } else if (Integer.class.getName().equals(fieldTypeClass.getName())
+                || int.class.getName().equals(fieldTypeClass.getName())) {
+            retVal = Integer.parseInt(value.toString());
+        } else if (Float.class.getName().equals(fieldTypeClass.getName())
+                || float.class.getName().equals(fieldTypeClass.getName())) {
+            retVal = Float.parseFloat(value.toString());
+        } else if (Double.class.getName().equals(fieldTypeClass.getName())
+                || double.class.getName().equals(fieldTypeClass.getName())) {
+            retVal = Double.parseDouble(value.toString());
+        } else if(fieldTypeClass.isEnum()){
+            retVal = Enum.valueOf((Class<Enum>) fieldTypeClass,value.toString());
+        }else if (Date.class.getName().equals(fieldTypeClass.getName())){
+            try {
+                SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+                retVal = format.parse(value.toString());
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+
+        }else {
+            retVal = value;
+        }
+        return retVal;
+    }
+
+    private DOMAIN mapToObj2(Map<String, Object> map) {
+        DOMAIN domain = getInstance();
+        try {
+            org.apache.commons.beanutils.BeanUtils.populate(domain, map);
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        } catch (InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        return domain;
     }
 
     @Override
@@ -169,6 +225,59 @@ public abstract class AbstractCrudService<DOMAIN extends BaseEntity, ID extends 
     @Override
     public Page<DOMAIN> pageBy(Pageable pageable){
         return repository.findAll(pageable);
+    }
+
+    @Override
+    public Page<DOMAIN> pageBy(Pageable pageable, String keywords) {
+        return pageBy(pageable,keywords,null);
+    }
+
+    public Page<DOMAIN> pageBy(Pageable pageable,String keywords,DOMAIN domain) {
+        Specification<DOMAIN> specification = buildSpecByQuery(domain, keywords);
+        return repository.findAll(specification,pageable);
+    }
+    protected Specification<DOMAIN> buildSpecByQuery(DOMAIN domain, String keywords) {
+        return (Specification<DOMAIN>) (root, query, criteriaBuilder) ->{
+            List<Predicate> predicates= new LinkedList<>();
+            if(domain!=null){
+                toPredicate(domain,root, criteriaBuilder,predicates);
+            }
+            if(keywords!=null&!"".equals(keywords)){
+                Set<String> fields = ObjectToCollection.getSpecialFields(getInstanceClass(), QueryField.class);
+                if(fields!=null && fields.size()!=0 && keywords!=null ){
+                    String likeCondition = String
+                            .format("%%%s%%", StringUtils.strip(keywords));
+                    List<Predicate> orPredicates = new ArrayList<>();
+                    for (String filed : fields){
+                        Predicate predicate = criteriaBuilder
+                                .like(root.get(filed), likeCondition);
+                        orPredicates.add(predicate);
+                    }
+                    predicates.add(criteriaBuilder.or(orPredicates.toArray(new Predicate[0])));
+                }
+            }
+            return query.where(predicates.toArray(new Predicate[0])).getRestriction();
+        };
+    }
+
+    protected List<Predicate> toPredicate(DOMAIN domain,Root<DOMAIN> root, CriteriaBuilder criteriaBuilder,List<Predicate> predicates) {
+        try {
+            List<Field> fields = ObjectToCollection.setConditionFieldList(domain);
+            for(Field field : fields){
+                boolean fieldAnnotationPresent = field.isAnnotationPresent(QueryField.class);
+                if(fieldAnnotationPresent){
+                    field.setAccessible(true);
+                    String fieldName = field.getName();
+                    Object value = field.get(domain);
+                    if(value!=null){
+                        predicates.add(criteriaBuilder.equal(root.get(fieldName),value));
+                    }
+                }
+            }
+        } catch (IllegalAccessException e) {
+            e.printStackTrace();
+        }
+        return predicates;
     }
 
     @Override

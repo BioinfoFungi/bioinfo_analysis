@@ -27,6 +27,9 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import javax.transaction.Transactional;
+import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
@@ -77,6 +80,41 @@ public class CodeServiceImpl extends BaseFileService<Code>
         BeanUtils.copyProperties(codeQuery,code);
         Page<Code> codePage = pageBy(code, codeQuery.getKeyWard(), pageable);
         return codePage;
+    }
+
+
+    @Override
+    public Code add(Map<String, Object> map, User user) {
+        Code code = mapToObj(map);
+        code.setRelativePath("code"+ File.separator +code.getFileName());
+        String pathStr = CacheStore.getValue("workDir");
+        pathStr = pathStr+ File.separator +code.getRelativePath();
+        Path path = Paths.get(pathStr);
+        if(!path.toFile().exists()){
+            try {
+                Files.createFile(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return super.add(code, user);
+    }
+
+    @Override
+    public Code update(Integer id, Map<String, Object> map, User user) {
+        Code code = mapToObj(map);
+        code.setRelativePath("code"+ File.separator +code.getFileName());
+        String pathStr = CacheStore.getValue("workDir");
+        pathStr = pathStr+ File.separator +code.getRelativePath();
+        Path path = Paths.get(pathStr);
+        if(!path.toFile().exists()){
+            try {
+                Files.createFile(path);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        return super.update(id, code, user);
     }
 
     @Override
@@ -220,7 +258,7 @@ public class CodeServiceImpl extends BaseFileService<Code>
 
     @Override
     public boolean supportType(CrudType type) {
-        return false;
+        return type.equals(CrudType.CODE);
     }
 }
 

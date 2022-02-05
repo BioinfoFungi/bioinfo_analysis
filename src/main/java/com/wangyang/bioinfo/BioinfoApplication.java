@@ -41,8 +41,8 @@ import java.io.IOException;
 public class BioinfoApplication {
 
 	public static void main(String[] args) {
-//		System.setProperty("spring.config.additional-location",
-//				"optional:file:${user.home}/.bioinfo/,optional:file:${user.home}/.bioinfo-dev/");
+		System.setProperty("spring.config.additional-location",
+				"optional:file:${user.home}/.bioinfo/,optional:file:${user.home}/.bioinfo-dev/");
 //		System.setProperty("spring.config.additional-location","file:${user.home}/.bioinfo/application-prod.yml");
 		SpringApplication.run(BioinfoApplication.class, args);
 	}

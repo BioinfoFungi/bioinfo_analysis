@@ -83,7 +83,7 @@ public class OrganizeFileServiceImpl
         OrganizeFile organizeFile = new OrganizeFile();
         Set<String> sets = new HashSet<>();
         sets.add("enName");
-        Specification<OrganizeFile> specification = buildSpecByQuery(organizeFile, organizeFileQuery.getKeywords(), sets);
+        Specification<OrganizeFile> specification = buildSpecByQuery(organizeFile, organizeFileQuery.getKeywords());
         return organizeFileRepository.findAll(specification,pageable);
     }
 

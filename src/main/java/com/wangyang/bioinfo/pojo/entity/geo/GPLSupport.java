@@ -6,10 +6,7 @@ import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import lombok.Data;
 import org.hibernate.annotations.GenericGenerator;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
+import javax.persistence.*;
 
 @Entity(name = "t_gpl_support")
 @Data
@@ -23,4 +20,9 @@ public class GPLSupport extends BaseEntity {
 
     @Parsed
     private String gpl;
+    @Parsed
+    private Integer rowNum;
+    @Column(columnDefinition = "longtext")
+    private String description;
+    private String gplPath;
 }

@@ -47,7 +47,7 @@ public class AnnotationFileServiceImpl
         Annotation annotation = new Annotation();
         Set<String> sets = new HashSet<>();
         sets.add("enName");
-        Specification<Annotation> specification = buildSpecByQuery(annotation, annotationQuery.getKeyword(), sets);
+        Specification<Annotation> specification = buildSpecByQuery(annotation, annotationQuery.getKeyword());
         return annotationFileRepository.findAll(specification,pageable);
     }
 

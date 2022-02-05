@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.pojo.entity.Cancer;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import io.swagger.models.auth.In;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -13,6 +14,17 @@ public class ObjectToCollection {
     public static List<Field> setConditionFieldList(Object obj) {
         Class<?> clazz = obj.getClass();
         return getFields(clazz);
+    }
+
+    public static Set<String> getSpecialFields(Class<?> clazz,Class<? extends Annotation> annotation){
+        List<Field> fields = getFields(clazz);
+        Set<String> set = new HashSet<>();
+        for (Field field : fields){
+           if(field.isAnnotationPresent(annotation)){
+                set.add(field.getName());
+           }
+        }
+        return set;
     }
 
     public static List<Field> getFields(Class<?> clazz) {

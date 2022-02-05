@@ -18,12 +18,13 @@ import javax.persistence.Entity;
 @Entity(name = "t_code")
 //@DiscriminatorValue(value = "2")
 public class Code extends BaseFile {
+
     @Column(columnDefinition = "longtext")
-    private String code;
+    private String content;
     @Parsed
     private String name;
     @Parsed
-    private CodeType codeType= CodeType.R;
+    private CodeType codeType;
     @Parsed
     private CrudType crudType;
     @Parsed

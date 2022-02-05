@@ -9,6 +9,5 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @date 2021/7/8
  */
 @NoRepositoryBean
-public interface BaseFileRepository<FILE extends BaseFile> extends BaseRepository<FILE,Integer>
-        ,JpaSpecificationExecutor<FILE> {
+public interface BaseFileRepository<FILE extends BaseFile> extends BaseRepository<FILE,Integer> {
 }

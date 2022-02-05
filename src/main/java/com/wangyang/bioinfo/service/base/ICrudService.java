@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.base;
 
+import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
 import org.springframework.data.domain.Page;
@@ -11,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.transaction.Transactional;
 import java.io.File;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -20,8 +22,12 @@ import java.util.Set;
 public interface ICrudService<DOMAIN extends BaseEntity, ID> {
     List<DOMAIN> listAll();
     DOMAIN add(@NonNull DOMAIN domain);
+    DOMAIN add(DOMAIN domain, User user);
+    DOMAIN add(Map<String,Object> map, User user);
     DOMAIN save(@NonNull DOMAIN domain);
-
+    DOMAIN update(ID id,DOMAIN inputDomain);
+    DOMAIN update(ID id,DOMAIN inputDomain, User user);
+    DOMAIN update(ID id,Map<String,Object> map,  User user);
     @Transactional
     void truncateTable();
 
@@ -33,7 +39,7 @@ public interface ICrudService<DOMAIN extends BaseEntity, ID> {
     void delete(DOMAIN t);
 
     Page<DOMAIN> pageBy(Pageable pageable);
-
+    Page<DOMAIN> pageBy(Pageable pageable,String keywords);
     void deleteAll(Iterable<DOMAIN> domains);
 
     void createTSVFile(HttpServletResponse response);
@@ -48,4 +54,6 @@ public interface ICrudService<DOMAIN extends BaseEntity, ID> {
     boolean supportType(@Nullable CrudType type);
 
     List<String> getFields();
+
+
 }

@@ -12,7 +12,8 @@ import java.util.List;
  * @date 2021/6/27
  */
 @NoRepositoryBean
-public interface BaseRepository <T,  ID extends Serializable> extends JpaRepository<T,  ID> {
+public interface BaseRepository <T,  ID extends Serializable> extends JpaRepository<T,  ID>
+        ,JpaSpecificationExecutor<T>{
     List<T> listAllCached();
     T saveCached(T entity);
 

@@ -106,11 +106,11 @@ public class FileUtil {
         String bashPtah = CacheStore.getValue("workDir");
         Path path = Paths.get(bashPtah, strPath);
         List<FileDTO> list = new ArrayList<>();
-        findFileList(path.toFile(),list);
+        findFileList(strPath,path.toFile(),list);
         return list;
     }
 
-    public static void findFileList(File dir, List<FileDTO> fileNames) {
+    public static void findFileList(String strPath,File dir, List<FileDTO> fileNames) {
         if (!dir.exists() || !dir.isDirectory()) {// 判断是否存在目录
             return;
         }
@@ -121,9 +121,10 @@ public class FileUtil {
                 FileDTO fileDTO = new FileDTO();
                 fileDTO.setAbsolutePath(dir + File.separator + file.getName());
                 fileDTO.setFileName(file.getName());
+                fileDTO.setRelativePath(strPath+File.separator+file.getName());
                 fileNames.add(fileDTO);// 添加文件全路径名
             } else {// 如果是目录
-                findFileList(file, fileNames);// 回调自身继续查询
+                findFileList(strPath,file, fileNames);// 回调自身继续查询
             }
         }
     }

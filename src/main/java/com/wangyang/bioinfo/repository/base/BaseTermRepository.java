@@ -9,6 +9,5 @@ import org.springframework.data.repository.NoRepositoryBean;
  * @date 2021/6/27
  */
 @NoRepositoryBean
-public interface BaseTermRepository<TERM extends BaseTerm> extends BaseRepository<TERM, Integer>
-        , JpaSpecificationExecutor<TERM> {
+public interface BaseTermRepository<TERM extends BaseTerm> extends BaseRepository<TERM, Integer> {
 }

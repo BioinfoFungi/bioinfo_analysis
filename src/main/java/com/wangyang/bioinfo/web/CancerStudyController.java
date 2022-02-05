@@ -4,12 +4,14 @@ import com.wangyang.bioinfo.handle.CrudHandlers;
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
+import com.wangyang.bioinfo.pojo.entity.Code;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.param.CancerStudyQuery;
 import com.wangyang.bioinfo.service.IOrganizeFileService;
 import com.wangyang.bioinfo.util.BaseResponse;
+import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.CacheStore;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -18,7 +20,10 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.nio.file.Paths;
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -42,9 +47,9 @@ public class CancerStudyController {
 
     @Anonymous
     @GetMapping("/{crudEnum}")
-    public Page<? extends BaseEntity> page(@PathVariable(value = "crudEnum") CrudType crudEnum
-                                            , CancerStudyQuery cancerStudyQuery,
+    public Page<? extends BaseEntity> page(@PathVariable(value = "crudEnum") CrudType crudEnum,
                                            @PageableDefault(sort = {"id"},direction = DESC) Pageable pageable,
+                                           @RequestParam(required = false) String keywords,
                                            @RequestParam(value = "more", defaultValue = "false") Boolean more){
 //        Page<CancerStudy> cancerStudies = cancerStudyService.pageBy(cancerStudyQuery,pageable);
 //        termMappingHandlers.pageBy(pageable, CrudType.TEST);
@@ -53,7 +58,7 @@ public class CancerStudyController {
 //            return cancerStudyService.convertVo(cancerStudies);
 //        }
 //        return cancerStudies;
-        return crudHandlers.pageBy(pageable, crudEnum);
+        return crudHandlers.pageBy(crudEnum,pageable,keywords);
     }
 
     @GetMapping("/{crudEnum}/findById")
@@ -119,12 +124,7 @@ public class CancerStudyController {
 //    }
 //
 //
-//    @PostMapping
-//    public CancerStudy add(@RequestBody @Valid CancerStudyParam cancerStudyParam, HttpServletRequest request){
-//        User user = (User) request.getAttribute("user");
-//        CancerStudy cancerStudy = cancerStudyService.saveCancerStudy(cancerStudyParam,user);
-//        return cancerStudy;
-//    }
+
 //
 //    @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 //    public CancerStudy upload(@RequestParam("file") MultipartFile file, CancerStudyParam cancerStudyParam, HttpServletRequest request){
@@ -143,10 +143,10 @@ public class CancerStudyController {
 ////        return cancerStudyService.pageCancerStudyVo(findCancer,pageable);
 ////    }
 //
-//    @PostMapping("/createTSVFile")
-//    public void createTSVFile(HttpServletResponse response){
-//        cancerStudyService.createTSVFile(response);
-//    }
+    @PostMapping("/{crudEnum}/createTSVFile")
+    public void createTSVFile(@PathVariable(value = "crudEnum") CrudType crudEnum,HttpServletResponse response){
+        crudHandlers.createTSVFile(crudEnum,response);
+    }
 //
 //    @GetMapping("/download/{uuid}")
 //    public CancerStudy download(@PathVariable("uuid") String uuid,
@@ -188,11 +188,12 @@ public class CancerStudyController {
 //
     @GetMapping("/init/{crudEnum}")
     public BaseResponse initDataBy(@PathVariable(value = "crudEnum") CrudType crudEnum,
-                                   @RequestParam(value = "path",defaultValue = "") String path,
+                                   @RequestParam String name,
                                    @RequestParam(value = "isEmpty", defaultValue = "false") Boolean isEmpty){
 
-        if(path!=null && path.equals("")){
-            path = CacheStore.getValue("workDir")+"/TCGADOWNLOAD/data/CancerStudy.tsv";
+        String path = CacheStore.getValue("workDir")+"/data/"+name;
+        if(!Paths.get(path).toFile().exists()){
+            throw new BioinfoException(path+"不存在!!");
         }
         List<CancerStudy> cancerStudyList = crudHandlers.initData(path, isEmpty,crudEnum);
         return BaseResponse.ok("导入["+cancerStudyList.size()+"]个对象！");
@@ -214,11 +215,30 @@ public class CancerStudyController {
         return crudHandlers.runTask(crudEnum,id,user);
     }
 
-//
-//    @GetMapping("/del/{id}")
-//    public CancerStudy del(@PathVariable("id") Integer id){
-//        return  cancerStudyService.delBy(id);
-//    }
+
+    @GetMapping("/{crudEnum}/delById")
+    public BaseEntity delById(@PathVariable(value = "crudEnum") CrudType crudEnum,
+                           Integer id,
+                           HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  crudHandlers.delById(crudEnum,id,user);
+    }
+    @PostMapping("/{crudEnum}/add")
+    public BaseEntity add(@PathVariable(value = "crudEnum") CrudType crudEnum,
+                          @RequestBody  Map<String,Object> map,
+                           HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return crudHandlers.add(crudEnum,map,user);
+    }
+
+    @PostMapping("/{crudEnum}/update")
+    public BaseEntity update(@PathVariable(value = "crudEnum") CrudType crudEnum,
+                                Integer id,
+                                @RequestBody Map<String,Object> map,
+                                HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return crudHandlers.update(crudEnum,id,map,user);
+    }
 //
 //    @GetMapping("/checkFile/{id}")
 //    @Anonymous

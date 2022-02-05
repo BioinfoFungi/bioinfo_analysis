@@ -10,6 +10,6 @@ import org.springframework.data.repository.NoRepositoryBean;
  */
 @NoRepositoryBean
 public interface BaseTermMappingRepository<CATEGORY extends TermMapping> extends BaseRepository<CATEGORY, Integer>
-        , JpaSpecificationExecutor<CATEGORY> {
+    {
 
 }

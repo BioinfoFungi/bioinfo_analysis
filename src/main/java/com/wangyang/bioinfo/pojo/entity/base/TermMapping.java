@@ -24,19 +24,13 @@ public class TermMapping extends BaseEntity {
 
 
     @Parsed(field = "cancer")
-    @QueryField
     private Integer cancerId;
     @Parsed(field = "study")
-    @QueryField
     private Integer studyId;
     @Parsed(field = "dataOrigin")
-    @QueryField
     private Integer dataOriginId;
-
     @Parsed(field = "analysisSoftware")
-    @QueryField
     private Integer analysisSoftwareId;
     @Parsed(field = "dataCategory")
-    @QueryField
     private Integer dataCategoryId;
 }

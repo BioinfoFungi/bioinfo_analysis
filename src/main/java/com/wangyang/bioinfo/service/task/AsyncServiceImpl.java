@@ -180,8 +180,10 @@ public class AsyncServiceImpl implements IAsyncService  {
 
     @Override
     public void processCancerStudy1(User user, ICrudService<BaseEntity, Integer> crudService, Task task, BaseEntity baseEntity, Code code) {
+        executorService.setCorePoolSize(5);
         TestRun testRun = new TestRun(user,task,code,baseEntity,crudService);
         executorService.submit(testRun);
+
         processMap.put(task.getId(),new TaskProcess(task,testRun,null));
     }
 
@@ -259,15 +261,16 @@ public class AsyncServiceImpl implements IAsyncService  {
                 task.setTaskStatus(TaskStatus.ERROR);
                 task.setRunMsg(codeMsg.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
                 taskRepository.save(task);
-                springWebSocketHandler.sendMessageToUser(user.getUsername(), BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"["+task.getName()+"]运行任务失败！"));
+                springWebSocketHandler.sendMessageToUser(user.getUsername(), BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"["+task.getName()+"]运行任务失败！",task));
             }
             log.info("<<<<<<<<<<<<<<<<<<<<<<<<<<end<<<<<<<<<<<<<<<<<<<<<<<<<<<<");
         } catch (Exception e){
+
             e.printStackTrace();
             task.setTaskStatus(TaskStatus.ERROR);
             task.setRunMsg(task.getRunMsg()+"\n"+e.getMessage()+"分析结束！"+ new Date());
             taskRepository.save(task);
-            springWebSocketHandler.sendMessageToUser(user.getUsername(),BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"任务运行失败！"));
+            springWebSocketHandler.sendMessageToUser(user.getUsername(),BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"任务运行失败！",task));
             try {
                 logStream.write(showErrorMsg(e.getMessage()).getBytes());
             } catch (IOException ex) {
@@ -322,6 +325,8 @@ public class AsyncServiceImpl implements IAsyncService  {
             while ((line = reader.readLine()) != null) {
                 if(!taskProcess.getFlag()){
                     process.destroy();
+                    String msg = Thread.currentThread().getName()+": "+"手动停止进程,"+taskProcess.getTask().getName()+"\n";
+                    logStream.write(msg.getBytes());
                     break;
                 }
 //                    if(line.startsWith("$")) {
@@ -387,8 +392,9 @@ public class AsyncServiceImpl implements IAsyncService  {
                            String tempOutputFile,
                            Set<String> vars ) throws IOException {
         String content=null;
-        if(code.getAbsolutePath()!=null){
-            Path codePath = Paths.get(code.getAbsolutePath());
+        if(code.getFileName()!=null){
+            String bashPtah = CacheStore.getValue("workDir");
+            Path codePath = Paths.get(bashPtah, code.getRelativePath());
             if(!codePath.toFile().exists()){
                 throw new BioinfoException("code不存在！！");
             }

@@ -22,6 +22,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.validation.Valid;
 
+import java.io.File;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -116,14 +117,22 @@ public class CodeController {
     }
 
 
-    @PostMapping("/file/save")
-    public BaseResponse saveFileContent(@RequestBody FileContent fileContent){
-        codeService.saveContent(fileContent.getPath(),fileContent.getContent());
+    @PostMapping("/saveFileContent")
+    public BaseResponse saveFileContent(Integer id,@RequestBody Code inputCode,HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        Code code = codeService.update(id, inputCode, user);
+        String path = CacheStore.getValue("workDir");
+        path = path+ File.separator +code.getRelativePath();
+        codeService.saveContent(path,code.getContent());
         return BaseResponse.ok("保存文件成功！");
     }
-    @GetMapping("/file/content")
-    public BaseResponse getFileContent(@RequestParam("path") String path){
-        return BaseResponse.ok("加载文件成功！",codeService.getFileContent(path));
+    @GetMapping("/getFileContent")
+    public Code getFileContent(Integer id){
+        Code code = codeService.findById(id);
+        String path = CacheStore.getValue("workDir");
+        path = path+ File.separator +code.getRelativePath();
+        code.setContent(codeService.getFileContent(path));
+        return code;
     }
     @PostMapping("/createTSVFile")
     public void createTSVFile(HttpServletResponse response){
