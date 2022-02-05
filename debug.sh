@@ -1,4 +1,4 @@
-#!bash
+#!/bin/bash
 #git pull
 #./mvnw clean
 # ./mvnw install -Dmaven.test.skip=true
