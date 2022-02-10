@@ -180,7 +180,7 @@ public class AsyncServiceImpl implements IAsyncService  {
 
     @Override
     public void processCancerStudy1(User user, ICrudService<BaseEntity, Integer> crudService, Task task, BaseEntity baseEntity, Code code) {
-        executorService.setCorePoolSize(5);
+//        executorService.setCorePoolSize(5);
         TestRun testRun = new TestRun(user,task,code,baseEntity,crudService);
         executorService.submit(testRun);
 
@@ -414,7 +414,7 @@ public class AsyncServiceImpl implements IAsyncService  {
             stringBuffer.append(content);
             stringBuffer.append("\n");
             vars.forEach(var->{
-                stringBuffer.append("if(exists(\""+var+"\"))cat(paste0(\""+var+":\","+var+",\"\\n\"),append=T, file=\""+tempOutputFile+"\")\n");
+                stringBuffer.append("if(exists(\""+var+"\") && is.character("+var+"))cat(paste0(\""+var+":\","+var+",\"\\n\"),append=T, file=\""+tempOutputFile+"\")\n");
             });
             command.add("Rscript");
             command.add(tempFile.getAbsolutePath());
