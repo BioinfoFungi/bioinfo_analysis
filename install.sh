@@ -21,3 +21,4 @@ fi
 
 echo $jar
 nohup java -jar $jar 2>&1 > bioinfo.log &
+tail -f bioinfo.log
