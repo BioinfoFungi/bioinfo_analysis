@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.web;
 
+import com.wangyang.bioinfo.handle.CrudHandlers;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -30,8 +31,17 @@ public class TaskController {
     //ws://localhost:8080/websocket/socketServer.do
     //http://coolaf.com/tool/chattest
     @Autowired
-    ITaskService taskService;
-
+    private ITaskService taskService;
+    @Autowired
+    private CrudHandlers crudHandlers;
+    @GetMapping("/addTask/{crudEnum}")
+    public Task addTask(@PathVariable(value = "crudEnum") CrudType crudEnum,
+                        Integer id,
+                        Integer codeId,
+                        HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return crudHandlers.addTask(crudEnum,id,codeId,user);
+    }
 //    @GetMapping("/add/{cancerStudyId}")
 //    public Task addTask(@PathVariable("cancerStudyId") Integer cancerStudyId) {
 //        Task task = taskService.addTaskByCancerStudyId(cancerStudyId);
