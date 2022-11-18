@@ -5,13 +5,16 @@ import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
+import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.base.ICrudService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.lang.NonNull;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.Map;
 
 /**
  * @author wangyang
@@ -35,6 +38,8 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
 
     Task shutdownProcess(int taskId);
     Task addTask(CrudType crudEnum, ICrudService<BaseEntity,Integer> crudService, Integer id, Integer codeId, User user);
+    Task addTask(CrudType crudEnum, ICrudService crudService,Integer taskId, Integer id, Map<String, String> map, Integer codeId, User user);
+
     Task runTask( ICrudService<BaseEntity,Integer> crudService,Integer id,User user);
 //    Task addTaskByCancerStudyId(Integer cancerStudyId);
 //
@@ -54,4 +59,6 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
     List<CancerStudy>  runByCodeId(Integer id, User user);
 
     List<Task> listAll(CrudType crudEnum, Integer id);
+
+    Task upload(MultipartFile file, User user, Integer taskId, TaskParam taskParam);
 }

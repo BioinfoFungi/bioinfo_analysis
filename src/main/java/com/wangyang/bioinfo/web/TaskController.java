@@ -1,10 +1,13 @@
 package com.wangyang.bioinfo.web;
 
 import com.wangyang.bioinfo.handle.CrudHandlers;
+import com.wangyang.bioinfo.pojo.entity.Attachment;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
+import com.wangyang.bioinfo.pojo.param.AttachmentParam;
+import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.task.ITaskService;
 import com.wangyang.bioinfo.util.BaseResponse;
@@ -12,11 +15,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
 import java.util.List;
+import java.util.Map;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -34,13 +40,15 @@ public class TaskController {
     private ITaskService taskService;
     @Autowired
     private CrudHandlers crudHandlers;
-    @GetMapping("/addTask/{crudEnum}")
+    @PostMapping("/addTask/{crudEnum}")
     public Task addTask(@PathVariable(value = "crudEnum") CrudType crudEnum,
-                        Integer id,
-                        Integer codeId,
+                        @RequestParam Integer id,
+                        @RequestParam Integer codeId,
+                        @RequestParam Integer taskId,
+                        @RequestBody Map<String,String> map,
                         HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        return crudHandlers.addTask(crudEnum,id,codeId,user);
+        return crudHandlers.addTask(crudEnum,taskId,id,codeId,map,user);
     }
 //    @GetMapping("/add/{cancerStudyId}")
 //    public Task addTask(@PathVariable("cancerStudyId") Integer cancerStudyId) {
@@ -108,4 +116,10 @@ public class TaskController {
         return taskService.findById(id);
     }
 
+
+    @PostMapping(value = "/upload/{taskId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public Task upload(@RequestParam("file") MultipartFile file, @PathVariable("taskId") Integer taskId, TaskParam taskParam, HttpServletRequest request){
+        User user = (User) request.getAttribute("user");
+        return  taskService.upload(file,user,taskId,taskParam);
+    }
 }

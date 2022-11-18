@@ -16,9 +16,9 @@ public interface IAsyncService  {
 //    void processCancerStudy1(User user, Task task, Code code, BaseFile baseFile, ICodeResult<? extends BaseFile> codeResult);
 
     @Async("taskExecutor")
-    void processCancerStudy2(User user,Task task, Code code,CancerStudy cancerStudy, CancerStudy cancerStudyProcess ,Map<String, Object> map);
+    void processCancerStudy2(User user,  Task task,  Map<String, String> map, Code code);
 
     Task shutdownProcess(int taskId);
 
-    void processCancerStudy1(User user, ICrudService<BaseEntity, Integer> crudService, Task task, BaseEntity baseEntity, Code code);
+    void processCancerStudy1(User user,  Task task,  Map<String, String> map, Code code);
 }

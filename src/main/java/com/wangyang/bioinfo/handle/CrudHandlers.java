@@ -60,8 +60,11 @@ public class CrudHandlers {
         }
         throw new BioinfoException("文件长传出错!");
     }
-
-    public Task addTask(CrudType crudEnum, Integer id, Integer codeId, User user) {
+    public Task addTask(CrudType crudEnum, Integer taskId,Integer id, Integer codeId,Map<String,String> map, User user) {
+        ICrudService crudService = getCrudService(crudEnum);
+        return taskService.addTask(crudEnum,crudService,taskId,id,map,codeId,user);
+    }
+    public Task addTask(CrudType crudEnum,Integer  id, Integer codeId, User user) {
         ICrudService crudService = getCrudService(crudEnum);
         return taskService.addTask(crudEnum,crudService,id,codeId,user);
     }

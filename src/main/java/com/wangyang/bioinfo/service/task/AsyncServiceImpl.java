@@ -143,26 +143,22 @@ public class AsyncServiceImpl implements IAsyncService  {
         private User user;
         private Task task;
         private Code code;
-        private BaseEntity baseEntity;
-        private ICrudService<BaseEntity, Integer> crudService;
 
-        public TestRun(User user, Task task, Code code, BaseEntity baseEntity, ICrudService<BaseEntity, Integer> crudService) {
+        private Map<String, String> map;
+
+        public TestRun(User user, Task task, Code code,Map<String, String> map) {
             this.user = user;
             this.task = task;
             this.code = code;
-            this.baseEntity = baseEntity;
-            this.crudService = crudService;
+            this.map = map;
         }
 
         @Override
         public void run() {
-            processCancerStudy(user,crudService,task, baseEntity,code);
+            processCancerStudy(user,task,map,code);
         }
         public Integer getCodeId(){
             return code.getId();
-        }
-        public Integer getObjId(){
-            return baseEntity.getId();
         }
     }
 
@@ -179,21 +175,21 @@ public class AsyncServiceImpl implements IAsyncService  {
 //    }
 
     @Override
-    public void processCancerStudy1(User user, ICrudService<BaseEntity, Integer> crudService, Task task, BaseEntity baseEntity, Code code) {
+    public void processCancerStudy1(User user,  Task task,  Map<String, String> map, Code code) {
 //        executorService.setCorePoolSize(5);
-        TestRun testRun = new TestRun(user,task,code,baseEntity,crudService);
+        TestRun testRun = new TestRun(user,task,code,map);
         executorService.submit(testRun);
 
         processMap.put(task.getId(),new TaskProcess(task,testRun,null));
     }
 
-    @Override
-    @Async("taskExecutor")
-    public void processCancerStudy2(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
-//        processCancerStudy(user,task,code,cancerStudy,cancerStudyProcess,map);
-    }
+//    @Override
+//    @Async("taskExecutor")
+//    public void processCancerStudy2(User user,Task task, Code code,CancerStudy cancerStudy,CancerStudy cancerStudyProcess,Map<String, Object> map)  {
+////        processCancerStudy(user,task,code,cancerStudy,cancerStudyProcess,map);
+//    }
 
-    public void processCancerStudy(User user, ICrudService<BaseEntity, Integer> crudService, Task task, BaseEntity baseEntity, Code code)  {
+    public void processCancerStudy(User user, Task task, Map<String, String> map, Code code)  {
         FileOutputStream logStream=null;
         File tempFile=null;
         File tempOutputFile = null;
@@ -238,12 +234,13 @@ public class AsyncServiceImpl implements IAsyncService  {
             tempOutputFile = File.createTempFile("bioinfo-",".output");
             List<String> command = new ArrayList<>();
             StringBuffer stringBuffer = new StringBuffer();
-            List<Field> fieldList = ObjectToCollection.setConditionFieldList(baseEntity);
-            Set<String> vars = ServiceUtil.fetchProperty(fieldList, Field::getName);
-            Map<String, String> map = ObjectToCollection.setConditionMap(baseEntity);
+//            List<Field> fieldList = ObjectToCollection.setConditionFieldList(baseEntity);
+//            Set<String> vars = ServiceUtil.fetchProperty(fieldList, Field::getName);
+//            Map<String, String> map = ObjectToCollection.setConditionMap(baseEntity);
             map.put("workDir",path.toString());
             map.put("tempOutputFile",tempOutputFile.getAbsolutePath());
-            buildFile(code,stringBuffer,command,map,tempFile,tempOutputFile.getAbsolutePath(),vars);
+            // TODO
+            buildFile(code,stringBuffer,command,map,tempFile,tempOutputFile.getAbsolutePath(),new HashSet<>());
             task.setGenerateCode(stringBuffer.toString());
             taskRepository.save(task);
 
@@ -251,10 +248,10 @@ public class AsyncServiceImpl implements IAsyncService  {
             if(codeMsg.getStatus()){
                 task.setTaskStatus(TaskStatus.FINISH);
                 task.setRunMsg(codeMsg.getRunMsg()+"\n"+Thread.currentThread().getName()+"分析结束！"+ new Date());
-                buildOutput(task,baseEntity,tempOutputFile);
+                buildOutput(task,tempOutputFile);
 
                 taskRepository.save(task);
-                crudService.save(baseEntity);
+//                crudService.save(baseEntity);
 
                 springWebSocketHandler.sendMessageToUser(user.getUsername(), BaseResponse.ok(BaseResponse.MsgType.NOTIFY,"["+task.getName()+"]成功运行任务！",task));
             }else {
@@ -403,7 +400,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         }
 
         if(code.getCodeType().equals(CodeType.R)){
-
+            stringBuffer.append("####generate-head-start####\n");
             for (String key: maps.keySet()){
                 String value = maps.get(key);
                 stringBuffer.append(key+" <- \""+ value+"\"\n");
@@ -411,11 +408,16 @@ public class AsyncServiceImpl implements IAsyncService  {
             String rFun = getCommonFun("rFun.R");
             stringBuffer.append(rFun+"\n");
 
+            stringBuffer.append("####generate-head-end####\n");
+
             stringBuffer.append(content);
             stringBuffer.append("\n");
+
+            stringBuffer.append("####generate-bottom-start####\n");
             vars.forEach(var->{
                 stringBuffer.append("if(exists(\""+var+"\") && is.character("+var+"))cat(paste0(\""+var+":\","+var+",\"\\n\"),append=T, file=\""+tempOutputFile+"\")\n");
             });
+            stringBuffer.append("####generate-bottom-end####\n");
             command.add("Rscript");
             command.add(tempFile.getAbsolutePath());
         }else if (code.getCodeType().equals(CodeType.SHELL)){
@@ -441,7 +443,7 @@ public class AsyncServiceImpl implements IAsyncService  {
         }
     }
 
-    private BaseEntity buildOutput( Task task,BaseEntity baseEntity,File tempOutputFile) throws IOException {
+    private void buildOutput( Task task,File tempOutputFile) throws IOException {
 //        List<String> variable = getVariable(code.getCodeOutput());
 //        if (variable.size()==0)return null;
         List<String> lines = Files.readAllLines(tempOutputFile.toPath());
@@ -484,24 +486,24 @@ public class AsyncServiceImpl implements IAsyncService  {
 
         task.setSvgJson(JSONArray.toJSONString(listPic));
 
-        List<Method> methods = ObjectToCollection.getAllMethods(baseEntity);
-        for (Method method : methods){
-            String methodName = method.getName();
-            String filedName = methodName.substring(3,4).toLowerCase()+methodName.substring(4);
-            if(methodName.startsWith("set")&&map.keySet().contains(filedName)){
-                try {
-                    Class<?> classes = method.getParameterTypes()[0];
-                    if(classes.toString().equals(String.class.toString())){
-                        method.invoke(baseEntity,map.get(filedName));
-                    }
-                } catch (IllegalAccessException e) {
-                    e.printStackTrace();
-                } catch (InvocationTargetException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return baseEntity;
+//        List<Method> methods = ObjectToCollection.getAllMethods(baseEntity);
+//        for (Method method : methods){
+//            String methodName = method.getName();
+//            String filedName = methodName.substring(3,4).toLowerCase()+methodName.substring(4);
+//            if(methodName.startsWith("set")&&map.keySet().contains(filedName)){
+//                try {
+//                    Class<?> classes = method.getParameterTypes()[0];
+//                    if(classes.toString().equals(String.class.toString())){
+//                        method.invoke(baseEntity,map.get(filedName));
+//                    }
+//                } catch (IllegalAccessException e) {
+//                    e.printStackTrace();
+//                } catch (InvocationTargetException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        }
+//        return baseEntity;
     }
 
 
@@ -517,6 +519,11 @@ public class AsyncServiceImpl implements IAsyncService  {
             list.add(m.group(1));
         }
         return list;
+    }
+
+    @Override
+    public void processCancerStudy2(User user, Task task, Map<String, String> map, Code code) {
+
     }
 
     @Override

@@ -21,5 +21,6 @@ public class Attachment extends BaseFile {
      */
     private String enName;
     private Integer projectId;
+    private Integer taskId;
 
 }

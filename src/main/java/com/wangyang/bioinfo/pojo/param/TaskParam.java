@@ -6,4 +6,5 @@ import lombok.Data;
 public class TaskParam {
     private Integer objId;
     private Integer codeId;
+    private String field;
 }

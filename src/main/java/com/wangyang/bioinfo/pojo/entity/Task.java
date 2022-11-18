@@ -24,7 +24,7 @@ public class Task extends BaseEntity {
     private String name;
     @QueryField
     private Integer objId;
-    private  TaskStatus taskStatus;
+    private  TaskStatus taskStatus=TaskStatus.CREATE;
     private CrudType crudEnum;
 //    private String[] param;
     @Column(columnDefinition = "longtext")
@@ -40,4 +40,10 @@ public class Task extends BaseEntity {
     private String svgJson;
     @QueryField
     private TaskType taskType;
+    private String metadata;
+    private String matrix;
+    @Column(columnDefinition = "longtext",name = "t_group")
+    private String group;
+    @Column(columnDefinition = "longtext",name = "t_sample")
+    private String sample;
 }

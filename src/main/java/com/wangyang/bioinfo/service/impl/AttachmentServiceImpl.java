@@ -4,6 +4,7 @@ import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.entity.Attachment;
 import com.wangyang.bioinfo.pojo.entity.Project;
 import com.wangyang.bioinfo.pojo.authorize.User;
+import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
@@ -12,6 +13,7 @@ import com.wangyang.bioinfo.repository.AttachmentRepository;
 import com.wangyang.bioinfo.service.IAttachmentService;
 import com.wangyang.bioinfo.service.IProjectService;
 import com.wangyang.bioinfo.service.base.BaseFileService;
+import com.wangyang.bioinfo.service.task.ITaskService;
 import com.wangyang.bioinfo.util.BioinfoException;
 import com.wangyang.bioinfo.util.FilenameUtils;
 import org.springframework.beans.BeanUtils;
@@ -40,6 +42,9 @@ public class AttachmentServiceImpl extends BaseFileService<Attachment> implement
     private final IProjectService projectService;
     private final FileHandlers fileHandlers;
 
+
+
+
     public AttachmentServiceImpl(FileHandlers fileHandlers,
                                  AttachmentRepository attachmentRepository,
                                  IProjectService projectService) {
@@ -47,6 +52,7 @@ public class AttachmentServiceImpl extends BaseFileService<Attachment> implement
         this.attachmentRepository=attachmentRepository;
         this.projectService=projectService;
         this.fileHandlers=fileHandlers;
+
     }
 
 
@@ -68,6 +74,9 @@ public class AttachmentServiceImpl extends BaseFileService<Attachment> implement
         }
         return saveAndCheckFile(attachment);
     }
+
+
+
     @Override
     public Attachment upload(MultipartFile file, AttachmentParam attachmentParam) {
         UploadResult uploadResult = fileHandlers.uploadFixed(file, "attachment",FileLocation.LOCAL);
@@ -137,6 +146,8 @@ public class AttachmentServiceImpl extends BaseFileService<Attachment> implement
         }
         return attachments.get(0);
     }
+
+
 
     @Override
     public List<Attachment> findAllById(Collection<Integer> id) {

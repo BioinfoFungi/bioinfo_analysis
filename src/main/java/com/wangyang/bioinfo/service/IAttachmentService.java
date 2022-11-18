@@ -32,10 +32,14 @@ public interface IAttachmentService extends IBaseFileService<Attachment> {
      * @return
      */
     Attachment findAttachmentByPathOrName(int projectId,String absolutePath,String relativePath,String enName);
+
+
     List<Attachment> findAllById(Collection<Integer> id);
     Page<Attachment> pageAttachment(Pageable pageable);
     Attachment updateAttachment(Attachment attachment);
     //----------------------------------------
+
+
     Attachment upload(@NonNull MultipartFile file, AttachmentParam attachmentParam);
     Attachment upload(int id,@NonNull MultipartFile file);
 
@@ -43,4 +47,5 @@ public interface IAttachmentService extends IBaseFileService<Attachment> {
     Page<Attachment> pageAttachmentByProjectId(int projectId,Pageable pageable);
 
     List<Attachment> listAttachmentByProjectId(int projectId);
+
 }

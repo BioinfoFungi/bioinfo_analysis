@@ -5,6 +5,7 @@ import com.wangyang.bioinfo.pojo.entity.Attachment;
 import com.wangyang.bioinfo.pojo.authorize.User;
 import com.wangyang.bioinfo.pojo.param.AttachmentParam;
 import com.wangyang.bioinfo.service.IAttachmentService;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,7 @@ public class AttachmentController {
         return attachmentService.saveAttachment(attachmentParam);
     }
     @PostMapping(value = "/upload", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public Attachment upload(@RequestParam("file") MultipartFile file, AttachmentParam attachmentParam, HttpServletRequest request){
+    public Attachment upload(@RequestParam("file") MultipartFile file, AttachmentParam attachmentParam, @NotNull HttpServletRequest request){
         User user = (User) request.getAttribute("user");
         return  attachmentService.upload(file,attachmentParam);
     }

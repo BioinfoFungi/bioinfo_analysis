@@ -5,5 +5,5 @@ package com.wangyang.bioinfo.pojo.enums;
  * @date 2021/7/24
  */
 public enum  TaskStatus {
-    RUNNING,FINISH,PENDING,UNTRACKING,INTERRUPT,ERROR
+    RUNNING,FINISH,PENDING,UNTRACKING,INTERRUPT,ERROR,CREATE
 }

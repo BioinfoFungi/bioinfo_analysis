@@ -1,8 +1,14 @@
 package com.wangyang.bioinfo.service.task;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.wangyang.bioinfo.core.KeyLock;
+import com.wangyang.bioinfo.handle.FileHandlers;
+import com.wangyang.bioinfo.pojo.dto.Metadata;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
+import com.wangyang.bioinfo.pojo.enums.FileLocation;
+import com.wangyang.bioinfo.pojo.support.UploadResult;
 import com.wangyang.bioinfo.service.base.ICrudService;
 import com.wangyang.bioinfo.task.ICodeResult;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
@@ -26,11 +32,13 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.criteria.*;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
 
@@ -51,6 +59,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     private final IAnnotationService annotationService;
     private final ApplicationContext applicationContext;
     private final KeyLock<String> lock;
+
+    private final FileHandlers fileHandlers;
     //TUDO
     private int QUEUE_CAPACITY= 300;
 
@@ -61,7 +71,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
                            IOrganizeFileService organizeFileService,
                            IAnnotationService annotationService,
                            ApplicationContext applicationContext,
-                           KeyLock<String> lock) {
+                           KeyLock<String> lock,
+                           FileHandlers fileHandlers) {
         super(taskRepository);
         this.taskRepository=taskRepository;
         this.cancerStudyService=cancerStudyService;
@@ -71,6 +82,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         this.annotationService=annotationService;
         this.applicationContext=applicationContext;
         this.lock=lock;
+        this.fileHandlers = fileHandlers;
 
     }
 
@@ -151,6 +163,44 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     }
 
     @Override
+    public Task addTask(CrudType crudEnum, ICrudService crudService,Integer taskId, Integer id, Map<String, String> map, Integer codeId, User user) {
+        Optional<Task> taskOptional = taskRepository.findById(taskId);
+        Task task;
+        if(taskOptional.isPresent()){
+            task =taskOptional.get();
+            if(runCheck(task)){
+                throw new BioinfoException(task.getName() + " 已经运行或在队列中！");
+            }
+        }else {
+            task = new Task();
+        }
+//        Task task = findTask(crudEnum,id,codeId);
+        Code code = codeService.findById(codeId);
+        BaseEntity baseEntity = crudService.findById(id);
+        task.setCodeId(code.getId());
+        task.setObjId(baseEntity.getId());
+        task.setTaskStatus(TaskStatus.UNTRACKING);
+        task.setCrudEnum(crudEnum);
+//        task.setTaskType(code.getTaskType());
+        task.setUserId(user.getId());
+        task.setName(crudEnum.name()+"-"+code.getName());
+        task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
+        task=taskRepository.save(task);
+
+
+//        List<Field> fieldList = ObjectToCollection.setConditionFieldList(baseEntity);
+//        Set<String> vars = ServiceUtil.fetchProperty(fieldList, Field::getName);
+//        map.put(ObjectToCollection.setConditionMap(baseEntity))
+        map.putAll(ObjectToCollection.setConditionMap(baseEntity));
+        map.put("metadata",task.getMetadata());
+        map.put("matrix",task.getMatrix());
+
+        //交给thread
+        asyncService.processCancerStudy1(user,task,map,code);
+        return task;
+    }
+
+    @Override
     public Task addTask(CrudType crudEnum, ICrudService<BaseEntity,Integer> crudService, Integer id, Integer codeId, User user) {
         Task task = findTask(crudEnum,id,codeId);
         Code code = codeService.findById(codeId);
@@ -174,8 +224,10 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
         task=taskRepository.save(task);
 
+        Map<String, String> map = ObjectToCollection.setConditionMap(baseEntity);
+
         //交给thread
-        asyncService.processCancerStudy1(user,crudService,task,baseEntity,code);
+        asyncService.processCancerStudy1(user,task,map,code);
         return task;
     }
 
@@ -214,7 +266,9 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setTaskStatus(TaskStatus.UNTRACKING);
         task.setRunMsg(Thread.currentThread().getName()+"准备开始分析！"+ new Date());
         task= super.save(task);
-        asyncService.processCancerStudy1(user,crudService,task,baseEntity,code);
+        Map<String, String> map = ObjectToCollection.setConditionMap(baseEntity);
+
+        asyncService.processCancerStudy1(user,task,map,code);
 
         return task;
     }
@@ -483,6 +537,31 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             });
         }
         return tasks;
+    }
+
+    @Override
+    public Task upload(MultipartFile file, User user, Integer taskId, TaskParam taskParam) {
+//        Optional<Task> taskOptional = taskRepository.findById(-1);
+//        Task task;
+//        if(!taskOptional.isPresent()){
+//            task = new Task();
+//        }else {
+//            task = taskOptional.get();
+//        }
+        Task task = new Task();
+        UploadResult uploadResult = fileHandlers.uploadFixed(file, "attachment", FileLocation.LOCAL);
+        if(taskParam.getField().equals("metadata")){
+            task.setMetadata(uploadResult.getAbsolutePath());
+            List<String[]> metadata = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
+            String jsonString = JSON.toJSONString(metadata);
+            System.out.println();
+        }else if(taskParam.getField().equals("matrix")){
+//            String[] list = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
+
+            task.setMatrix(uploadResult.getAbsolutePath());
+        }
+
+        return taskRepository.save(task);
     }
 
     @Override
