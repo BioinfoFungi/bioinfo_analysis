@@ -11,6 +11,7 @@ import com.wangyang.bioinfo.pojo.param.TaskParam;
 import com.wangyang.bioinfo.pojo.param.TaskQuery;
 import com.wangyang.bioinfo.service.task.ITaskService;
 import com.wangyang.bioinfo.util.BaseResponse;
+import joinery.DataFrame;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,6 +22,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import javax.servlet.http.HttpServletRequest;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 
@@ -120,6 +122,7 @@ public class TaskController {
     @PostMapping(value = "/upload/{taskId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Task upload(@RequestParam("file") MultipartFile file, @PathVariable("taskId") Integer taskId, TaskParam taskParam, HttpServletRequest request){
         User user = (User) request.getAttribute("user");
+
         return  taskService.upload(file,user,taskId,taskParam);
     }
 }

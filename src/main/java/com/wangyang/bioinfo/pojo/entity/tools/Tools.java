@@ -10,4 +10,5 @@ import javax.persistence.Entity;
 public class Tools extends BaseEntity {
     private String name;
     private Integer userId;
+    private Integer codeId;
 }

@@ -237,6 +237,23 @@
 			<version>1.9.4</version>
 		</dependency>
 
+		<dependency>
+			<groupId>sh.joinery</groupId>
+			<artifactId>joinery-dataframe</artifactId>
+			<version>1.10</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-core</artifactId>
+			<version>0.43.1</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.2</version>
+		</dependency>
+
+
 		<!--Swagger2-->
 		<!--		<dependency>-->
 		<!--			<groupId>io.springfox</groupId>-->

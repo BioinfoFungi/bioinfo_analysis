@@ -24,6 +24,7 @@ import com.wangyang.bioinfo.repository.task.TaskRepository;
 import com.wangyang.bioinfo.service.*;
 import com.wangyang.bioinfo.service.base.AbstractCrudService;
 import com.wangyang.bioinfo.util.*;
+import joinery.DataFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.context.ApplicationContext;
@@ -33,6 +34,7 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tech.tablesaw.api.Table;
 
 import javax.persistence.criteria.*;
 import java.io.File;
@@ -555,6 +557,14 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             List<String[]> metadata = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
             String jsonString = JSON.toJSONString(metadata);
             System.out.println();
+            try {
+                DataFrame<Object> dataFrame = DataFrame.readCsv(uploadResult.getAbsolutePath());
+                Table tornadoes = Table.read().csv(uploadResult.getAbsolutePath());
+
+                System.out.println();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }else if(taskParam.getField().equals("matrix")){
 //            String[] list = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
 
