@@ -265,7 +265,7 @@
 		</dependency>
 		<dependency>
 			<groupId>tech.tablesaw</groupId>
-			<artifactId>tablesaw-json</artifactId>d>
+			<artifactId>tablesaw-json</artifactId>
 			<version>0.43.1</version>
 		</dependency>
 
