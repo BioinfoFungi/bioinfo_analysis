@@ -43,7 +43,13 @@ public class Task extends BaseEntity {
     private String metadata;
     private String matrix;
     @Column(columnDefinition = "longtext",name = "t_group")
-    private String group;
+    private String metadataJson;
+    @Column(columnDefinition = "longtext")
+    private String metadataColumnNames;
+    @Column(columnDefinition = "longtext",name = "t_groups")
+    private String groups;
     @Column(columnDefinition = "longtext",name = "t_sample")
-    private String sample;
+    private String matrixJson;
+    @Column(columnDefinition = "longtext",name = "t_param")
+    private String param;
 }

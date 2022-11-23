@@ -2,9 +2,13 @@ package com.wangyang.bioinfo.service.task;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.JSONPObject;
 import com.wangyang.bioinfo.core.KeyLock;
 import com.wangyang.bioinfo.handle.FileHandlers;
 import com.wangyang.bioinfo.pojo.dto.Metadata;
+import com.wangyang.bioinfo.pojo.dto.MetadataGroup;
+import com.wangyang.bioinfo.pojo.dto.TaskDto;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
 import com.wangyang.bioinfo.pojo.enums.CrudType;
 import com.wangyang.bioinfo.pojo.enums.FileLocation;
@@ -27,14 +31,22 @@ import com.wangyang.bioinfo.util.*;
 import joinery.DataFrame;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationContext;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.lang.NonNull;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import tech.tablesaw.api.Row;
+import tech.tablesaw.api.StringColumn;
 import tech.tablesaw.api.Table;
+import tech.tablesaw.columns.Column;
+import tech.tablesaw.io.csv.CsvReadOptions;
+import tech.tablesaw.selection.Selection;
 
 import javax.persistence.criteria.*;
 import java.io.File;
@@ -42,7 +54,10 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.lang.reflect.Field;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /**
  * @author wangyang
@@ -53,6 +68,9 @@ import java.util.*;
 public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         implements  ITaskService{
 
+    @Value("${bioinfo.workDir}")
+    private String workDir;
+
     private final TaskRepository taskRepository;
     private final ICancerStudyService cancerStudyService;
     private final ICodeService codeService;
@@ -61,7 +79,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     private final IAnnotationService annotationService;
     private final ApplicationContext applicationContext;
     private final KeyLock<String> lock;
-
+    private final ThreadPoolTaskExecutor executorService;
     private final FileHandlers fileHandlers;
     //TUDO
     private int QUEUE_CAPACITY= 300;
@@ -73,6 +91,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
                            IOrganizeFileService organizeFileService,
                            IAnnotationService annotationService,
                            ApplicationContext applicationContext,
+                           ThreadPoolTaskExecutor executorService,
                            KeyLock<String> lock,
                            FileHandlers fileHandlers) {
         super(taskRepository);
@@ -84,6 +103,7 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         this.annotationService=annotationService;
         this.applicationContext=applicationContext;
         this.lock=lock;
+        this.executorService = executorService;
         this.fileHandlers = fileHandlers;
 
     }
@@ -165,7 +185,9 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
     }
 
     @Override
-    public Task addTask(CrudType crudEnum, ICrudService crudService,Integer taskId, Integer id, Map<String, String> map, Integer codeId, User user) {
+    public Task addTask(CrudType crudEnum, ICrudService crudService, Integer taskId, Integer id, TaskDto taskDto, Integer codeId, User user) {
+
+
         Optional<Task> taskOptional = taskRepository.findById(taskId);
         Task task;
         if(taskOptional.isPresent()){
@@ -187,17 +209,41 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setUserId(user.getId());
         task.setName(crudEnum.name()+"-"+code.getName());
         task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
-        task=taskRepository.save(task);
+
+        Path path = Paths.get(workDir, "workspace", user.getUsername(), "metadata." + task.getId() + ".csv");
+        task.setMetadata(path.toString());
+
+//        if(taskDto.getGroups()!=null&& task.getGroups().length()>0){
+//            String jsonString = JSONArray.toJSONString(taskDto.getGroups());
+//            task.setGroups(jsonString);
+//        }
+
+        String metadata = taskDto.getMetadata();
+        if(metadata!=null){
+            Table table = Table.read().string(metadata, "json");
+            String content = table.write().toString("csv");
+            FileUtil.writeFile(content,task.getMetadata());
+            System.out.println();
+            processMetadata(task,table,taskDto.getGroups());
+        }
 
 
+
+
+        Map<String,String> map = taskDto.getMap();
 //        List<Field> fieldList = ObjectToCollection.setConditionFieldList(baseEntity);
 //        Set<String> vars = ServiceUtil.fetchProperty(fieldList, Field::getName);
 //        map.put(ObjectToCollection.setConditionMap(baseEntity))
         map.putAll(ObjectToCollection.setConditionMap(baseEntity));
         map.put("metadata",task.getMetadata());
         map.put("matrix",task.getMatrix());
+        String paramJson = JSONObject.toJSONString(map);
+        task.setParam(paramJson);
+
 
         //交给thread
+        task=taskRepository.save(task);
+
         asyncService.processCancerStudy1(user,task,map,code);
         return task;
     }
@@ -247,7 +293,8 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return tasks.size()==0?null:tasks.get(0);
     }
     public  boolean runCheck(Task task){
-        if(task.getTaskStatus().equals(TaskStatus.RUNNING) || task.getTaskStatus().equals(TaskStatus.UNTRACKING)){
+        int activeCount = executorService.getActiveCount();
+        if( activeCount!=0&& (task.getTaskStatus().equals(TaskStatus.RUNNING) || task.getTaskStatus().equals(TaskStatus.UNTRACKING))){
             return true;
         }else{
             return false;
@@ -541,6 +588,69 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         return tasks;
     }
 
+    private  void processMetadata(Task task, Table table,List<MetadataGroup> groups){
+//            List<String[]> metadata = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
+//            String jsonString = JSON.toJSONString(metadata);
+//            task.setGroups(jsonString);
+
+        List<String> columnNames = table.columnNames();
+        if(!columnNames.contains("Sample")){
+            throw new BioinfoException("metadata 必须要包含列Sample!");
+        }
+
+        if(columnNames.contains("Group")){
+            String groupListStr;
+            if(groups!=null){
+                groupListStr = JSONArray.toJSONString(groups);
+            }else {
+
+                String[] colors = new String[]{"orange", "green", "yellow", "purple", "red"};
+                Column<String> group = (Column<String>) table.column("Group");
+                List<String> groupList = group.asList().stream().distinct().collect(Collectors.toList());
+//                List<MetadataGroup> metadataGroups = groupList.stream().map(item -> {
+//
+//                    return metadataGroup;
+//                }).collect(Collectors.toList());
+                List<MetadataGroup> metadataGroups = new ArrayList<>();
+                for(int i =0;i<groupList.size();i++){
+                    MetadataGroup metadataGroup = new MetadataGroup();
+                    if(groupList.size()<colors.length){
+                        metadataGroup.setColor(colors[i]);
+                    }else {
+                        metadataGroup.setColor("red");
+                    }
+                    metadataGroup.setName(groupList.get(i));
+                    metadataGroups.add(metadataGroup);
+                }
+                groupListStr = JSONArray.toJSONString(metadataGroups);
+//                groupListStr = JSONObject.toJSONString(groupList);
+            }
+            task.setGroups(groupListStr);
+        }else {
+            StringColumn column = StringColumn.create("Group");
+            table = table.addColumns(column);
+        }
+        columnNames.remove("Group");
+        columnNames.remove("Sample");
+        columnNames.add(0,"Group");
+        columnNames.add(0,"Sample");
+
+        String columnNamesStr = JSONObject.toJSONString(columnNames);
+        task.setMetadataColumnNames(columnNamesStr);
+
+        int size = table.rowCount();
+        table = table.where(Selection.withRange(0, size));
+        String json = table.write().toString("json");
+        task.setMetadataJson(json);
+//            System.out.println();
+//            try {
+////                DataFrame<Object> dataFrame = DataFrame.readCsv(uploadResult.getAbsolutePath());
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+    }
+
+
     @Override
     public Task upload(MultipartFile file, User user, Integer taskId, TaskParam taskParam) {
 //        Optional<Task> taskOptional = taskRepository.findById(-1);
@@ -554,21 +664,49 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         UploadResult uploadResult = fileHandlers.uploadFixed(file, "attachment", FileLocation.LOCAL);
         if(taskParam.getField().equals("metadata")){
             task.setMetadata(uploadResult.getAbsolutePath());
-            List<String[]> metadata = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
-            String jsonString = JSON.toJSONString(metadata);
-            System.out.println();
-            try {
-                DataFrame<Object> dataFrame = DataFrame.readCsv(uploadResult.getAbsolutePath());
-                Table tornadoes = Table.read().csv(uploadResult.getAbsolutePath());
-
-                System.out.println();
-            } catch (IOException e) {
-                e.printStackTrace();
+            CsvReadOptions.Builder builder;
+            if(uploadResult.getAbsolutePath().endsWith(".tsv")){
+                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
+                        .separator('\t')										// table is tab-delimited
+                        .header(true);
+            }else {
+                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
+                        .separator(',')										// table is tab-delimited
+                        .header(true);
             }
+
+            CsvReadOptions options = builder.build();
+            Table table = Table.read().usingOptions(options);
+
+            processMetadata(task,table,null);
         }else if(taskParam.getField().equals("matrix")){
 //            String[] list = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
-
             task.setMatrix(uploadResult.getAbsolutePath());
+            CsvReadOptions.Builder builder;
+            if(uploadResult.getAbsolutePath().endsWith(".tsv")){
+                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
+                        .separator('\t')										// table is tab-delimited
+                        .header(true);
+            }else {
+                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
+                        .separator(',')										// table is tab-delimited
+                        .header(true);
+            }
+
+            CsvReadOptions options = builder.build();
+            Table table = Table.read().usingOptions(options);
+//            Column<String > column = (Column<String>) table.column(0);
+            List<String> columnList = table.columnNames();
+            columnList.remove(0);
+            StringColumn sample = StringColumn.create("Sample", columnList);
+            StringColumn group= StringColumn.create("Group");
+            Table metadata = Table.create(sample, group);
+            String json = metadata.write().toString("json");
+            task.setMetadataJson(json);
+            List<String> columnNames = metadata.columnNames();
+            String columnNamesStr = JSONObject.toJSONString(columnNames);
+            task.setMetadataColumnNames(columnNamesStr);
+            System.out.println();
         }
 
         return taskRepository.save(task);

@@ -243,17 +243,37 @@
 			<version>1.10</version>
 		</dependency>
 		<dependency>
+			<groupId>org.apache.poi</groupId>
+			<artifactId>poi</artifactId>
+			<version>5.2.2</version>
+		</dependency>
+		<dependency>
 			<groupId>tech.tablesaw</groupId>
 			<artifactId>tablesaw-core</artifactId>
 			<version>0.43.1</version>
 		</dependency>
 		<dependency>
-			<groupId>org.apache.poi</groupId>
-			<artifactId>poi</artifactId>
-			<version>5.2.2</version>
+			<groupId>com.google.guava</groupId>
+			<artifactId>guava</artifactId>
+			<version>31.1-jre</version>
 		</dependency>
 
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-html</artifactId>
+			<version>0.43.1</version>
+		</dependency>
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-json</artifactId>d>
+			<version>0.43.1</version>
+		</dependency>
 
+		<dependency>
+			<groupId>tech.tablesaw</groupId>
+			<artifactId>tablesaw-excel</artifactId>
+			<version>0.43.1</version>
+		</dependency>
 		<!--Swagger2-->
 		<!--		<dependency>-->
 		<!--			<groupId>io.springfox</groupId>-->

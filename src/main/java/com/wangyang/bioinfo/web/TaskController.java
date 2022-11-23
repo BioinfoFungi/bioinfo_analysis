@@ -1,6 +1,8 @@
 package com.wangyang.bioinfo.web;
 
+import com.alibaba.fastjson.JSONArray;
 import com.wangyang.bioinfo.handle.CrudHandlers;
+import com.wangyang.bioinfo.pojo.dto.TaskDto;
 import com.wangyang.bioinfo.pojo.entity.Attachment;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Task;
@@ -47,10 +49,10 @@ public class TaskController {
                         @RequestParam Integer id,
                         @RequestParam Integer codeId,
                         @RequestParam Integer taskId,
-                        @RequestBody Map<String,String> map,
+                        @RequestBody TaskDto taskDto,
                         HttpServletRequest request){
         User user = (User) request.getAttribute("user");
-        return crudHandlers.addTask(crudEnum,taskId,id,codeId,map,user);
+        return crudHandlers.addTask(crudEnum,taskId,id,codeId,taskDto,user);
     }
 //    @GetMapping("/add/{cancerStudyId}")
 //    public Task addTask(@PathVariable("cancerStudyId") Integer cancerStudyId) {

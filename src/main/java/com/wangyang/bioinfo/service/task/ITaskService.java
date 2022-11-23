@@ -1,5 +1,6 @@
 package com.wangyang.bioinfo.service.task;
 
+import com.wangyang.bioinfo.pojo.dto.TaskDto;
 import com.wangyang.bioinfo.pojo.entity.CancerStudy;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -38,7 +39,7 @@ public interface ITaskService  extends ICrudService<Task, Integer> {
 
     Task shutdownProcess(int taskId);
     Task addTask(CrudType crudEnum, ICrudService<BaseEntity,Integer> crudService, Integer id, Integer codeId, User user);
-    Task addTask(CrudType crudEnum, ICrudService crudService,Integer taskId, Integer id, Map<String, String> map, Integer codeId, User user);
+    Task addTask(CrudType crudEnum, ICrudService crudService, Integer taskId, Integer id, TaskDto taskDto, Integer codeId, User user);
 
     Task runTask( ICrudService<BaseEntity,Integer> crudService,Integer id,User user);
 //    Task addTaskByCancerStudyId(Integer cancerStudyId);

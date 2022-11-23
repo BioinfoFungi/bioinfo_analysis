@@ -148,6 +148,35 @@ public class FileUtil {
         }
         return null;
     }
+
+    public static Boolean writeFile(String content,String strPath){
+        FileWriter fileWriter=null;
+        try {
+            Path path = Paths.get(strPath);
+            Files.createDirectories(path.getParent());
+            File file = path.toFile();
+            if(file.exists()){
+                file.delete();
+            }
+            fileWriter = new FileWriter(file,false);
+            fileWriter.write(content);
+            fileWriter.close();
+            return true;
+        } catch (IOException e) {
+            e.printStackTrace();
+            return false;
+        }finally {
+            if(fileWriter!=null){
+                try {
+                    fileWriter.close();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }
+
+
+    }
     private static FileSystem getFileSystem(@NonNull URI uri) throws IOException {
         Assert.notNull(uri, "Uri must not be null");
 
