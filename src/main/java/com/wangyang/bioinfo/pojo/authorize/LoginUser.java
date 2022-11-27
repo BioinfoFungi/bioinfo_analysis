@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.pojo.authorize;
 
 import lombok.Data;
 
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -10,10 +11,12 @@ import java.util.Set;
  */
 @Data
 public class LoginUser {
-    private int id;
+    private Integer id;
     private String username;
     private String avatar;
     private String email;
     private Integer gender;
     private String token;
+    private List<Role> roles;
+
 }

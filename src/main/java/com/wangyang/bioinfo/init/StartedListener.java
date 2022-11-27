@@ -2,6 +2,7 @@ package com.wangyang.bioinfo.init;
 
 import com.google.common.collect.MapDifference;
 import com.google.common.collect.Maps;
+import com.wangyang.bioinfo.pojo.entity.Menu;
 import com.wangyang.bioinfo.pojo.entity.Option;
 import com.wangyang.bioinfo.pojo.entity.Task;
 import com.wangyang.bioinfo.pojo.annotation.Anonymous;
@@ -71,6 +72,8 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
     IRoleService roleService;
     @Autowired
     IUserRoleService userRoleService;
+    @Autowired
+    IMenuService menuService;
 
     @Autowired
     IRoleResourceService roleResourceService;
@@ -90,6 +93,17 @@ public class StartedListener implements ApplicationListener<ApplicationStartedEv
         CacheStore.setValue("workDir",workDir);
         addQueue();
         initResource();
+        initMenu();
+    }
+
+    private void initMenu() {
+        List<Menu> menus  = new ArrayList<>();
+        menus.add(new Menu(1,null,1,"系统","/sys",null,0,"icon-shezhi",null,true,true));
+        menus.add(new Menu(2,1,2,"权限管理","/sys/permssion",null,0,"icon-quanxian",null,true,true));
+        menus.add(new Menu(3,2,3,"用户列表","/sys/permssion/user",null,1,"icon-yonghu","views/system/permission/user",true,true));
+
+        menuService.deleteAll();
+        menuService.saveAll(menus);
     }
 
 

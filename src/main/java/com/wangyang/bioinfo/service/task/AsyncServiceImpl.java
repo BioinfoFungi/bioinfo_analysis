@@ -6,7 +6,9 @@ import com.github.rcaller.FunctionCall;
 import com.github.rcaller.rstuff.RCaller;
 import com.github.rcaller.rstuff.RCode;
 import com.wangyang.bioinfo.core.KeyLock;
+import com.wangyang.bioinfo.pojo.dto.ProcessOutput;
 import com.wangyang.bioinfo.pojo.entity.base.BaseEntity;
+import com.wangyang.bioinfo.pojo.enums.ProcessOutputType;
 import com.wangyang.bioinfo.service.base.ICrudService;
 import com.wangyang.bioinfo.task.ICodeResult;
 import com.wangyang.bioinfo.pojo.authorize.User;
@@ -332,10 +334,11 @@ public class AsyncServiceImpl implements IAsyncService  {
 //                        String value = strings[1];
 //                        resultMap.put(key,value);
 //                    }
-                if(!line.startsWith("Downloading")){
-                    runMsg.append(line);
-                }
                 String msg = Thread.currentThread().getName()+": "+line+"\n";
+                if(!line.startsWith("Downloading")){
+                    runMsg.append(msg);
+                }
+
 //                    codeResult.getRealTimeMsg(user,msg);
                 logStream.write(msg.getBytes());
                 log.debug(line);
@@ -452,7 +455,7 @@ public class AsyncServiceImpl implements IAsyncService  {
 //            throw new BioinfoException(vars+"必须输出！！");
 //        }
         Map<String,String> map = new HashMap<>();
-        List<String> listPic = new ArrayList<>();
+        List<ProcessOutput> listOutput = new ArrayList<>();
 
         Boolean flag=false;
         String content="";
@@ -465,17 +468,18 @@ public class AsyncServiceImpl implements IAsyncService  {
                 continue;
             }
             if(line.startsWith("---end---")){
-                listPic.add(content);
+                ProcessOutput processOutput =  new ProcessOutput();
+                processOutput.setContent(content);
+                String info = line.replace("---end---", "");
+                String[] infos = info.split("-");
+                processOutput.setType(ProcessOutputType.valueOf(infos[0]));
+                processOutput.setName(infos[1]);
+                listOutput.add(processOutput);
                 flag=false;
                 continue;
             }
             if(flag){
                 content+=line;
-//                if(!picMap.containsKey(num)){
-//                    picMap.put(num,line);
-//                }else {
-//                    picMap.put(num, picMap.get(num)+"\n"+line);
-//                }
             }else {
                 String[] split = line.split(":");
                 if (split.length==2){
@@ -484,7 +488,7 @@ public class AsyncServiceImpl implements IAsyncService  {
             }
         }
 
-        task.setSvgJson(JSONArray.toJSONString(listPic));
+        task.setSvgJson(JSONArray.toJSONString(listOutput));
 
 //        List<Method> methods = ObjectToCollection.getAllMethods(baseEntity);
 //        for (Method method : methods){

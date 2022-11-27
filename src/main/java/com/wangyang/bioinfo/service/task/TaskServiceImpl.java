@@ -186,8 +186,6 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 
     @Override
     public Task addTask(CrudType crudEnum, ICrudService crudService, Integer taskId, Integer id, TaskDto taskDto, Integer codeId, User user) {
-
-
         Optional<Task> taskOptional = taskRepository.findById(taskId);
         Task task;
         if(taskOptional.isPresent()){
@@ -210,40 +208,37 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
         task.setName(crudEnum.name()+"-"+code.getName());
         task.setRunMsg(Thread.currentThread().getName() + "准备开始分析！" + new Date());
 
-        Path path = Paths.get(workDir, "workspace", user.getUsername(), "metadata." + task.getId() + ".csv");
-        task.setMetadata(path.toString());
-
 //        if(taskDto.getGroups()!=null&& task.getGroups().length()>0){
 //            String jsonString = JSONArray.toJSONString(taskDto.getGroups());
 //            task.setGroups(jsonString);
 //        }
 
-        String metadata = taskDto.getMetadata();
-        if(metadata!=null){
-            Table table = Table.read().string(metadata, "json");
-            String content = table.write().toString("csv");
-            FileUtil.writeFile(content,task.getMetadata());
-            System.out.println();
-            processMetadata(task,table,taskDto.getGroups());
-        }
-
-
-
-
         Map<String,String> map = taskDto.getMap();
 //        List<Field> fieldList = ObjectToCollection.setConditionFieldList(baseEntity);
 //        Set<String> vars = ServiceUtil.fetchProperty(fieldList, Field::getName);
 //        map.put(ObjectToCollection.setConditionMap(baseEntity))
-        map.putAll(ObjectToCollection.setConditionMap(baseEntity));
+//        map.putAll(ObjectToCollection.setConditionMap(baseEntity));
         map.put("metadata",task.getMetadata());
         map.put("matrix",task.getMatrix());
         String paramJson = JSONObject.toJSONString(map);
         task.setParam(paramJson);
 
 
-        //交给thread
         task=taskRepository.save(task);
+        Path path = Paths.get(workDir, "workspace", user.getUsername(), "metadata." + task.getId() + ".csv");
+        task.setMetadata(path.toString());
 
+        String metadata = taskDto.getMetadata();
+        if(metadata!=null&&!metadata.equals("null")){
+            Table table = Table.read().string(metadata, "json");
+            int rowCount = table.rowCount();
+            if(rowCount!=0){
+                String content = table.write().toString("csv");
+                FileUtil.writeFile(content,task.getMetadata());
+                System.out.println();
+                processMetadata(task,table,taskDto.getGroups());
+            }
+        }
         asyncService.processCancerStudy1(user,task,map,code);
         return task;
     }
@@ -662,9 +657,21 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
 //        }
         Task task = new Task();
         UploadResult uploadResult = fileHandlers.uploadFixed(file, "attachment", FileLocation.LOCAL);
-        if(taskParam.getField().equals("metadata")){
-            task.setMetadata(uploadResult.getAbsolutePath());
-            CsvReadOptions.Builder builder;
+        CsvReadOptions.Builder builder;
+
+        if(taskParam.getFormat()!=null && "".equals(taskParam.getFormat())){
+            if(taskParam.getFormat().equals("TSV")){
+                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
+                        .separator('\t')										// table is tab-delimited
+                        .header(true);
+            }else if(taskParam.getFormat().equals("CSV")){
+                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
+                        .separator(',')										// table is tab-delimited
+                        .header(true);
+            }else {
+                throw new BioinfoException("您输入的文件不支持！");
+            }
+        }else {
             if(uploadResult.getAbsolutePath().endsWith(".tsv")){
                 builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
                         .separator('\t')										// table is tab-delimited
@@ -674,27 +681,20 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
                         .separator(',')										// table is tab-delimited
                         .header(true);
             }
+        }
 
-            CsvReadOptions options = builder.build();
-            Table table = Table.read().usingOptions(options);
 
+        CsvReadOptions options = builder.build();
+        Table table = Table.read().usingOptions(options);
+
+
+
+        if(taskParam.getField().equals("metadata")){
+            task.setMetadata(uploadResult.getAbsolutePath());
             processMetadata(task,table,null);
         }else if(taskParam.getField().equals("matrix")){
 //            String[] list = File2Tsv.tsvToList(uploadResult.getAbsolutePath());
             task.setMatrix(uploadResult.getAbsolutePath());
-            CsvReadOptions.Builder builder;
-            if(uploadResult.getAbsolutePath().endsWith(".tsv")){
-                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
-                        .separator('\t')										// table is tab-delimited
-                        .header(true);
-            }else {
-                builder=CsvReadOptions.builder(uploadResult.getAbsolutePath())
-                        .separator(',')										// table is tab-delimited
-                        .header(true);
-            }
-
-            CsvReadOptions options = builder.build();
-            Table table = Table.read().usingOptions(options);
 //            Column<String > column = (Column<String>) table.column(0);
             List<String> columnList = table.columnNames();
             columnList.remove(0);
@@ -706,7 +706,6 @@ public class TaskServiceImpl extends AbstractCrudService<Task,Integer>
             List<String> columnNames = metadata.columnNames();
             String columnNamesStr = JSONObject.toJSONString(columnNames);
             task.setMetadataColumnNames(columnNamesStr);
-            System.out.println();
         }
 
         return taskRepository.save(task);
